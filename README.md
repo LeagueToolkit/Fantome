@@ -1,2 +1,2 @@
 # Fantome
-Fantôme is a custom content installer for Leeague of Legends
+Fantôme is a custom content installer for League of Legends
