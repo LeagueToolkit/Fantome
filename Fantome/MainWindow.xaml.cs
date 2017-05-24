@@ -1,6 +1,4 @@
-﻿using Fantome.Helpers;
-using Fantome.IO.Config;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,21 +21,9 @@ namespace Fantome
     /// </summary>
     public partial class MainWindow : Window
     {
-        private FirstTimeWindow FirstTimeWindow { get; set; } = new FirstTimeWindow();
-        public static ConfigFile Config { get; set; }
         public MainWindow()
         {
             InitializeComponent();
-            if(File.Exists("config.cfg"))
-            {
-                Config = new ConfigFile("config.cfg");
-            }
-            else
-            {
-                this.FirstTimeWindow.Show();
-                Config = new ConfigFile();
-                Config.AddSetting("League of Legends Path", Globals.LeaguePath);
-            }
         }
     }
 }
