@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Fantome.IO
+namespace Fantome.IO.Config
 {
     public class ConfigFile
     {
@@ -21,7 +21,7 @@ namespace Fantome.IO
         {
             using (StreamWriter sw = new StreamWriter(Location))
             {
-                sw.Write(JsonConvert.SerializeObject(Settings, Formatting.Indented));
+                sw.Write(JsonConvert.SerializeObject(this.Settings, Formatting.Indented));
             }
         }
         public void AddSetting(string Key, string Value)
