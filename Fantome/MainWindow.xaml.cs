@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Fantome.IO;
 
 namespace Fantome
 {
@@ -23,6 +24,11 @@ namespace Fantome
     {
         public MainWindow()
         {
+            ConfigFile config = new ConfigFile("config.json");
+            //config.AddSetting("lolpath", "C:/Riot Games/Legue of Legends");
+            //config.AddSetting("save skins", "True");
+            //config.AddSetting("chewy is god", "False");
+            config.Save("config.json");
             InitializeComponent();
         }
     }
