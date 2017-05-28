@@ -6,7 +6,7 @@ namespace Fantome.IO
 {
     public class Settings
     {
-        public String LeagueOfLegendsPath { get; private set; }
+        public String LeagueOfLegendsPath { get; set; }
         public void Save(String location)
         {
             File.WriteAllText(location, JsonConvert.SerializeObject(this, Formatting.Indented));
