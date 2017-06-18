@@ -1,19 +1,24 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Fantome.IO
 {
     public class Settings
     {
-        public String LeagueOfLegendsPath { get; set; }
+        public Dictionary<String, String> Entries { get; private set; } = new Dictionary<String, String>();
+
+        public Settings() { }
+
+        public Settings(String location)
+        {
+            this.Entries = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(location));
+        }
+
         public void Save(String location)
         {
-            File.WriteAllText(location, JsonConvert.SerializeObject(this, Formatting.Indented));
-        }
-        public static Settings GetInstance(String location)
-        {
-            return JsonConvert.DeserializeObject<Settings>(File.ReadAllText(location));
+            File.WriteAllText(location, JsonConvert.SerializeObject(this.Entries, Formatting.Indented));
         }
     }
 }
