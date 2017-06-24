@@ -7,13 +7,13 @@ namespace Fantome.IO
 {
     public class Settings
     {
-        public Dictionary<String, String> Entries { get; private set; } = new Dictionary<String, String>();
+        public Dictionary<String, object> Entries { get; private set; } = new Dictionary<String, object>();
 
         public Settings() { }
 
         public Settings(String location)
         {
-            this.Entries = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(location));
+            this.Entries = JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(location));
         }
 
         public void Save(String location)
