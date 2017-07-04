@@ -1,5 +1,4 @@
-﻿using Fantome.IO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,8 +18,6 @@ namespace Fantome
 {
     public partial class MainWindow : Window
     {
-        public static Settings Settings { get; private set; }
-
         public MainWindow()
         {
             InitializeComponent();
