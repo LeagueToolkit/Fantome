@@ -1,6 +1,3 @@
-[submodule "Fantome.LeagueFileManager"]
-	path = Fantome.LeagueFileManager
-	url = https://github.com/LoL-Fantome/Fantome.LeagueFileManager
-[submodule "Fantome.League"]
-	path = Fantome.League
-	url = https://github.com/LoL-Fantome/Fantome.League
+[submodule "Fantome.Common"]
+	path = Fantome.Common
+	url = https://github.com/LoL-Fantome/Fantome.Common
