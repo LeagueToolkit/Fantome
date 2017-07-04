@@ -20,6 +20,7 @@ namespace Fantome
     public partial class MainWindow : Window
     {
         public static Settings Settings { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();

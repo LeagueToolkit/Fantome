@@ -116,15 +116,5 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Fantome.LeagueFileManager\Fantome.LeagueFileManager\Fantome.LeagueFileManager.csproj">
-      <Project>{e401a240-8404-414a-9d74-3c6fe8c61b34}</Project>
-      <Name>Fantome.LeagueFileManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Fantome.League\Fantome.League\Fantome.League.csproj">
-      <Project>{80f5df93-19a2-4731-8cd1-982f165d7361}</Project>
-      <Name>Fantome.League</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
