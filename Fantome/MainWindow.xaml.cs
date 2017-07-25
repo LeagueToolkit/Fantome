@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Fantome
 {
@@ -21,6 +10,32 @@ namespace Fantome
         public MainWindow()
         {
             InitializeComponent();
+
+            CollectionViewSource.GetDefaultView(tabControl.Items).CollectionChanged += TabItemsChanged;
+        }
+
+        private void TabItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (TabItem removedTab in e.OldItems)
+                {
+                    if (removedTab.Tag is Common.Module)
+                    {
+                        ((Common.Module)removedTab.Tag).Dispose();
+                    }
+                }
+            }
+        }
+
+        private static TabItem GetTabItemFromModule(Common.Module module)
+        {
+            return new TabItem()
+            {
+                Tag = module,
+                Header = module.Name,
+                Content = module.GetView()
+            };
         }
     }
 }
