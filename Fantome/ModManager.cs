@@ -16,6 +16,7 @@ namespace Fantome
         public LeagueFileIndex Index { get; private set; }
         public string LeagueFolder { get; set; }
         public string OverlayFolder { get; set; }
+        public List<ModFile> InstalledMods { get; set; } = new List<ModFile>();
 
         public ModManager(string leagueFolder, string overlayFolder)
         {
@@ -40,7 +41,47 @@ namespace Fantome
 
                 if(leagueVersion > this.Index.Version)
                 {
+                    LeagueFileIndex newIndex = new LeagueFileIndex(this.LeagueFolder);
 
+                    //Find new WAD files and also check file changes (addition)
+                    foreach (KeyValuePair<string, List<ulong>> wadFile in newIndex.Game)
+                    {
+                        if(!this.Index.Game.ContainsKey(wadFile.Key))
+                        {
+                            this.Index.AddGameWAD(wadFile.Key, wadFile.Value);
+                        }
+                        else
+                        {
+                            foreach(ulong fileHash in wadFile.Value)
+                            {
+                                //Check if a file is new
+                                if(!this.Index.Game[wadFile.Key].Contains(fileHash))
+                                {
+                                    this.Index.AddGameFile(wadFile.Key, fileHash);
+                                }
+                            }
+                        }
+                    }
+
+                    //Find removed WAD files and also check file changes (removal)
+                    foreach (KeyValuePair<string, List<ulong>> wadFile in this.Index.Game)
+                    {
+                        if (!newIndex.Game.ContainsKey(wadFile.Key))
+                        {
+                            this.Index.RemoveGameWAD(wadFile.Key);
+                        }
+                        else
+                        {
+                            foreach (ulong fileHash in wadFile.Value)
+                            {
+                                //Check if a file is removed
+                                if (!newIndex.Game[wadFile.Key].Contains(fileHash))
+                                {
+                                    this.Index.RemoveGameFile(wadFile.Key, fileHash);
+                                }
+                            }
+                        }
+                    }
                 }
             }
             else
