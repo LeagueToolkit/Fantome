@@ -1,4 +1,7 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -7,35 +10,13 @@ namespace Fantome
 {
     public partial class MainWindow : Window
     {
+        public ModManager ModManager { get; private set; }
+
         public MainWindow()
         {
+            this.ModManager = new ModManager("C:/Riot Games/League of Legends", "");
+
             InitializeComponent();
-
-            CollectionViewSource.GetDefaultView(tabControl.Items).CollectionChanged += TabItemsChanged;
-        }
-
-        private void TabItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.OldItems != null)
-            {
-                foreach (TabItem removedTab in e.OldItems)
-                {
-                    if (removedTab.Tag is Common.Module)
-                    {
-                        ((Common.Module)removedTab.Tag).Dispose();
-                    }
-                }
-            }
-        }
-
-        private static TabItem GetTabItemFromModule(Common.Module module)
-        {
-            return new TabItem()
-            {
-                Tag = module,
-                Header = module.Name,
-                Content = module.GetView()
-            };
         }
     }
 }

@@ -14,13 +14,30 @@
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
         Title="Fantome" Height="720" Width="1280">
     <Grid>
-        <dragablz:TabablzControl x:Name="tabControl" BorderThickness="0"
-                             ShowDefaultCloseButton="True"
-                             Margin="0,-1,0,1">
-            <dragablz:TabablzControl.InterTabController>
-                <dragablz:InterTabController />
-            </dragablz:TabablzControl.InterTabController>
-
-        </dragablz:TabablzControl>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth2" Mode="PrimaryDark">
+            <DockPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="FANTOME" FontSize="40" FontWeight="Normal" FontFamily="Yu Gothic UI Semilight" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock.Effect>
+                        <DropShadowEffect ShadowDepth="0" Color="#FF00FFE1"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right" Visibility="Collapsed">
+                    <TextBlock Text="FANTOME" Foreground="{DynamicResource ResourceKey=PrimaryHueMidBrush}" FontSize="40" FontWeight="Normal" FontFamily="Yu Gothic UI Semilight" TextDecorations="{x:Null}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock.Effect>
+                            <DropShadowEffect/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                    <Image Source="pack://application:,,/Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
+                        <Image.Effect>
+                            <DropShadowEffect/>
+                        </Image.Effect>
+                    </Image>
+                </StackPanel>
+            </DockPanel>
+        </MaterialDesign:ColorZone>
     </Grid>
 </Window>
