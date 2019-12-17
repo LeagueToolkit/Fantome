@@ -89,9 +89,14 @@ namespace Fantome.ModManagement
             foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
                 string wadPath = this.Index.FindWADPath(wadFile.Key);
+                WADFile originalWad = new WADFile(string.Format(@"{0}\Game\{1}", this.LeagueFolder, wadPath));
 
                 Directory.CreateDirectory(string.Format(@"{0}\{1}", OVERLAY_FOLDER, Path.GetDirectoryName(wadPath)));
-                wadFile.Value.Write(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath));
+
+                using (WADFile merged = WADMerger.Merge(originalWad, wadFile.Value))
+                {
+                    merged.Write(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath));
+                }
             }
 
             this.InstalledMods.Add(mod);

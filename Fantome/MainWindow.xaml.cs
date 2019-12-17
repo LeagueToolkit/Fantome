@@ -36,13 +36,15 @@ namespace Fantome
 
         private void StartPatcher()
         {
+            string arguments = string.Format("{0} -r", Directory.GetCurrentDirectory() + @"\" + ModManager.OVERLAY_FOLDER + @"\").Replace('\\', '/');
+
             this._patcher = new Process()
             {
                 StartInfo = new ProcessStartInfo()
                 {
                     FileName = "lolcustomskin.exe",
-                    Arguments = string.Format("{0} -r", Directory.GetCurrentDirectory() + @"\" + ModManager.OVERLAY_FOLDER),
-                    CreateNoWindow = true
+                    Arguments = arguments,
+                    CreateNoWindow = false
                 },
 
             };
