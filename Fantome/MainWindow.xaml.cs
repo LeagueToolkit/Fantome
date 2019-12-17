@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using Fantome.ModManagement;
+using Fantome.ModManagement.IO;
 
 namespace Fantome
 {
@@ -12,11 +15,44 @@ namespace Fantome
     {
         public ModManager ModManager { get; private set; }
 
+        private Process _patcher;
+
         public MainWindow()
         {
-            this.ModManager = new ModManager("C:/Riot Games/League of Legends", "");
+            Directory.CreateDirectory("Overlay");
+            StartPatcher();
+
+            this.ModManager = new ModManager("C:/Riot Games/League of Legends");
+            File.WriteAllText("LeagueFileIndex.json", this.ModManager.Index.Serialize());
+
+            new ModFile("Mods/WAD", "", new ModInfo("Project Evelynn", "Some Random Feeling", new Version(1, 0), ""), null);
+
+            this.ModManager.InstallMod(new ModFile("Mods/Project Evelynn.zip"));
+
+            //File.WriteAllText("info.json", new ModInfo("Project Evelynn", "Some Random Feeling", new Version(1, 0), "").Serialize());
 
             InitializeComponent();
+        }
+
+        private void StartPatcher()
+        {
+            this._patcher = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = "lolcustomskin.exe",
+                    Arguments = string.Format("{0} -r", Directory.GetCurrentDirectory() + @"\" + ModManager.OVERLAY_FOLDER),
+                    CreateNoWindow = true
+                },
+
+            };
+
+            this._patcher.Start();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            this._patcher.Kill();
         }
     }
 }
