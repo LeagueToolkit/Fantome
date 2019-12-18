@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
+using Fantome.MVVM.ViewModels;
 
 namespace Fantome
 {
@@ -24,14 +25,15 @@ namespace Fantome
 
             this.ModManager = new ModManager("C:/Riot Games/League of Legends");
             File.WriteAllText("LeagueFileIndex.json", this.ModManager.Index.Serialize());
-
-            new ModFile("Mods/WAD", "", new ModInfo("Project Evelynn", "Some Random Feeling", new Version(1, 0), ""), null);
-
-            this.ModManager.InstallMod(new ModFile("Mods/Project Evelynn.zip"));
+            this.ModManager.InstallMod(new ModFile("Mods/WAD", "", new ModInfo("Project Evelynn", "Some Random Feeling", new Version(1, 0), ""), System.Drawing.Image.FromFile("preview-1536x864.png")));
 
             //File.WriteAllText("info.json", new ModInfo("Project Evelynn", "Some Random Feeling", new Version(1, 0), "").Serialize());
 
             InitializeComponent();
+
+            this.PopupMain.DataContext = new DialogViewModel();
+            this.Card.DataContext = this.ModManager.InstalledMods[0];
+
         }
 
         private void StartPatcher()

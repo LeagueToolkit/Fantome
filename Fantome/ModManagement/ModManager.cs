@@ -19,7 +19,6 @@ namespace Fantome.ModManagement
 
         public LeagueFileIndex Index { get; private set; }
         public string LeagueFolder { get; set; }
-        public string OverlayFolder { get; set; }
         public List<ModFile> InstalledMods { get; set; } = new List<ModFile>();
 
         public ModManager(string leagueFolder)
@@ -86,6 +85,7 @@ namespace Fantome.ModManagement
                 }
             }
 
+            //Now we need to install the WAD files
             foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
                 string wadPath = this.Index.FindWADPath(wadFile.Key);

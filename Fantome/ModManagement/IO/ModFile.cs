@@ -6,6 +6,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Text;
 using System.IO.Compression;
+using System.Windows.Media.Imaging;
 
 namespace Fantome.ModManagement.IO
 {
@@ -77,6 +78,8 @@ namespace Fantome.ModManagement.IO
 
                 File.WriteAllBytes(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetModIdentifier()), memoryStream.ToArray());
             }
+
+            this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetModIdentifier()));
         }
 
         public void AddFolder(string path, string folderLocation)
@@ -106,7 +109,7 @@ namespace Fantome.ModManagement.IO
             try
             {
                 MemoryStream memoryStream = new MemoryStream();
-                this.Content.GetEntry(@"META\info.json").Open().CopyTo(memoryStream);
+                this.Content.GetEntry(@"META/info.json").Open().CopyTo(memoryStream);
 
                 return JsonConvert.DeserializeObject<ModInfo>(Encoding.ASCII.GetString(memoryStream.ToArray()));
             }
@@ -120,7 +123,7 @@ namespace Fantome.ModManagement.IO
             try
             {
                 MemoryStream memoryStream = new MemoryStream();
-                this.Content.GetEntry(@"META\image.png").Open().CopyTo(memoryStream);
+                this.Content.GetEntry(@"META/image.png").Open().CopyTo(memoryStream);
 
                 return Image.FromStream(memoryStream);
             }

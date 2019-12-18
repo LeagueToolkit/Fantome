@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:valueConverters="clr-namespace:Fantome.ValueConverters"
         xmlns:dragablz="clr-namespace:Dragablz;assembly=Dragablz"
         xmlns:local="clr-namespace:Fantome"
         mc:Ignorable="d"
@@ -13,31 +14,85 @@
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
         Title="Fantome" Height="720" Width="1280" Closed="Window_Closed">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth2" Mode="PrimaryDark">
-            <DockPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="FANTOME" FontSize="40" FontWeight="Normal" FontFamily="Yu Gothic UI Semilight" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock.Effect>
-                        <DropShadowEffect ShadowDepth="0" Color="#FF00FFE1"/>
-                    </TextBlock.Effect>
-                </TextBlock>
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right" Visibility="Collapsed">
-                    <TextBlock Text="FANTOME" Foreground="{DynamicResource ResourceKey=PrimaryHueMidBrush}" FontSize="40" FontWeight="Normal" FontFamily="Yu Gothic UI Semilight" TextDecorations="{x:Null}" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock.Effect>
-                            <DropShadowEffect/>
-                        </TextBlock.Effect>
-                    </TextBlock>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.PopupBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.Teal.Named.Primary.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DialogHost.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <valueConverters:ImageConverter x:Key="ImageConverter"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <MaterialDesign:DialogHost Identifier="RootDialog">
+        <Grid x:Name="MainGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth2" Mode="PrimaryDark">
+                <DockPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="FANTOME" FontSize="40" FontWeight="Normal" FontFamily="Yu Gothic UI Semilight" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
                     <Image Source="pack://application:,,/Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
                         <Image.Effect>
                             <DropShadowEffect/>
                         </Image.Effect>
                     </Image>
-                </StackPanel>
-            </DockPanel>
-        </MaterialDesign:ColorZone>
-    </Grid>
+                </DockPanel>
+            </MaterialDesign:ColorZone>
+            <Grid Grid.Row="1" Margin="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <MaterialDesign:Card x:Name="Card" Width="240" HorizontalAlignment="Center" VerticalAlignment="Center" UniformCornerRadius="10" Grid.Column="0" Grid.Row="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="135"/>
+                                <RowDefinition Height="100"/>
+                            </Grid.RowDefinitions>
+
+                            <Image Width="240" Height="135" Source="{Binding Converter={StaticResource ImageConverter}}" Stretch="UniformToFill"/>
+                            <ToggleButton Panel.ZIndex="1" Grid.Row="0" Margin="20,0,0,-16" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignActionToggleButton}" Height="35" Width="35">
+                                <MaterialDesign:PackIcon Kind="Close"/>
+                            </ToggleButton>
+                            <Button Grid.Row="0" Content="{MaterialDesign:PackIcon Kind=Close}" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" MaterialDesign:ButtonAssist.CornerRadius="0 0 5 0" Height="30" Width="30"/>
+                            <Separator Grid.Row="1" Style="{StaticResource MaterialDesignDarkSeparator}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 0 0 0"/>
+                            <MaterialDesign:ColorZone Panel.ZIndex="0" Grid.Row="1" Mode="Standard" Height="100" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" MaterialDesign:ShadowAssist.ShadowEdges="Top">
+                                <StackPanel Orientation="Vertical" Margin="5">
+                                    <TextBlock Text="{Binding Info.Name}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
+                                    <TextBlock Text="{Binding Info.Author}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12"/>
+                                    <Separator Style="{StaticResource MaterialDesignDarkSeparator}" Margin="0 0 0 0"/>
+                                    <TextBlock Text="{Binding Info.Description}" FontSize="11" Height="Auto"/>
+                                </StackPanel>
+                            </MaterialDesign:ColorZone>
+                        </Grid>
+                    </MaterialDesign:Card>
+                </Grid>
+                <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1">
+                    <StackPanel>
+                        <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Command="{Binding RunDialogCommand}">
+                            <MaterialDesign:PackIcon Kind="CreditCardAdd"/>
+                        </Button>
+                        <Button x:Name="ButtonCreateMod" ToolTip="Create Mod">
+                            <MaterialDesign:PackIcon Kind="CreateNewFolder"/>
+                        </Button>
+                    </StackPanel>
+                </MaterialDesign:PopupBox>
+            </Grid>
+        </Grid>
+    </MaterialDesign:DialogHost>
 </Window>
