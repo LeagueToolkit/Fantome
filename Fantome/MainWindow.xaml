@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:valueConverters="clr-namespace:Fantome.ValueConverters"
-        xmlns:dragablz="clr-namespace:Dragablz;assembly=Dragablz"
         xmlns:local="clr-namespace:Fantome"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -22,11 +21,11 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.Teal.Named.Primary.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DialogHost.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <valueConverters:ImageConverter x:Key="ImageConverter"/>
+            <valueConverters:ModCardImageConverter x:Key="ModCardImageConverter"/>
         </ResourceDictionary>
     </Window.Resources>
 
-    <MaterialDesign:DialogHost Identifier="RootDialog">
+    <MaterialDesign:DialogHost Identifier="RootDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}">
         <Grid x:Name="MainGrid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -65,7 +64,7 @@
                                 <RowDefinition Height="100"/>
                             </Grid.RowDefinitions>
 
-                            <Image Width="240" Height="135" Source="{Binding Converter={StaticResource ImageConverter}}" Stretch="UniformToFill"/>
+                            <Image Width="240" Height="135" Source="{Binding Converter={StaticResource ModCardImageConverter}}" Stretch="UniformToFill"/>
                             <ToggleButton Panel.ZIndex="1" Grid.Row="0" Margin="20,0,0,-16" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignActionToggleButton}" Height="35" Width="35">
                                 <MaterialDesign:PackIcon Kind="Close"/>
                             </ToggleButton>
@@ -84,10 +83,10 @@
                 </Grid>
                 <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1">
                     <StackPanel>
-                        <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Command="{Binding RunDialogCommand}">
+                        <Button x:Name="ButtonAddMod" ToolTip="Add Mod">
                             <MaterialDesign:PackIcon Kind="CreditCardAdd"/>
                         </Button>
-                        <Button x:Name="ButtonCreateMod" ToolTip="Create Mod">
+                        <Button x:Name="ButtonCreateMod" ToolTip="Create Mod" Command="{Binding RunDialogCommand}">
                             <MaterialDesign:PackIcon Kind="CreateNewFolder"/>
                         </Button>
                     </StackPanel>

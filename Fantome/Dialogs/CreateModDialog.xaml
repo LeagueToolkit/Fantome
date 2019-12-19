@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+             xmlns:valueConverters="clr-namespace:Fantome.ValueConverters"
              xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Fantome"
@@ -15,44 +15,90 @@
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{MaterialDesign:MaterialDesignFont}" 
              mc:Ignorable="d" 
-             Height="500" Width="500">
+             Height="450" Width="600">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Grid Margin="16">
 
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
         </Grid.RowDefinitions>
-        <TextBlock>New contact:</TextBlock>
-        <TextBox wpf:HintAssist.Hint="Name" Style="{DynamicResource MaterialDesignFloatingHintTextBox}"                 
-                 Margin="0 6 0 0"
-                 FontSize="18" Grid.Row="1">
-            <TextBox.Text>
-                <Binding Path="Name" UpdateSourceTrigger="PropertyChanged">
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <TextBox wpf:HintAssist.Hint="Number" Style="{DynamicResource MaterialDesignFloatingHintTextBox}"
-                 Margin="0 8 0 0"
-                 FontSize="16" Grid.Row="2"
-                 />
-        <StackPanel Orientation="Horizontal" Grid.Row="3"
-                    Margin="0 16 0 0">
-            <Button IsDefault="True" Style="{DynamicResource MaterialDesignFlatButton}"
-                    Command="{x:Static wpf:DialogHost.CloseDialogCommand}">
-                <Button.CommandParameter>
-                    <system:Boolean>True</system:Boolean>
-                </Button.CommandParameter>
-                ACCEPT
+        <Grid Margin="10" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="AddImageButton" Panel.ZIndex="1" Grid.Column="0" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" ToolTip="Select Image" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="35" Width="35" Margin="0,0,20,10" Click="AddImage">
+                <MaterialDesign:PackIcon Kind="ImageAdd" Height="24" Width="24" />
             </Button>
-            <Button IsCancel="True" Margin="8 0 0 0" Style="{DynamicResource MaterialDesignFlatButton}"
-                    Command="{x:Static wpf:DialogHost.CloseDialogCommand}">
-                <Button.CommandParameter>
-                    <system:Boolean>False</system:Boolean>
-                </Button.CommandParameter>
-                CANCEL
-            </Button>
-        </StackPanel>
+            <MaterialDesign:Card Grid.Column="0" Margin="0 0 10 0" UniformCornerRadius="15" MaterialDesign:ShadowAssist.ShadowDepth="Depth4">
+                <Image x:Name="MainImage" Source="{Binding Image, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" Stretch="Fill"/>
+            </MaterialDesign:Card>
+            <MaterialDesign:ColorZone Grid.Column="1" VerticalAlignment="Stretch" Mode="Dark" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" CornerRadius="15">
+                <Grid Grid.Column="1" Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="0" Margin="0, 0, 5, -7" Kind="RenameBox" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Grid.Row="0" Margin="0 0 0 5" x:Name="NameTextBox" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
+                    <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="1" Margin="0, 0, 5, -7" Kind="PersonBox" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" Margin="0 0 0 5" x:Name="AuthorTextBox" Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="Author" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                    <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="2" Margin="0, 0, 5, -7" Kind="TagOutline" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" Grid.Row="2" Margin="0 0 0 5" x:Name="VersionTextBox" Text="{Binding Version, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="Version" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                </Grid>
+            </MaterialDesign:ColorZone>
+        </Grid>
+        <Grid Margin="10" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,15">
+                <MaterialDesign:ColorZone MaterialDesign:ShadowAssist.ShadowDepth="Depth4" CornerRadius="16" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                    <Grid VerticalAlignment="Center" Margin="15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding WadLocation, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="WAD Folder" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,10,10" />
+                        <Button Grid.Row="0" Grid.Column="1" Width="25" Height="25" Content="{MaterialDesign:PackIcon Kind=Folder}" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" Margin="0,0,10,0" Click="SelectWADFolder"/>
+                        <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding RawLocation, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="RAW Folder" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,10,0" />
+                        <Button Grid.Row="1" Grid.Column="1" Width="25" Height="25" Content="{MaterialDesign:PackIcon Kind=Folder}" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" Margin="0,10,10,0" Click="SelectRAWFolder"/>
+                    </Grid>
+                </MaterialDesign:ColorZone>
+            </Grid>
+            <Grid Grid.Row="1"  UseLayoutRounding="False" Margin="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Content="CREATE" IsDefault="True" Grid.Column="0" Command="{x:Static MaterialDesign:DialogHost.CloseDialogCommand}" Style="{StaticResource MaterialDesignFlatButton}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Margin="0,0,15,0">
+                    <Button.CommandParameter>
+                        <system:Boolean>True</system:Boolean>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Content="CANCEL" IsCancel="True" Grid.Column="1" Command="{x:Static MaterialDesign:DialogHost.CloseDialogCommand}" Style="{StaticResource MaterialDesignFlatButton}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Margin="15,0,0,0">
+                    <Button.CommandParameter>
+                        <system:Boolean>False</system:Boolean>
+                    </Button.CommandParameter>
+                </Button>
+            </Grid>
+        </Grid>
     </Grid>
 </UserControl>

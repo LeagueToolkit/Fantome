@@ -9,21 +9,26 @@ using Fantome.ModManagement.IO;
 
 namespace Fantome.ValueConverters
 {
-    public class ImageConverter : IValueConverter
+    public class ModCardImageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Image image = (value as ModFile).Image;
-            MemoryStream memoryStream = new MemoryStream();
-            BitmapImage bitmap = new BitmapImage();
+            if(value != null)
+            {
+                Image image = (value as ModFile).Image;
+                MemoryStream memoryStream = new MemoryStream();
+                BitmapImage bitmap = new BitmapImage();
 
-            image.Save(memoryStream, ImageFormat.Png);
+                image.Save(memoryStream, ImageFormat.Png);
 
-            bitmap.BeginInit();
-            bitmap.StreamSource = memoryStream;
-            bitmap.EndInit();
+                bitmap.BeginInit();
+                bitmap.StreamSource = memoryStream;
+                bitmap.EndInit();
 
-            return bitmap;
+                return bitmap;
+            }
+
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

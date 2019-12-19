@@ -31,7 +31,7 @@ namespace Fantome
 
             InitializeComponent();
 
-            this.PopupMain.DataContext = new DialogViewModel();
+            this.PopupMain.DataContext = new CreateModDialogViewModel(this.ModManager);
             this.Card.DataContext = this.ModManager.InstalledMods[0];
 
         }
