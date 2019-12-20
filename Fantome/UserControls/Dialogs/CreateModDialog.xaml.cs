@@ -20,7 +20,7 @@ using Image = System.Drawing.Image;
 using System.IO;
 using System.Drawing.Imaging;
 
-namespace Fantome.Dialogs
+namespace Fantome.UserControls.Dialogs
 {
     /// <summary>
     /// Interaction logic for CreateModDialog.xaml

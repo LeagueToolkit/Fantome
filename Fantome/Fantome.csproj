@@ -85,13 +85,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Dialogs\CreateModDialog.xaml.cs">
+    <Compile Include="ModManagement\ModDatabase.cs" />
+    <Compile Include="MVVM\ViewModels\ModCardViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\ModListViewModel.cs" />
+    <Compile Include="UserControls\ModCard.xaml.cs">
+      <DependentUpon>ModCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Dialogs\CreateModDialog.xaml.cs">
       <DependentUpon>CreateModDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="MVVM\ViewModels\CreateModDialogViewModel.cs" />
     <Compile Include="MVVM\Commands\RelayCommand.cs" />
     <Compile Include="ValueConverters\ModCardImageConverter.cs" />
-    <Page Include="Dialogs\CreateModDialog.xaml">
+    <Page Include="UserControls\ModCard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UserControls\Dialogs\CreateModDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

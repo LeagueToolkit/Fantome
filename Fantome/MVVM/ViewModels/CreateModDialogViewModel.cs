@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using Fantome.Dialogs;
+using Fantome.UserControls.Dialogs;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.Commands;
@@ -105,7 +105,7 @@ namespace Fantome.MVVM.ViewModels
             if((bool)result == true)
             {
                 ModInfo info = new ModInfo(this._name, this._author, new Version(this._version), "");
-                Image image = SImage.FromStream(this._image.StreamSource);
+                SImage image = SImage.FromStream(this._image.StreamSource);
                 ModFile mod = new ModFile(this._wadLocation, this._rawLocation, info, image);
 
                 this._modManager.InstallMod(mod);

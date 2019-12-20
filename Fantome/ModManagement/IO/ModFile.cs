@@ -109,7 +109,7 @@ namespace Fantome.ModManagement.IO
             try
             {
                 MemoryStream memoryStream = new MemoryStream();
-                this.Content.GetEntry(@"META/info.json").Open().CopyTo(memoryStream);
+                this.Content.GetEntry(@"META\info.json").Open().CopyTo(memoryStream);
 
                 return JsonConvert.DeserializeObject<ModInfo>(Encoding.ASCII.GetString(memoryStream.ToArray()));
             }
@@ -123,7 +123,7 @@ namespace Fantome.ModManagement.IO
             try
             {
                 MemoryStream memoryStream = new MemoryStream();
-                this.Content.GetEntry(@"META/image.png").Open().CopyTo(memoryStream);
+                this.Content.GetEntry(@"META\image.png").Open().CopyTo(memoryStream);
 
                 return Image.FromStream(memoryStream);
             }

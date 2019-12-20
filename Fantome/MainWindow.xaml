@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:valueConverters="clr-namespace:Fantome.ValueConverters"
+        xmlns:UserControls="clr-namespace:Fantome.UserControls"
         xmlns:local="clr-namespace:Fantome"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -42,48 +43,21 @@
                 </DockPanel>
             </MaterialDesign:ColorZone>
             <Grid Grid.Row="1" Margin="16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid Grid.Column="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <MaterialDesign:Card x:Name="Card" Width="240" HorizontalAlignment="Center" VerticalAlignment="Center" UniformCornerRadius="10" Grid.Column="0" Grid.Row="0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="135"/>
-                                <RowDefinition Height="100"/>
-                            </Grid.RowDefinitions>
-
-                            <Image Width="240" Height="135" Source="{Binding Converter={StaticResource ModCardImageConverter}}" Stretch="UniformToFill"/>
-                            <ToggleButton Panel.ZIndex="1" Grid.Row="0" Margin="20,0,0,-16" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignActionToggleButton}" Height="35" Width="35">
-                                <MaterialDesign:PackIcon Kind="Close"/>
-                            </ToggleButton>
-                            <Button Grid.Row="0" Content="{MaterialDesign:PackIcon Kind=Close}" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" MaterialDesign:ButtonAssist.CornerRadius="0 0 5 0" Height="30" Width="30"/>
-                            <Separator Grid.Row="1" Style="{StaticResource MaterialDesignDarkSeparator}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 0 0 0"/>
-                            <MaterialDesign:ColorZone Panel.ZIndex="0" Grid.Row="1" Mode="Standard" Height="100" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" MaterialDesign:ShadowAssist.ShadowEdges="Top">
-                                <StackPanel Orientation="Vertical" Margin="5">
-                                    <TextBlock Text="{Binding Info.Name}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
-                                    <TextBlock Text="{Binding Info.Author}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12"/>
-                                    <Separator Style="{StaticResource MaterialDesignDarkSeparator}" Margin="0 0 0 0"/>
-                                    <TextBlock Text="{Binding Info.Description}" FontSize="11" Height="Auto"/>
-                                </StackPanel>
-                            </MaterialDesign:ColorZone>
-                        </Grid>
-                    </MaterialDesign:Card>
-                </Grid>
-                <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1">
+                <ListBox x:Name="ModsListBox" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <UserControls:ModCard/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,20,20">
                     <StackPanel>
-                        <Button x:Name="ButtonAddMod" ToolTip="Add Mod">
+                        <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Click="AddMod">
                             <MaterialDesign:PackIcon Kind="CreditCardAdd"/>
                         </Button>
                         <Button x:Name="ButtonCreateMod" ToolTip="Create Mod" Command="{Binding RunDialogCommand}">

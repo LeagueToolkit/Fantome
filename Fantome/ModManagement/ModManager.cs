@@ -19,7 +19,7 @@ namespace Fantome.ModManagement
 
         public LeagueFileIndex Index { get; private set; }
         public string LeagueFolder { get; set; }
-        public List<ModFile> InstalledMods { get; set; } = new List<ModFile>();
+        public ModDatabase Database { get; set; }
 
         public ModManager(string leagueFolder)
         {
@@ -99,7 +99,7 @@ namespace Fantome.ModManagement
                 }
             }
 
-            this.InstalledMods.Add(mod);
+            this.Database.AddMod(mod.GetModIdentifier(), true);
         }
 
         public void UninstallMod(ModFile mod)

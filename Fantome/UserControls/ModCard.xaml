@@ -1,0 +1,37 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Fantome.UserControls"
+             xmlns:ValueConverters="clr-namespace:Fantome.ValueConverters" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             x:Class="Fantome.UserControls.ModCard"
+             mc:Ignorable="d" 
+             Width="235" Height="240">
+    <UserControl.Resources>
+        <ValueConverters:ModCardImageConverter x:Key="ModCardImageConverter"/>
+    </UserControl.Resources>
+    <materialDesign:Card x:Name="Card" Width="240" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="135"/>
+                <RowDefinition Height="100"/>
+            </Grid.RowDefinitions>
+
+            <Image Width="240" Height="135" Source="{Binding Image}" Stretch="UniformToFill"/>
+            <ToggleButton Panel.ZIndex="1" Grid.Row="0" Margin="0,0,10,84" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignActionToggleButton}" Height="35" Width="35" Grid.RowSpan="2">
+                <materialDesign:PackIcon Kind="Close"/>
+            </ToggleButton>
+            <Button Grid.Row="0" Content="{materialDesign:PackIcon Kind=Close}" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" materialDesign:ButtonAssist.CornerRadius="0 0 5 0" Height="30" Width="30" Margin="0"/>
+            <Separator Grid.Row="1" Style="{StaticResource MaterialDesignDarkSeparator}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 0 0 0"/>
+            <materialDesign:ColorZone Panel.ZIndex="0" Grid.Row="1" Mode="Standard" Height="100" materialDesign:ShadowAssist.ShadowDepth="Depth4" materialDesign:ShadowAssist.ShadowEdges="Top">
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
+                    <TextBlock Text="{Binding Author}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12"/>
+                    <Separator Style="{StaticResource MaterialDesignDarkSeparator}" Margin="0 0 0 0"/>
+                </StackPanel>
+            </materialDesign:ColorZone>
+        </Grid>
+    </materialDesign:Card>
+</UserControl>
