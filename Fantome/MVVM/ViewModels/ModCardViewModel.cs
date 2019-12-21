@@ -55,12 +55,24 @@ namespace Fantome.MVVM.ViewModels
             BitmapImage bitmap = new BitmapImage();
 
             mod.Image.Save(memoryStream, ImageFormat.Png);
-
             bitmap.BeginInit();
             bitmap.StreamSource = memoryStream;
             bitmap.EndInit();
 
             this._image = bitmap;
+        }
+
+        public void Install()
+        {
+            this._modManager.InstallMod(this._mod);
+            
+            this.IsInstalled = true;
+        }
+        public void Uninstall()
+        {
+            this._modManager.UninstallMod(this._mod);
+
+            this.IsInstalled = false;
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

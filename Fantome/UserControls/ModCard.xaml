@@ -20,7 +20,7 @@
             </Grid.RowDefinitions>
 
             <Image Width="240" Height="135" Source="{Binding Image}" Stretch="UniformToFill"/>
-            <ToggleButton Panel.ZIndex="1" Grid.Row="0" Margin="0,0,10,84" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignActionToggleButton}" Height="35" Width="35" Grid.RowSpan="2">
+            <ToggleButton x:Name="IsInstalledToggle" IsChecked="{Binding IsInstalled}" Panel.ZIndex="1" Grid.Row="0" Margin="0,0,10,84" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignActionToggleButton}" Height="35" Width="35" Grid.RowSpan="2" Checked="IsInstalledToggle_Checked" Unchecked="IsInstalledToggle_Unchecked">
                 <materialDesign:PackIcon Kind="Close"/>
             </ToggleButton>
             <Button Grid.Row="0" Content="{materialDesign:PackIcon Kind=Close}" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" materialDesign:ButtonAssist.CornerRadius="0 0 5 0" Height="30" Width="30" Margin="0"/>

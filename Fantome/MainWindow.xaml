@@ -13,7 +13,7 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-        Title="Fantome" Height="720" Width="1280" Closed="Window_Closed">
+        Title="Fantome" Height="720" Width="1280" Closed="OnApplicationClose">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

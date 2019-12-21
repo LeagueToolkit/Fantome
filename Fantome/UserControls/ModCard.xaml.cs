@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Fantome.MVVM.ViewModels;
 
 namespace Fantome.UserControls
 {
@@ -20,9 +21,21 @@ namespace Fantome.UserControls
     /// </summary>
     public partial class ModCard : UserControl
     {
+        public ModCardViewModel ViewModel { get => this.DataContext as ModCardViewModel; }
+
         public ModCard()
         {
             InitializeComponent();
+        }
+
+        private void IsInstalledToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.Install();
+        }
+
+        private void IsInstalledToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.Uninstall();
         }
     }
 }

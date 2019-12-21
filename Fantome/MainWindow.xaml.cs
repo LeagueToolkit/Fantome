@@ -22,6 +22,8 @@ namespace Fantome
 
         public MainWindow()
         {
+            Application.Current.Exit += new ExitEventHandler(OnApplicationClose);
+
             CreateWorkFolders();
             StartPatcher();
 
@@ -68,7 +70,7 @@ namespace Fantome
             this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private void OnApplicationClose(object sender, EventArgs e)
         {
             this._patcher.Kill();
         }
