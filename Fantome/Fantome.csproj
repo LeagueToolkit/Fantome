@@ -161,7 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="lolcustomskin.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup />

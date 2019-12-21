@@ -60,6 +60,15 @@ namespace Fantome.ModManagement
             }
         }
 
+        public void AddMod(ModFile mod, bool install = false)
+        {
+            this.Database.AddMod(mod, install);
+
+            if(install)
+            {
+                InstallMod(mod);
+            }
+        }
         public void InstallMod(ModFile mod)
         {
             Dictionary<string, WADFile> wadFiles = new Dictionary<string, WADFile>();

@@ -36,6 +36,8 @@ namespace Fantome.MVVM.ViewModels
         public void AddMod(ModFile mod)
         {
             this.Items.Add(new ModCardViewModel(mod, this._modManager));
+
+            this._modManager.AddMod(mod);
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

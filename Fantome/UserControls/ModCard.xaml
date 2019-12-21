@@ -1,4 +1,4 @@
-﻿<UserControl
+﻿<UserControl 
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -8,11 +8,19 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              x:Class="Fantome.UserControls.ModCard"
              mc:Ignorable="d" 
-             Width="235" Height="240">
+             Width="240" Height="240">
     <UserControl.Resources>
         <ValueConverters:ModCardImageConverter x:Key="ModCardImageConverter"/>
+        <Style TargetType="local:ModCard">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsChecked, ElementName=IsInstalledToggle}" Value="True">
+                    <Setter Property="BorderBrush" Value="#FFAEEA00"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
-    <materialDesign:Card x:Name="Card" Width="240" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <materialDesign:Card x:Name="Card" Width="240" HorizontalAlignment="Center">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="135"/>
@@ -20,12 +28,12 @@
             </Grid.RowDefinitions>
 
             <Image Width="240" Height="135" Source="{Binding Image}" Stretch="UniformToFill"/>
-            <ToggleButton x:Name="IsInstalledToggle" IsChecked="{Binding IsInstalled}" Panel.ZIndex="1" Grid.Row="0" Margin="0,0,10,84" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource MaterialDesignActionToggleButton}" Height="35" Width="35" Grid.RowSpan="2" Checked="IsInstalledToggle_Checked" Unchecked="IsInstalledToggle_Unchecked">
+            <ToggleButton x:Name="IsInstalledToggle" IsChecked="{Binding IsInstalled}" Style="{StaticResource MaterialDesignActionAccentToggleButton}" Panel.ZIndex="1" Grid.Row="0" Margin="0,0,10,84" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="35" Width="35" Grid.RowSpan="2" Checked="IsInstalledToggle_Checked" Unchecked="IsInstalledToggle_Unchecked">
                 <materialDesign:PackIcon Kind="Close"/>
             </ToggleButton>
-            <Button Grid.Row="0" Content="{materialDesign:PackIcon Kind=Close}" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" materialDesign:ButtonAssist.CornerRadius="0 0 5 0" Height="30" Width="30" Margin="0"/>
+            <Button Content="{materialDesign:PackIcon Kind=Close}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource MaterialDesignRaisedAccentButton}" materialDesign:ButtonAssist.CornerRadius="0 0 5 0" Height="30" Width="30" Margin="0" Padding="0"/>
             <Separator Grid.Row="1" Style="{StaticResource MaterialDesignDarkSeparator}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 0 0 0"/>
-            <materialDesign:ColorZone Panel.ZIndex="0" Grid.Row="1" Mode="Standard" Height="100" materialDesign:ShadowAssist.ShadowDepth="Depth4" materialDesign:ShadowAssist.ShadowEdges="Top">
+            <materialDesign:ColorZone Panel.ZIndex="0" Grid.Row="1" Mode="Standard" materialDesign:ShadowAssist.ShadowDepth="Depth4" materialDesign:ShadowAssist.ShadowEdges="Top" VerticalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" Margin="5">
                     <TextBlock Text="{Binding Name}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
                     <TextBlock Text="{Binding Author}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12"/>
