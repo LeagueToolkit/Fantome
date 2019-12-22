@@ -4,13 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Fantome.UserControls"
-             xmlns:ValueConverters="clr-namespace:Fantome.ValueConverters" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              x:Class="Fantome.UserControls.ModCard"
              mc:Ignorable="d" 
              Width="240" Height="240">
     <UserControl.Resources>
-        <ValueConverters:ModCardImageConverter x:Key="ModCardImageConverter"/>
         <Style TargetType="local:ModCard">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsChecked, ElementName=IsInstalledToggle}" Value="True">

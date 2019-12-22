@@ -22,16 +22,6 @@ namespace Fantome.MVVM.ViewModels
             set
             {
                 this._isInstalled = value;
-
-                if(this._isInstalled == true)
-                {
-                    this._modManager.InstallMod(this._mod);
-                }
-                else
-                {
-                    this._modManager.UninstallMod(this._mod);
-                }
-
                 NotifyPropertyChanged();
             }
         }
@@ -51,27 +41,28 @@ namespace Fantome.MVVM.ViewModels
             this._mod = mod;
             this._modManager = _modManager;
 
-            MemoryStream memoryStream = new MemoryStream();
-            BitmapImage bitmap = new BitmapImage();
+            if(mod.Image != null)
+            {
+                MemoryStream memoryStream = new MemoryStream();
+                BitmapImage bitmap = new BitmapImage();
 
-            mod.Image.Save(memoryStream, ImageFormat.Png);
-            bitmap.BeginInit();
-            bitmap.StreamSource = memoryStream;
-            bitmap.EndInit();
+                mod.Image.Save(memoryStream, ImageFormat.Png);
+                bitmap.BeginInit();
+                bitmap.StreamSource = memoryStream;
+                bitmap.EndInit();
 
-            this._image = bitmap;
+                this._image = bitmap;
+            }
         }
 
         public void Install()
         {
             this._modManager.InstallMod(this._mod);
-            
             this.IsInstalled = true;
         }
         public void Uninstall()
         {
             this._modManager.UninstallMod(this._mod);
-
             this.IsInstalled = false;
         }
 

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using Fantome.JobManagement;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.ViewModels;
@@ -16,27 +18,16 @@ namespace Fantome
     public partial class MainWindow : Window
     {
         public ModListViewModel ModList { get => this.ModsListBox.DataContext as ModListViewModel; }
-        
+
         private ModManager _modManager;
-        private Process _patcher;
+        private Thread _patcher;
 
         public MainWindow()
         {
-            Application.Current.Exit += new ExitEventHandler(OnApplicationClose);
+            this._modManager = new ModManager("C:/Riot Games/League of Legends");
 
             CreateWorkFolders();
             StartPatcher();
-
-            this._modManager = new ModManager("C:/Riot Games/League of Legends");
-            File.WriteAllText("LeagueFileIndex.json", this._modManager.Index.Serialize());
-            //this.ModManager.InstallMod(new ModFile("Mods/WAD", "", new ModInfo("Project Evelynn", "Some Random Feeling", new Version(1, 0), ""), System.Drawing.Image.FromFile("preview-1536x864.png")));
-            //this.ModManager.InstallMod(new ModFile("Mods/WAD", "", new ModInfo("Project Evelynnn", "Some Random Feeling", new Version(1, 0), ""), System.Drawing.Image.FromFile("preview-1536x864.png")));
-            //this.ModManager.InstallMod(new ModFile("Mods/WAD", "", new ModInfo("Project Evelynnnn", "Some Random Feeling", new Version(1, 0), ""), System.Drawing.Image.FromFile("preview-1536x864.png")));
-            //this.ModManager.InstallMod(new ModFile("Mods/WAD", "", new ModInfo("Project Evelynnnnn", "Some Random Feeling", new Version(1, 0), ""), System.Drawing.Image.FromFile("preview-1536x864.png")));
-            //this.ModManager.InstallMod(new ModFile("Mods/WAD", "", new ModInfo("Project Evelynnnnnn", "Some Random Feeling", new Version(1, 0), ""), System.Drawing.Image.FromFile("preview-1536x864.png")));
-
-            //File.WriteAllText("info.json", new ModInfo("Project Evelynn", "Some Random Feeling", new Version(1, 0), "").Serialize());
-
             InitializeComponent();
             BindMVVM();
         }
@@ -45,17 +36,30 @@ namespace Fantome
         {
             string arguments = string.Format("{0} -r", Directory.GetCurrentDirectory() + @"\" + ModManager.OVERLAY_FOLDER + @"\").Replace('\\', '/');
 
-            this._patcher = new Process()
+            this._patcher = new Thread(delegate ()
             {
-                StartInfo = new ProcessStartInfo()
+                using (Job job = new Job())
                 {
-                    FileName = "lolcustomskin.exe",
-                    Arguments = arguments,
-                    CreateNoWindow = false,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                },
+                    ProcessStartInfo info = new ProcessStartInfo()
+                    {
+                        FileName = "lolcustomskin.exe",
+                        Arguments = arguments,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        CreateNoWindow = false,
+                    };
 
-            };
+                    using (Process patcher = Process.Start(info))
+                    {
+                        job.AddProcess(patcher.Id);
+
+                        patcher.EnableRaisingEvents = true;
+
+                        patcher.WaitForExit();
+                    }
+
+                    job.Close();
+                }
+            });
 
             this._patcher.Start();
         }
@@ -66,13 +70,8 @@ namespace Fantome
         }
         private void BindMVVM()
         {
-            this.PopupMain.DataContext = new CreateModDialogViewModel(this._modManager);
             this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
-        }
-
-        private void OnApplicationClose(object sender, EventArgs e)
-        {
-            this._patcher.Kill();
+            this.PopupMain.DataContext = new CreateModDialogViewModel(this.ModList);
         }
 
         private void AddMod(object sender, RoutedEventArgs e)
@@ -84,7 +83,7 @@ namespace Fantome
 
             dialog.Filters.Add(new CommonFileDialogFilter("ZIP Files", ".zip"));
 
-            if(dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 ModFile mod = new ModFile(dialog.FileName);
                 this.ModList.AddMod(mod);

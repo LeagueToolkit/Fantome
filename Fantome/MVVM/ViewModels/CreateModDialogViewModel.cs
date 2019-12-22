@@ -81,15 +81,15 @@ namespace Fantome.MVVM.ViewModels
         private string _author;
         private string _version;
         private BitmapImage _image;
-        private ModManager _modManager;
+        private ModListViewModel _modList;
 
         public ICommand RunDialogCommand => new RelayCommand(ExecuteRunDialog);
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public CreateModDialogViewModel(ModManager modManager)
+        public CreateModDialogViewModel(ModListViewModel modList)
         {
-            this._modManager = modManager;
+            this._modList = modList;
         }
 
         private async void ExecuteRunDialog(object o)
@@ -105,10 +105,14 @@ namespace Fantome.MVVM.ViewModels
             if((bool)result == true)
             {
                 ModInfo info = new ModInfo(this._name, this._author, new Version(this._version), "");
-                SImage image = SImage.FromStream(this._image.StreamSource);
-                ModFile mod = new ModFile(this._wadLocation, this._rawLocation, info, image);
+                SImage image = null;
+                if(this._image != null)
+                {
+                    image = SImage.FromStream(this._image.StreamSource);
+                }
 
-                this._modManager.InstallMod(mod);
+                ModFile mod = new ModFile(this._wadLocation, this._rawLocation, info, image);
+                this._modList.AddMod(mod);
             }
         }
 

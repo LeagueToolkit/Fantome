@@ -85,6 +85,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="JobManagement\Job.cs" />
     <Compile Include="ModManagement\ModDatabase.cs" />
     <Compile Include="MVVM\ViewModels\ModCardViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModListViewModel.cs" />
@@ -96,7 +97,6 @@
     </Compile>
     <Compile Include="MVVM\ViewModels\CreateModDialogViewModel.cs" />
     <Compile Include="MVVM\Commands\RelayCommand.cs" />
-    <Compile Include="ValueConverters\ModCardImageConverter.cs" />
     <Page Include="UserControls\ModCard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -164,7 +164,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="ValueConverters\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MaterialDesignThemes.3.0.0\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.3.0.0\build\MaterialDesignThemes.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

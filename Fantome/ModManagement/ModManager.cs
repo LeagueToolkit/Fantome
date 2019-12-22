@@ -17,6 +17,7 @@ namespace Fantome.ModManagement
         public const string MOD_FOLDER = "Mods";
         public const string OVERLAY_FOLDER = "Overlay";
         public const string DATABASE_FILE = "MOD_DATABASE.json";
+        public const string INDEX_FILE = "FILE_INDEX.json";
 
         public LeagueFileIndex Index { get; private set; }
         public string LeagueFolder { get; set; }
@@ -31,13 +32,24 @@ namespace Fantome.ModManagement
 
             this.LeagueFolder = leagueFolder;
 
-            BuildLeagueFileIndex();
+            ProcessLeagueFileIndex();
             ProcessDatabase();
         }
 
-        public void BuildLeagueFileIndex()
+        public void ProcessLeagueFileIndex()
         {
-            this.Index = new LeagueFileIndex(this.LeagueFolder);
+            if (File.Exists(INDEX_FILE))
+            {
+                this.Index = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
+                if (this.Index.Version != GetLeagueVersion())
+                {
+                    this.Index = new LeagueFileIndex(this.LeagueFolder);
+                }
+            }
+            else
+            {
+                this.Index = new LeagueFileIndex(this.LeagueFolder);
+            }
         }
         public void ProcessDatabase()
         {
@@ -71,12 +83,14 @@ namespace Fantome.ModManagement
         }
         public void InstallMod(ModFile mod)
         {
+            Dictionary<ulong, List<string>> modIndex = new Dictionary<ulong, List<string>>();
             Dictionary<string, WADFile> wadFiles = new Dictionary<string, WADFile>();
             bool processedWad = false;
 
-            foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\/\w*.wad.client\/(?![\s\S])")))
+            //Collect WAD files
+            foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\\\w*.wad.client(?![\s\S])")))
             {
-                string wadName = zipEntry.FullName.Split('/')[1];
+                string wadName = zipEntry.FullName.Split('\\')[1];
 
                 if (zipEntry.CompressedLength != 0)
                 {
@@ -102,7 +116,7 @@ namespace Fantome.ModManagement
                 foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
                 {
                     foreach (ZipArchiveEntry zipEntry in mod.Content.Entries
-                        .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\/{0}\/[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
+                        .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\\{0}\\[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
                         .Where(x => x.CompressedLength != 0)) //get only files
                     {
                         string path = zipEntry.FullName.Replace(string.Format(@"WAD/{0}/", wadFile.Key), "");
@@ -119,26 +133,98 @@ namespace Fantome.ModManagement
             //Now we need to install the WAD files
             foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
+                //Write modded files to index
+                foreach(WADEntry entry in wadFile.Value.Entries)
+                {
+                    this.Index.Mod.Add(entry.XXHash, new List<string>() { wadFile.Key });
+                }
+
+                //Load up the origianl WAD for merging
                 string wadPath = this.Index.FindWADPath(wadFile.Key);
                 WADFile originalWad = new WADFile(string.Format(@"{0}\Game\{1}", this.LeagueFolder, wadPath));
 
+                //Create overlay directory for the mod
                 Directory.CreateDirectory(string.Format(@"{0}\{1}", OVERLAY_FOLDER, Path.GetDirectoryName(wadPath)));
 
+                //Merge the modded WAD with the original
                 using (WADFile merged = WADMerger.Merge(originalWad, wadFile.Value))
                 {
                     merged.Write(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath));
                 }
             }
 
+            //Add Mod to database
             string id = mod.GetModIdentifier();
             if (this.Database.Mods.ContainsKey(id))
             {
                 this.Database.ChangeModState(id, true);
             }
+            else
+            {
+                this.Database.AddMod(mod, true);
+            }
         }
         public void UninstallMod(ModFile mod)
         {
+            Dictionary<string, WADFile> wadFiles = new Dictionary<string, WADFile>();
+            bool processedWad = false;
 
+            //Collect WAD files
+            foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\\\w*.wad.client(?![\s\S])")))
+            {
+                string wadName = zipEntry.FullName.Split('\\')[1];
+
+                if (zipEntry.CompressedLength != 0)
+                {
+                    MemoryStream wadStream = new MemoryStream();
+
+                    zipEntry.Open().CopyTo(wadStream);
+                    wadFiles.Add(wadName, new WADFile(wadStream));
+
+                    processedWad = true;
+                }
+                else
+                {
+                    if (!wadFiles.ContainsKey(wadName))
+                    {
+                        wadFiles.Add(wadName, new WADFile(3, 0));
+                    }
+                }
+            }
+
+            //Process WAD folder folders
+            if (!processedWad)
+            {
+                foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
+                {
+                    foreach (ZipArchiveEntry zipEntry in mod.Content.Entries
+                        .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\\{0}\\[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
+                        .Where(x => x.CompressedLength != 0)) //get only files
+                    {
+                        string path = zipEntry.FullName.Replace(string.Format(@"WAD/{0}/", wadFile.Key), "");
+                        ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
+
+                        this.Index.Mod.Remove(hash);
+                    }
+
+                    string wadPath = this.Index.FindWADPath(wadFile.Key);
+                    File.Delete(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath));
+                }
+            }
+            else
+            {
+                foreach(KeyValuePair<string, WADFile> wad in wadFiles)
+                {
+                    foreach(WADEntry entry in wad.Value.Entries)
+                    {
+                        this.Index.Game.Remove(entry.XXHash);
+                    }
+
+                    File.Delete(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wad.Key));
+                }
+            }
+
+            this.Database.ChangeModState(mod.GetModIdentifier(), false);
         }
         public void RemoveMod(ModFile mod)
         {
@@ -148,6 +234,18 @@ namespace Fantome.ModManagement
             }
 
             this.Database.RemoveMod(mod.GetModIdentifier());
+        }
+
+        private Dictionary<ulong, List<string>> GenerateWadIndex(WADFile wad, string wadName)
+        {
+            Dictionary<ulong, List<string>> index = new Dictionary<ulong, List<string>>(wad.Entries.Count);
+
+            foreach(WADEntry entry in wad.Entries)
+            {
+                index.Add(entry.XXHash, new List<string>() { wadName });
+            }
+
+            return index;
         }
 
         private Version GetLeagueVersion()

@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:valueConverters="clr-namespace:Fantome.ValueConverters"
         xmlns:UserControls="clr-namespace:Fantome.UserControls"
         xmlns:local="clr-namespace:Fantome"
         mc:Ignorable="d"
@@ -13,7 +12,7 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-        Title="Fantome" Height="720" Width="1280" Closed="OnApplicationClose">
+        Title="Fantome" Height="720" Width="1280">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -22,7 +21,6 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.Teal.Named.Primary.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DialogHost.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <valueConverters:ModCardImageConverter x:Key="ModCardImageConverter"/>
         </ResourceDictionary>
     </Window.Resources>
 
