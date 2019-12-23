@@ -102,10 +102,9 @@ namespace Fantome.ModManagement
             {
                 string wadName = zipEntry.FullName.Split('\\')[1];
 
-                MemoryStream wadStream = new MemoryStream();
-
-                zipEntry.Open().CopyTo(wadStream);
-                wadFiles.Add(wadName, new WADFile(wadStream));
+                zipEntry.ExtractToFile("wadtemp", true);
+                wadFiles.Add(wadName, new WADFile(new MemoryStream(File.ReadAllBytes("wadtemp"))));
+                File.Delete("wadtemp");
             }
 
             //Process WAD folder folders

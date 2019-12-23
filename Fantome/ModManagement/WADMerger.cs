@@ -16,11 +16,11 @@ namespace Fantome.ModManagement
             {
                 if(!wadBase.Entries.Any(x => x.XXHash == entry.XXHash))
                 {
-                    wadBase.AddEntry(entry.XXHash, entry.GetContent(true), entry.Type == EntryType.Compressed || entry.Type == EntryType.ZStandardCompressed);
+                    wadBase.AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, entry.Type);
                 }
                 else if(!entry.SHA.SequenceEqual(wadBase.Entries.Single(x => x.XXHash == entry.XXHash).SHA))
                 {
-                    wadBase.Entries.Single(x => x.XXHash == entry.XXHash).EditData(entry.GetContent(true));
+                    wadBase.Entries.Single(x => x.XXHash == entry.XXHash).EditData(entry.GetContent(false), entry.UncompressedSize);
                 }
             }
 
