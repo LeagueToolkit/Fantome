@@ -84,11 +84,6 @@ namespace Fantome.ModManagement.IO
 
         public void AddFolder(string path, string folderLocation)
         {
-            foreach(string directory in Directory.EnumerateDirectories(folderLocation, "*", SearchOption.AllDirectories))
-            {
-                this.Content.CreateEntry(string.Format("{0}\\{1}", path, directory.Replace(folderLocation + "\\", "")));
-            }
-
             foreach (string file in Directory.EnumerateFiles(folderLocation, "*", SearchOption.AllDirectories))
             {
                 AddFile(string.Format("{0}\\{1}", path, file.Replace(folderLocation + "\\", "")), File.ReadAllBytes(file));

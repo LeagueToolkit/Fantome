@@ -44,8 +44,8 @@ namespace Fantome
                     {
                         FileName = "lolcustomskin.exe",
                         Arguments = arguments,
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        CreateNoWindow = false,
+                        //WindowStyle = ProcessWindowStyle.Hidden,
+                        //CreateNoWindow = false,
                     };
 
                     using (Process patcher = Process.Start(info))

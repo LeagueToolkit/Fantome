@@ -76,7 +76,7 @@ namespace Fantome.ModManagement
         {
             this.Database.AddMod(mod, install);
 
-            if(install)
+            if (install)
             {
                 InstallMod(mod);
             }
@@ -85,48 +85,43 @@ namespace Fantome.ModManagement
         {
             Dictionary<ulong, List<string>> modIndex = new Dictionary<ulong, List<string>>();
             Dictionary<string, WADFile> wadFiles = new Dictionary<string, WADFile>();
-            bool processedWad = false;
 
             //Collect WAD files
-            foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\\\w*.wad.client(?![\s\S])")))
+            foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\\\w*.wad.client\\[\s\S]*")))
             {
                 string wadName = zipEntry.FullName.Split('\\')[1];
 
-                if (zipEntry.CompressedLength != 0)
+                if (!wadFiles.ContainsKey(wadName))
                 {
-                    MemoryStream wadStream = new MemoryStream();
-
-                    zipEntry.Open().CopyTo(wadStream);
-                    wadFiles.Add(wadName, new WADFile(wadStream));
-
-                    processedWad = true;
-                }
-                else
-                {
-                    if (!wadFiles.ContainsKey(wadName))
-                    {
-                        wadFiles.Add(wadName, new WADFile(3, 0));
-                    }
+                    wadFiles.Add(wadName, new WADFile(3, 0));
                 }
             }
 
-            //Process WAD folder folders
-            if (!processedWad)
+            //Collect WAD files
+            foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\\\w*.wad.client(?![\\])")))
             {
-                foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
+                string wadName = zipEntry.FullName.Split('\\')[1];
+
+                MemoryStream wadStream = new MemoryStream();
+
+                zipEntry.Open().CopyTo(wadStream);
+                wadFiles.Add(wadName, new WADFile(wadStream));
+            }
+
+            //Process WAD folder folders
+            foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
+            {
+                foreach (ZipArchiveEntry zipEntry in mod.Content.Entries
+                    .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\\{0}\\[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
+                    .Where(x => x.CompressedLength != 0)) //get only files
                 {
-                    foreach (ZipArchiveEntry zipEntry in mod.Content.Entries
-                        .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\\{0}\\[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
-                        .Where(x => x.CompressedLength != 0)) //get only files
-                    {
-                        string path = zipEntry.FullName.Replace(string.Format(@"WAD/{0}/", wadFile.Key), "");
-                        ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
+                    string path = zipEntry.FullName.Replace(string.Format(@"WAD/{0}/", wadFile.Key), "");
+                    ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
-                        MemoryStream memoryStream = new MemoryStream();
-                        zipEntry.Open().CopyTo(memoryStream);
+                    MemoryStream memoryStream = new MemoryStream();
+                    zipEntry.Open().CopyTo(memoryStream);
 
-                        wadFile.Value.AddEntry(hash, memoryStream.ToArray(), true);
-                    }
+                    wadFile.Value.AddEntry(hash, memoryStream.ToArray(), true);
                 }
             }
 
@@ -134,7 +129,7 @@ namespace Fantome.ModManagement
             foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
                 //Write modded files to index
-                foreach(WADEntry entry in wadFile.Value.Entries)
+                foreach (WADEntry entry in wadFile.Value.Entries)
                 {
                     this.Index.Mod.Add(entry.XXHash, new List<string>() { wadFile.Key });
                 }
@@ -167,61 +162,51 @@ namespace Fantome.ModManagement
         public void UninstallMod(ModFile mod)
         {
             Dictionary<string, WADFile> wadFiles = new Dictionary<string, WADFile>();
-            bool processedWad = false;
 
             //Collect WAD files
-            foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\\\w*.wad.client(?![\s\S])")))
+            foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\\\w*.wad.client\\[\s\S]*")))
             {
                 string wadName = zipEntry.FullName.Split('\\')[1];
 
-                if (zipEntry.CompressedLength != 0)
+                if (!wadFiles.ContainsKey(wadName))
                 {
-                    MemoryStream wadStream = new MemoryStream();
-
-                    zipEntry.Open().CopyTo(wadStream);
-                    wadFiles.Add(wadName, new WADFile(wadStream));
-
-                    processedWad = true;
+                    wadFiles.Add(wadName, new WADFile(3, 0));
                 }
-                else
-                {
-                    if (!wadFiles.ContainsKey(wadName))
-                    {
-                        wadFiles.Add(wadName, new WADFile(3, 0));
-                    }
-                }
+            }
+
+            //Collect WAD files
+            foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\\\w*.wad.client(?![\\])")))
+            {
+                string wadName = zipEntry.FullName.Split('\\')[1];
+
+                MemoryStream wadStream = new MemoryStream();
+
+                zipEntry.Open().CopyTo(wadStream);
+                wadFiles.Add(wadName, new WADFile(wadStream));
             }
 
             //Process WAD folder folders
-            if (!processedWad)
+            foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
-                foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
+                //For WAD folders
+                foreach (ZipArchiveEntry zipEntry in mod.Content.Entries
+                    .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\\{0}\\[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
+                    .Where(x => x.CompressedLength != 0)) //get only files
                 {
-                    foreach (ZipArchiveEntry zipEntry in mod.Content.Entries
-                        .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\\{0}\\[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
-                        .Where(x => x.CompressedLength != 0)) //get only files
-                    {
-                        string path = zipEntry.FullName.Replace(string.Format(@"WAD/{0}/", wadFile.Key), "");
-                        ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
+                    string path = zipEntry.FullName.Replace(string.Format(@"WAD/{0}/", wadFile.Key), "");
+                    ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
-                        this.Index.Mod.Remove(hash);
-                    }
-
-                    string wadPath = this.Index.FindWADPath(wadFile.Key);
-                    File.Delete(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath));
+                    this.Index.Mod.Remove(hash);
                 }
-            }
-            else
-            {
-                foreach(KeyValuePair<string, WADFile> wad in wadFiles)
+
+                //For WAD files
+                foreach (WADEntry entry in wadFile.Value.Entries)
                 {
-                    foreach(WADEntry entry in wad.Value.Entries)
-                    {
-                        this.Index.Game.Remove(entry.XXHash);
-                    }
-
-                    File.Delete(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wad.Key));
+                    this.Index.Mod.Remove(entry.XXHash);
                 }
+
+                string wadPath = this.Index.FindWADPath(wadFile.Key);
+                File.Delete(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath));
             }
 
             this.Database.ChangeModState(mod.GetModIdentifier(), false);
@@ -240,7 +225,7 @@ namespace Fantome.ModManagement
         {
             Dictionary<ulong, List<string>> index = new Dictionary<ulong, List<string>>(wad.Entries.Count);
 
-            foreach(WADEntry entry in wad.Entries)
+            foreach (WADEntry entry in wad.Entries)
             {
                 index.Add(entry.XXHash, new List<string>() { wadName });
             }
