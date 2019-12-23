@@ -115,7 +115,7 @@ namespace Fantome.ModManagement
                     .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\\{0}\\[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
                     .Where(x => x.CompressedLength != 0)) //get only files
                 {
-                    string path = zipEntry.FullName.Replace(string.Format(@"WAD/{0}/", wadFile.Key), "");
+                    string path = zipEntry.FullName.Replace(string.Format("WAD\\{0}\\", wadFile.Key), "").Replace('\\', '/');
                     ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
                     MemoryStream memoryStream = new MemoryStream();
@@ -193,7 +193,7 @@ namespace Fantome.ModManagement
                     .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\\{0}\\[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
                     .Where(x => x.CompressedLength != 0)) //get only files
                 {
-                    string path = zipEntry.FullName.Replace(string.Format(@"WAD/{0}/", wadFile.Key), "");
+                    string path = zipEntry.FullName.Replace(string.Format("WAD\\{0}\\", wadFile.Key), "").Replace('\\', '/');
                     ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
                     this.Index.Mod.Remove(hash);
