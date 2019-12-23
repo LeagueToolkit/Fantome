@@ -7,7 +7,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              x:Class="Fantome.UserControls.ModCard"
              mc:Ignorable="d" 
-             Width="240" Height="240">
+             Width="240" Height="237">
     <UserControl.Resources>
         <Style TargetType="local:ModCard">
             <Style.Triggers>
@@ -29,7 +29,7 @@
             <ToggleButton x:Name="IsInstalledToggle" IsChecked="{Binding IsInstalled}" Style="{StaticResource MaterialDesignActionAccentToggleButton}" Panel.ZIndex="1" Grid.Row="0" Margin="0,0,10,84" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="35" Width="35" Grid.RowSpan="2" Checked="IsInstalledToggle_Checked" Unchecked="IsInstalledToggle_Unchecked">
                 <materialDesign:PackIcon Kind="Close"/>
             </ToggleButton>
-            <Button Content="{materialDesign:PackIcon Kind=Close}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource MaterialDesignRaisedAccentButton}" materialDesign:ButtonAssist.CornerRadius="0 0 5 0" Height="30" Width="30" Margin="0" Padding="0"/>
+            <Button x:Name="RemoveModButton" Content="{materialDesign:PackIcon Kind=Close}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource MaterialDesignRaisedAccentButton}" materialDesign:ButtonAssist.CornerRadius="0 0 5 0" Height="30" Width="30" Margin="0" Padding="0" Click="RemoveModButton_Click"/>
             <Separator Grid.Row="1" Style="{StaticResource MaterialDesignDarkSeparator}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 0 0 0"/>
             <materialDesign:ColorZone Panel.ZIndex="0" Grid.Row="1" Mode="Standard" materialDesign:ShadowAssist.ShadowDepth="Depth4" materialDesign:ShadowAssist.ShadowEdges="Top" VerticalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" Margin="5">

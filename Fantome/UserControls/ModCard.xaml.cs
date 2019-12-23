@@ -37,5 +37,10 @@ namespace Fantome.UserControls
         {
             this.ViewModel.Uninstall();
         }
+
+        private void RemoveModButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.Remove();
+        }
     }
 }

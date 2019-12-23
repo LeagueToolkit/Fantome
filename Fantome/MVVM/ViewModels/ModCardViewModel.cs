@@ -33,13 +33,15 @@ namespace Fantome.MVVM.ViewModels
         private BitmapImage _image;
         private ModFile _mod;
         private ModManager _modManager;
+        private ModListViewModel _modList;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ModCardViewModel(ModFile mod, ModManager _modManager)
+        public ModCardViewModel(ModFile mod, ModManager _modManager, ModListViewModel modList)
         {
             this._mod = mod;
             this._modManager = _modManager;
+            this._modList = modList;
 
             if(mod.Image != null)
             {
@@ -64,6 +66,10 @@ namespace Fantome.MVVM.ViewModels
         {
             this._modManager.UninstallMod(this._mod);
             this.IsInstalled = false;
+        }
+        public void Remove()
+        {
+            this._modList.RemoveMod(this);
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
