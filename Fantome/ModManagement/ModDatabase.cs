@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Fantome.ModManagement.IO;
 using Newtonsoft.Json;
 
@@ -30,15 +31,21 @@ namespace Fantome.ModManagement
         {
             this.Mods.Add(mod.GetModIdentifier(), isInstalled);
             this._modFiles.Add(mod.GetModIdentifier(), mod);
+
+            Write();
         }
         public void RemoveMod(string id)
         {
             this.Mods.Remove(id);
             this._modFiles.Remove(id);
+
+            Write();
         }
         public void ChangeModState(string id, bool isInstalled)
         {
             this.Mods[id] = isInstalled;
+
+            Write();
         }
         public ModFile GetMod(string id)
         {
@@ -66,13 +73,17 @@ namespace Fantome.ModManagement
 
         public string Serialize()
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
         public static ModDatabase Deserialize(string json)
         {
             ModDatabase database = JsonConvert.DeserializeObject<ModDatabase>(json);
             database.SyncFileDictionary();
             return database;
+        }
+        public void Write(string fileLocation = ModManager.DATABASE_FILE)
+        {
+            File.WriteAllText(fileLocation, Serialize());
         }
     }
 }

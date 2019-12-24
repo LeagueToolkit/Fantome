@@ -127,11 +127,15 @@ namespace Fantome.ModManagement
             //Now we need to install the WAD files
             foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
+                this.Index.StartEdit();
+
                 //Write modded files to index
                 foreach (WADEntry entry in wadFile.Value.Entries)
                 {
-                    this.Index.Mod.Add(entry.XXHash, new List<string>() { wadFile.Key });
+                    this.Index.AddModFile(entry.XXHash, new List<string>() { wadFile.Key });
                 }
+
+                this.Index.EndEdit();
 
                 //Load up the origianl WAD for merging
                 string wadPath = this.Index.FindWADPath(wadFile.Key);
@@ -187,6 +191,8 @@ namespace Fantome.ModManagement
             //Process WAD folder folders
             foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
+                this.Index.StartEdit();
+
                 //For WAD folders
                 foreach (ZipArchiveEntry zipEntry in mod.Content.Entries
                     .Where(x => Regex.IsMatch(x.FullName, string.Format(@"WAD\\{0}\\[\s\S]", wadFile.Key))) //get only WAD entries, files can be extensionless, thus next step is required
@@ -195,14 +201,16 @@ namespace Fantome.ModManagement
                     string path = zipEntry.FullName.Replace(string.Format("WAD\\{0}\\", wadFile.Key), "").Replace('\\', '/');
                     ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
-                    this.Index.Mod.Remove(hash);
+                    this.Index.RemoveModFile(hash);
                 }
 
                 //For WAD files
                 foreach (WADEntry entry in wadFile.Value.Entries)
                 {
-                    this.Index.Mod.Remove(entry.XXHash);
+                    this.Index.RemoveModFile(entry.XXHash);
                 }
+
+                this.Index.EndEdit();
 
                 string wadPath = this.Index.FindWADPath(wadFile.Key);
                 File.Delete(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath));
@@ -218,18 +226,6 @@ namespace Fantome.ModManagement
             }
 
             this.Database.RemoveMod(mod.GetModIdentifier());
-        }
-
-        private Dictionary<ulong, List<string>> GenerateWadIndex(WADFile wad, string wadName)
-        {
-            Dictionary<ulong, List<string>> index = new Dictionary<ulong, List<string>>(wad.Entries.Count);
-
-            foreach (WADEntry entry in wad.Entries)
-            {
-                index.Add(entry.XXHash, new List<string>() { wadName });
-            }
-
-            return index;
         }
 
         private Version GetLeagueVersion()
