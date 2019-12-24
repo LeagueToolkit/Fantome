@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using Fantome.JobManagement;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
+using Fantome.MVVM.Commands;
 using Fantome.MVVM.ViewModels;
 using Fantome.UserControls.Dialogs;
 using Fantome.Utilities;
@@ -26,6 +28,8 @@ namespace Fantome
 
         private ModManager _modManager;
         private Thread _patcher;
+
+        public ICommand RunSettingsDialogCommand => new RelayCommand(RunSettingsDialog);
 
         public MainWindow()
         {
@@ -53,8 +57,8 @@ namespace Fantome
                     {
                         FileName = "lolcustomskin.exe",
                         Arguments = arguments,
-                        //WindowStyle = ProcessWindowStyle.Hidden,
-                        //CreateNoWindow = false,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        CreateNoWindow = false,
                     };
 
                     using (Process patcher = Process.Start(info))
@@ -81,6 +85,7 @@ namespace Fantome
         {
             this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
             this.PopupMain.DataContext = new CreateModDialogViewModel(this.ModList);
+            this.SettingsButton.DataContext = this;
         }
 
         private void AddMod(object sender, RoutedEventArgs e)
@@ -97,6 +102,18 @@ namespace Fantome
                 ModFile mod = new ModFile(dialog.FileName);
                 this.ModList.AddMod(mod, true);
             }
+        }
+
+        private async void RunSettingsDialog(object o)
+        {
+            SettingsDialog dialog = new SettingsDialog
+            {
+                DataContext = new SettingsViewModel()
+            };
+
+
+            object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as SettingsViewModel).ClosingEventHandler);
+
         }
 
         private async void DialogHost_Loaded(object sender, EventArgs e)

@@ -30,15 +30,21 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth2" Mode="PrimaryDark">
-                <DockPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="FANTOME" FontSize="40" FontWeight="Normal" FontFamily="Yu Gothic UI Semilight" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
-                    <Image Source="pack://application:,,/Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
-                        <Image.Effect>
-                            <DropShadowEffect/>
-                        </Image.Effect>
-                    </Image>
-                </DockPanel>
+            <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Mode="PrimaryDark">
+                <Grid>
+                    <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Image Source="pack://application:,,/Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
+                            <Image.Effect>
+                                <DropShadowEffect/>
+                            </Image.Effect>
+                        </Image>
+                    </DockPanel>
+                    <DockPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Button x:Name="SettingsButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding RunSettingsDialogCommand}">
+                            <MaterialDesign:PackIcon Kind="Gear" Width="35" Height="35"/>
+                        </Button>
+                    </DockPanel>
+                </Grid>
             </MaterialDesign:ColorZone>
             <Grid Grid.Row="1" Margin="16">
                 <ListBox x:Name="ModsListBox" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged}">
@@ -53,7 +59,7 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-                <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,20,20">
+                <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,20,20">
                     <StackPanel>
                         <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Click="AddMod">
                             <MaterialDesign:PackIcon Kind="CreditCardAdd"/>
