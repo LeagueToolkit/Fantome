@@ -33,13 +33,20 @@ namespace Fantome.MVVM.ViewModels
             this._modManager = modManager;
         }
 
-        public void AddMod(ModFile mod)
+        public void Sync()
         {
-            this.Items.Add(new ModCardViewModel(mod, this._modManager, this));
-
-            this._modManager.AddMod(mod);
+            foreach(KeyValuePair<string, bool> modEntry in this._modManager.Database.Mods)
+            {
+                this.Items.Add(new ModCardViewModel(this._modManager.Database.GetMod(modEntry.Key), modEntry.Value, this._modManager, this));
+            }
         }
 
+        public void AddMod(ModFile mod, bool install)
+        {
+            this.Items.Add(new ModCardViewModel(mod, install, this._modManager, this));
+
+            this._modManager.AddMod(mod, install);
+        }
         public void RemoveMod(ModCardViewModel mod)
         {
             this.Items.Remove(mod);

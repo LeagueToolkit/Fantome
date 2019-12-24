@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,6 +12,10 @@ using Fantome.JobManagement;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.ViewModels;
+using Fantome.UserControls.Dialogs;
+using Fantome.Utilities;
+using MaterialDesignThemes.Wpf;
+using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace Fantome
@@ -24,14 +29,18 @@ namespace Fantome
 
         public MainWindow()
         {
-            this._modManager = new ModManager("C:/Riot Games/League of Legends");
-
+            Config.Load();
             CreateWorkFolders();
             StartPatcher();
             InitializeComponent();
+            InitializeModManager();
             BindMVVM();
         }
 
+        private void InitializeModManager()
+        {
+            this._modManager = new ModManager();
+        }
         private void StartPatcher()
         {
             string arguments = string.Format("{0} -r", Directory.GetCurrentDirectory() + @"\" + ModManager.OVERLAY_FOLDER + @"\").Replace('\\', '/');
@@ -86,7 +95,36 @@ namespace Fantome
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 ModFile mod = new ModFile(dialog.FileName);
-                this.ModList.AddMod(mod);
+                this.ModList.AddMod(mod, true);
+            }
+        }
+
+        private async void DialogHost_Loaded(object sender, EventArgs e)
+        {
+            string leagueLocation = Config.Get<string>("LeagueLocation");
+            if (string.IsNullOrEmpty(leagueLocation))
+            {
+                await GetLeagueLocation();
+                Config.Set("LeagueLocation", leagueLocation);
+                this._modManager.AssignLeague(leagueLocation);
+            }
+
+            this._modManager.AssignLeague(leagueLocation);
+            this.ModList.Sync();
+
+            async Task GetLeagueLocation()
+            {
+                LeagueLocationDialog dialog = new LeagueLocationDialog()
+                {
+                    DataContext = new LeagueLocationDialogViewModel()
+                };
+
+                object result = await DialogHost.Show(dialog, "RootDialog");
+
+                if ((bool)result == true)
+                {
+                    leagueLocation = dialog.ViewModel.LeagueLocation;
+                }
             }
         }
     }

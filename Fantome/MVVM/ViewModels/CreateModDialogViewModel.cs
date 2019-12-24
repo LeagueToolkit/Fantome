@@ -83,7 +83,7 @@ namespace Fantome.MVVM.ViewModels
         private BitmapImage _image;
         private ModListViewModel _modList;
 
-        public ICommand RunDialogCommand => new RelayCommand(ExecuteRunDialog);
+        public ICommand RunDialogComdmand => new RelayCommand(ExecuteRunDialog);
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -112,7 +112,7 @@ namespace Fantome.MVVM.ViewModels
                 }
 
                 ModFile mod = new ModFile(this._wadLocation, this._rawLocation, info, image);
-                this._modList.AddMod(mod);
+                this._modList.AddMod(mod, false);
             }
         }
 

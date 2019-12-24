@@ -87,8 +87,12 @@
     </ApplicationDefinition>
     <Compile Include="JobManagement\Job.cs" />
     <Compile Include="ModManagement\ModDatabase.cs" />
+    <Compile Include="MVVM\ViewModels\LeagueLocationDialogViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModCardViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModListViewModel.cs" />
+    <Compile Include="UserControls\Dialogs\LeagueLocationDialog.xaml.cs">
+      <DependentUpon>LeagueLocationDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ModCard.xaml.cs">
       <DependentUpon>ModCard.xaml</DependentUpon>
     </Compile>
@@ -97,6 +101,11 @@
     </Compile>
     <Compile Include="MVVM\ViewModels\CreateModDialogViewModel.cs" />
     <Compile Include="MVVM\Commands\RelayCommand.cs" />
+    <Compile Include="Utilities\Config.cs" />
+    <Page Include="UserControls\Dialogs\LeagueLocationDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\ModCard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

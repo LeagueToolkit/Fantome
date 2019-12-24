@@ -23,7 +23,14 @@ namespace Fantome.ModManagement
         public string LeagueFolder { get; set; }
         public ModDatabase Database { get; set; }
 
+        public ModManager() { }
+
         public ModManager(string leagueFolder)
+        {
+            AssignLeague(leagueFolder);
+        }
+
+        public void AssignLeague(string leagueFolder)
         {
             if (!IsValidLeagueFolder(leagueFolder))
             {
@@ -60,15 +67,6 @@ namespace Fantome.ModManagement
             else
             {
                 this.Database = new ModDatabase();
-            }
-
-
-            foreach (KeyValuePair<string, bool> mod in this.Database.Mods)
-            {
-                if (mod.Value)
-                {
-                    InstallMod(this.Database.GetMod(mod.Key));
-                }
             }
         }
 

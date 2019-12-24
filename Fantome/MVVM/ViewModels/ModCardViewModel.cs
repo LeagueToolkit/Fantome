@@ -37,11 +37,12 @@ namespace Fantome.MVVM.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ModCardViewModel(ModFile mod, ModManager _modManager, ModListViewModel modList)
+        public ModCardViewModel(ModFile mod, bool isInstalled, ModManager _modManager, ModListViewModel modList)
         {
             this._mod = mod;
             this._modManager = _modManager;
             this._modList = modList;
+            this._isInstalled = isInstalled;
 
             if(mod.Image != null)
             {
@@ -59,13 +60,19 @@ namespace Fantome.MVVM.ViewModels
 
         public void Install()
         {
-            this._modManager.InstallMod(this._mod);
-            this.IsInstalled = true;
+            if(this.IsInstalled && !this._modManager.Database.IsInstalled(this._mod))
+            {
+                this._modManager.InstallMod(this._mod);
+                this.IsInstalled = true;
+            }
         }
         public void Uninstall()
         {
-            this._modManager.UninstallMod(this._mod);
-            this.IsInstalled = false;
+            if(!this.IsInstalled && this._modManager.Database.IsInstalled(this._mod))
+            {
+                this._modManager.UninstallMod(this._mod);
+                this.IsInstalled = false;
+            }
         }
         public void Remove()
         {
