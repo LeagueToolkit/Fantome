@@ -83,8 +83,6 @@ namespace Fantome.MVVM.ViewModels
         private BitmapImage _image;
         private ModListViewModel _modList;
 
-        public ICommand RunDialogComdmand => new RelayCommand(ExecuteRunDialog);
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         public CreateModDialogViewModel(ModListViewModel modList)
@@ -101,12 +99,15 @@ namespace Fantome.MVVM.ViewModels
 
 
             object result = await DialogHost.Show(view, "RootDialog", ClosingEventHandler);
+        }
 
-            if((bool)result == true)
+        public void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
+        {
+            if ((bool)eventArgs.Parameter == true)
             {
                 ModInfo info = new ModInfo(this._name, this._author, new Version(this._version), "");
                 SImage image = null;
-                if(this._image != null)
+                if (this._image != null)
                 {
                     image = SImage.FromStream(this._image.StreamSource);
                 }
@@ -114,11 +115,6 @@ namespace Fantome.MVVM.ViewModels
                 ModFile mod = new ModFile(this._wadLocation, this._rawLocation, info, image);
                 this._modList.AddMod(mod, false);
             }
-        }
-
-        private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
-        {
-
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

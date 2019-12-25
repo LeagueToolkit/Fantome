@@ -64,7 +64,7 @@
                         <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Click="AddMod">
                             <MaterialDesign:PackIcon Kind="CreditCardAdd"/>
                         </Button>
-                        <Button x:Name="ButtonCreateMod" ToolTip="Create Mod" Command="{Binding RunDialogCommand}">
+                        <Button x:Name="ButtonCreateMod" ToolTip="Create Mod" Command="{Binding RunCreateModDialogCommand}">
                             <MaterialDesign:PackIcon Kind="CreateNewFolder"/>
                         </Button>
                     </StackPanel>

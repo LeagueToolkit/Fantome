@@ -30,6 +30,7 @@ namespace Fantome
         private OverlayPatcher _patcher;
 
         public ICommand RunSettingsDialogCommand => new RelayCommand(RunSettingsDialog);
+        public ICommand RunCreateModDialogCommand => new RelayCommand(RunCreateModDialog);
 
         public MainWindow()
         {
@@ -59,7 +60,7 @@ namespace Fantome
         private void BindMVVM()
         {
             this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
-            this.PopupMain.DataContext = new CreateModDialogViewModel(this.ModList);
+            this.ButtonCreateMod.DataContext = this;
             this.SettingsButton.DataContext = this;
         }
 
@@ -74,7 +75,12 @@ namespace Fantome
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                ModFile mod = new ModFile(dialog.FileName);
+                string modName = Path.GetFileName(dialog.FileName);
+                string modPath = string.Format(@"{0}\{1}", ModManager.MOD_FOLDER, modName);
+
+                File.Copy(dialog.FileName, modPath, true);
+
+                ModFile mod = new ModFile(modPath);
                 this.ModList.AddMod(mod, true);
             }
         }
@@ -88,6 +94,16 @@ namespace Fantome
 
 
             object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as SettingsViewModel).ClosingEventHandler);
+        }
+        private async void RunCreateModDialog(object o)
+        {
+            CreateModDialog dialog = new CreateModDialog
+            {
+                DataContext = new CreateModDialogViewModel(this.ModList)
+            };
+
+
+            object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as CreateModDialogViewModel).ClosingEventHandler);
         }
         private async void DialogHost_Loaded(object sender, EventArgs e)
         {

@@ -48,7 +48,7 @@ namespace Fantome.ModManagement
             if (File.Exists(INDEX_FILE))
             {
                 LeagueFileIndex currentIndex = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
-                if (this.Index.Version != GetLeagueVersion())
+                if (currentIndex.Version != GetLeagueVersion())
                 {
                     this.Index = new LeagueFileIndex(this.LeagueFolder);
 
@@ -97,7 +97,7 @@ namespace Fantome.ModManagement
             Dictionary<ulong, List<string>> modIndex = new Dictionary<ulong, List<string>>();
             Dictionary<string, WADFile> wadFiles = new Dictionary<string, WADFile>();
 
-            //Collect WAD files
+            //Collect WAD file name from WAD folders
             foreach (ZipArchiveEntry zipEntry in mod.Content.Entries.Where(x => Regex.IsMatch(x.FullName, @"WAD\\\w*.wad.client\\[\s\S]*")))
             {
                 string wadName = zipEntry.FullName.Split('\\')[1];
@@ -118,7 +118,7 @@ namespace Fantome.ModManagement
                 File.Delete("wadtemp");
             }
 
-            //Process WAD folder folders
+            //Process WAD folders files
             foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
                 foreach (ZipArchiveEntry zipEntry in mod.Content.Entries
@@ -140,10 +140,12 @@ namespace Fantome.ModManagement
             {
                 this.Index.StartEdit();
 
-                //Write modded files to index
+                //Write modded files to index and find whether we need to edit other WAD files for this to work
                 foreach (WADEntry entry in wadFile.Value.Entries)
                 {
-                    this.Index.AddModFile(entry.XXHash, new List<string>() { wadFile.Key });
+                    List<string> sharedWadFiles = new List<string>() { wadFile.Key };
+
+                    this.Index.AddModFile(entry.XXHash, sharedWadFiles);
                 }
 
                 this.Index.EndEdit();
