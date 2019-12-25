@@ -65,7 +65,7 @@ namespace Fantome.MVVM.ViewModels
                 NotifyPropertyChanged();
             }
         }
-        public BitmapImage Image 
+        public BitmapImage Image
         {
             get => this._image;
             set
@@ -88,17 +88,6 @@ namespace Fantome.MVVM.ViewModels
         public CreateModDialogViewModel(ModListViewModel modList)
         {
             this._modList = modList;
-        }
-
-        private async void ExecuteRunDialog(object o)
-        {
-            CreateModDialog view = new CreateModDialog
-            {
-                DataContext = this
-            };
-
-
-            object result = await DialogHost.Show(view, "RootDialog", ClosingEventHandler);
         }
 
         public void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
