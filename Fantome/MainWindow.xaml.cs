@@ -88,7 +88,6 @@ namespace Fantome
 
 
             object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as SettingsViewModel).ClosingEventHandler);
-
         }
         private async void DialogHost_Loaded(object sender, EventArgs e)
         {
