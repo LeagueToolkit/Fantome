@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using Fantome.JobManagement;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.Commands;
@@ -19,6 +18,7 @@ using Fantome.Utilities;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using LoLCustomSharp;
 
 namespace Fantome
 {
@@ -27,7 +27,7 @@ namespace Fantome
         public ModListViewModel ModList { get => this.ModsListBox.DataContext as ModListViewModel; }
 
         private ModManager _modManager;
-        private Thread _patcher;
+        private OverlayPatcher _patcher;
 
         public ICommand RunSettingsDialogCommand => new RelayCommand(RunSettingsDialog);
 
@@ -47,34 +47,9 @@ namespace Fantome
         }
         private void StartPatcher()
         {
-            string arguments = string.Format("{0} -r", Directory.GetCurrentDirectory() + @"\" + ModManager.OVERLAY_FOLDER + @"\").Replace('\\', '/');
-
-            this._patcher = new Thread(delegate ()
-            {
-                using (Job job = new Job())
-                {
-                    ProcessStartInfo info = new ProcessStartInfo()
-                    {
-                        FileName = "lolcustomskin.exe",
-                        Arguments = arguments,
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        CreateNoWindow = false,
-                    };
-
-                    using (Process patcher = Process.Start(info))
-                    {
-                        job.AddProcess(patcher.Id);
-
-                        patcher.EnableRaisingEvents = true;
-
-                        patcher.WaitForExit();
-                    }
-
-                    job.Close();
-                }
-            });
-
-            this._patcher.Start();
+            string overlayDirectory = (Directory.GetCurrentDirectory() + @"\" + ModManager.OVERLAY_FOLDER + @"\").Replace('\\', '/');
+            this._patcher = new OverlayPatcher();
+            this._patcher.Start(overlayDirectory);
         }
         private void CreateWorkFolders()
         {
@@ -115,7 +90,6 @@ namespace Fantome
             object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as SettingsViewModel).ClosingEventHandler);
 
         }
-
         private async void DialogHost_Loaded(object sender, EventArgs e)
         {
             string leagueLocation = Config.Get<string>("LeagueLocation");

@@ -43,6 +43,10 @@
     <Reference Include="Fantome.Libraries.League, Version=1.0.3.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Fantome.Libraries.League.1.0.3.1\lib\net48\Fantome.Libraries.League.dll</HintPath>
     </Reference>
+    <Reference Include="LoLCustomSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\LoLCustomSharp.dll</HintPath>
+    </Reference>
     <Reference Include="MaterialDesignColors, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.1.2.1\lib\net45\MaterialDesignColors.dll</HintPath>
     </Reference>
@@ -85,7 +89,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="JobManagement\Job.cs" />
     <Compile Include="ModManagement\ModDatabase.cs" />
     <Compile Include="MVVM\ViewModels\LeagueLocationDialogViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModCardViewModel.cs" />
@@ -175,6 +178,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="icon.png" />
+    <Content Include="LoLCustomSharp.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="lolcustomskin.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
