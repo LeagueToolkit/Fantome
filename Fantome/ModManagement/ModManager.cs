@@ -39,18 +39,31 @@ namespace Fantome.ModManagement
 
             this.LeagueFolder = leagueFolder;
 
-            ProcessLeagueFileIndex();
             ProcessDatabase();
+            ProcessLeagueFileIndex();
         }
 
         public void ProcessLeagueFileIndex()
         {
             if (File.Exists(INDEX_FILE))
             {
-                this.Index = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
+                LeagueFileIndex currentIndex = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
                 if (this.Index.Version != GetLeagueVersion())
                 {
                     this.Index = new LeagueFileIndex(this.LeagueFolder);
+
+                    //We need to reinstall mods
+                    foreach(KeyValuePair<string, bool> mod in this.Database.Mods)
+                    {
+                        if(mod.Value)
+                        {
+                            InstallMod(this.Database.GetMod(mod.Key));
+                        }
+                    }
+                }
+                else
+                {
+                    this.Index = currentIndex;
                 }
             }
             else
