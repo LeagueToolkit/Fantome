@@ -7,7 +7,11 @@
   </tbody>
 </table> 
 
-**Fantome** is a modding tool for League of Legends. It offers a variety of tools. It can be used to both install custom content and create it.
+**Fantome** is a mod installer for League of Legends.
+
+## Requirements
+* **8 GB RAM or more** is recommended due to some mod installations having high RAM usage (Map skins, DATA mods...)
+* **Windows 10** is required for the backgroud League patcher to work. If you don't have Windows 10 you won't be able to use any mods
 
 ## Discord
 If you want to talk to the developers or other people in the community, join our discord server:
