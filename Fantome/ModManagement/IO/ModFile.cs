@@ -7,6 +7,9 @@ using Newtonsoft.Json;
 using System.Text;
 using System.IO.Compression;
 using System.Windows.Media.Imaging;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Fantome.ModManagement.IO
 {
@@ -99,17 +102,55 @@ namespace Fantome.ModManagement.IO
             }
         }
 
+        public ZipArchiveEntry GetEntry(string path)
+        {
+            char separator = GetPathSeparator(path);
+            ZipArchiveEntry entry = this.Content.GetEntry(path);
+            if (entry == null)
+            {
+                entry = this.Content.GetEntry(path.Replace(separator, GetInvertedPathSeparator(separator)));
+            }
+
+            return entry;
+        }
+        public IEnumerable<ZipArchiveEntry> GetEntries(string regexPattern)
+        {
+            return this.Content.Entries.Where(x => Regex.IsMatch(x.FullName, regexPattern));
+        }
+
+        private char GetPathSeparator(string path)
+        {
+            if (path.Contains('\\'))
+            {
+                return '\\';
+            }
+            else
+            {
+                return '/';
+            }
+        }
+        private char GetInvertedPathSeparator(char separator)
+        {
+            if (separator == '\\')
+            {
+                return '/';
+            }
+            else
+            {
+                return '\\';
+            }
+        }
+
         public string GetModIdentifier()
         {
             return string.Format("{0} - {1} (by {2})", this.Info.Name, this.Info.Version.ToString(), this.Info.Author);
         }
-
         private ModInfo GetPackageInfo()
         {
             try
             {
                 MemoryStream memoryStream = new MemoryStream();
-                this.Content.GetEntry(@"META\info.json").Open().CopyTo(memoryStream);
+                GetEntry(@"META\info.json").Open().CopyTo(memoryStream);
 
                 return JsonConvert.DeserializeObject<ModInfo>(Encoding.ASCII.GetString(memoryStream.ToArray()));
             }
@@ -123,7 +164,7 @@ namespace Fantome.ModManagement.IO
             try
             {
                 MemoryStream memoryStream = new MemoryStream();
-                this.Content.GetEntry(@"META\image.png").Open().CopyTo(memoryStream);
+                GetEntry(@"META\image.png").Open().CopyTo(memoryStream);
 
                 return Image.FromStream(memoryStream);
             }

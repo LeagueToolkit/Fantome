@@ -78,7 +78,10 @@ namespace Fantome
                 string modName = Path.GetFileName(dialog.FileName);
                 string modPath = string.Format(@"{0}\{1}", ModManager.MOD_FOLDER, modName);
 
-                File.Copy(dialog.FileName, modPath, true);
+                if (!File.Exists(modPath))
+                {
+                    File.Copy(dialog.FileName, modPath, true);
+                }
 
                 ModFile mod = new ModFile(modPath);
                 this.ModList.AddMod(mod, true);

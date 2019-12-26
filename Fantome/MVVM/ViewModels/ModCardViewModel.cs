@@ -16,7 +16,7 @@ namespace Fantome.MVVM.ViewModels
 {
     public class ModCardViewModel : INotifyPropertyChanged
     {
-        public bool IsInstalled 
+        public bool IsInstalled
         {
             get => this._isInstalled;
             set
@@ -44,7 +44,7 @@ namespace Fantome.MVVM.ViewModels
             this._modList = modList;
             this._isInstalled = isInstalled;
 
-            if(mod.Image != null)
+            if (mod.Image != null)
             {
                 MemoryStream memoryStream = new MemoryStream();
                 BitmapImage bitmap = new BitmapImage();
@@ -60,7 +60,7 @@ namespace Fantome.MVVM.ViewModels
 
         public void Install()
         {
-            if(this.IsInstalled && !this._modManager.Database.IsInstalled(this._mod))
+            if (this.IsInstalled && !this._modManager.Database.IsInstalled(this._mod))
             {
                 this._modManager.InstallMod(this._mod);
                 this.IsInstalled = true;
@@ -68,7 +68,7 @@ namespace Fantome.MVVM.ViewModels
         }
         public void Uninstall()
         {
-            if(!this.IsInstalled && this._modManager.Database.IsInstalled(this._mod))
+            if (!this.IsInstalled && this._modManager.Database.IsInstalled(this._mod))
             {
                 this._modManager.UninstallMod(this._mod);
                 this.IsInstalled = false;
