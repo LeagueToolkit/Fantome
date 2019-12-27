@@ -246,36 +246,22 @@ namespace Fantome.ModManagement
                 if (this.Index.Game.ContainsKey(hash))
                 {
                     fileWadFiles = this.Index.Game[hash];
-                }
-                else
-                {
-                    continue;
-                }
-
-                foreach (string wadFilePath in fileWadFiles)
-                {
-                    string wadFile = Path.GetFileName(wadFilePath);
-
-                    if (!modWadFiles.ContainsKey(wadFile))
+                    foreach (string wadFilePath in fileWadFiles)
                     {
-                        modWadFiles.Add(wadFile, new WADFile(3, 0));
+                        string wadFile = Path.GetFileName(wadFilePath);
+
+                        if (!modWadFiles.ContainsKey(wadFile))
+                        {
+                            modWadFiles.Add(wadFile, new WADFile(3, 0));
+                        }
+
+                        MemoryStream memoryStream = new MemoryStream();
+                        zipEntry.Open().CopyTo(memoryStream);
+
+                        modWadFiles[wadFile].AddEntry(hash, memoryStream.ToArray(), true);
                     }
 
-                    MemoryStream memoryStream = new MemoryStream();
-                    zipEntry.Open().CopyTo(memoryStream);
-
-                    modWadFiles[wadFile].AddEntry(hash, memoryStream.ToArray(), true);
-
-                    //Add file to Index
-                    //TODO: ASSET COLLISION
-                    if (this.Index.Game.ContainsKey(hash))
-                    {
-                        this.Index.AddModFile(hash, mod.GetID(), this.Index.Game[hash]);
-                    }
-                    else
-                    {
-                        this.Index.AddModFile(hash, mod.GetID(), new List<string>() { wadFilePath });
-                    }
+                    this.Index.AddModFile(hash, mod.GetID(), this.Index.Game[hash]);
                 }
             }
         }
