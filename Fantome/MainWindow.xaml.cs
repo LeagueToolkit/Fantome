@@ -24,6 +24,7 @@ using System.ComponentModel;
 
 using MessageBox = System.Windows.MessageBox;
 using Application = System.Windows.Application;
+using System.Linq;
 
 namespace Fantome
 {
@@ -104,11 +105,10 @@ namespace Fantome
             {
                 if (key != null)
                 {
-                    string executableFile = key.GetValue(this._modManager.LeagueFolder + @"\Game\League of Legends.exe") as string;
-
-                    if (executableFile.Contains("RUNASADMIN"))
+                    List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder)).ToList();
+                    foreach (string value in toRemove)
                     {
-                        key.DeleteValue(this._modManager.LeagueFolder + @"\Game\League of Legends.exe");
+                        key.DeleteValue(value);
                     }
                 }
             }
@@ -117,11 +117,10 @@ namespace Fantome
             {
                 if (key != null)
                 {
-                    string executableFile = key.GetValue(this._modManager.LeagueFolder + @"\Game\League of Legends.exe") as string;
-
-                    if (executableFile.Contains("RUNASADMIN"))
+                    List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder)).ToList();
+                    foreach (string value in toRemove)
                     {
-                        key.DeleteValue(this._modManager.LeagueFolder + @"\Game\League of Legends.exe");
+                        key.DeleteValue(value);
                     }
                 }
             }
