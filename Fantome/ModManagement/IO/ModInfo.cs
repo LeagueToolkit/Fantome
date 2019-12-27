@@ -19,11 +19,15 @@ namespace Fantome.ModManagement.IO
             this.Description = description;
         }
 
+        public string CreateID()
+        {
+            return string.Format("{0} - {1} (by {2})", this.Name, this.Version.ToString(), this.Author);
+        }
+
         public string Serialize()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented, new VersionConverter());
         }
-
         public static ModInfo Deserialize(string json)
         {
             return JsonConvert.DeserializeObject<ModInfo>(json, new VersionConverter());

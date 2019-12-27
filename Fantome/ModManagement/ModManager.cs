@@ -332,8 +332,9 @@ namespace Fantome.ModManagement
 
                     WADFile wad = wadFiles[modFileWadFile];
                     wad.RemoveEntry(modFile);
-                    this.Index.RemoveModFile(modFile, mod.GetID());
                 }
+
+                this.Index.RemoveModFile(modFile, mod.GetID());
             }
 
             //Now we need to either delete empty WAD files or fill the ones from which we removed the entries with original files

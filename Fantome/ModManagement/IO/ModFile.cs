@@ -50,9 +50,9 @@ namespace Fantome.ModManagement.IO
         }
         public ModFile(string wadLocation, string rawLocation, ModInfo info, Image image)
         {
-            using (MemoryStream memoryStream = new MemoryStream())
+            using (FileStream fileStream = new FileStream(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, info.CreateID()), FileMode.Create))
             {
-                using (this.Content = new ZipArchive(memoryStream, ZipArchiveMode.Update))
+                using (this.Content = new ZipArchive(fileStream, ZipArchiveMode.Update))
                 {
                     this._info = info;
                     this._image = image;
@@ -78,8 +78,6 @@ namespace Fantome.ModManagement.IO
                         }
                     }
                 }
-
-                File.WriteAllBytes(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetID()), memoryStream.ToArray());
             }
 
             this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetID()));
@@ -143,7 +141,7 @@ namespace Fantome.ModManagement.IO
 
         public string GetID()
         {
-            return string.Format("{0} - {1} (by {2})", this.Info.Name, this.Info.Version.ToString(), this.Info.Author);
+            return this.Info.CreateID();
         }
         private ModInfo GetPackageInfo()
         {

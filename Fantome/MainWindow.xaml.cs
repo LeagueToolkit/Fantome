@@ -20,9 +20,10 @@ using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using LoLCustomSharp;
 using System.Windows.Forms;
-
-using Application = System.Windows.Application;
 using System.ComponentModel;
+
+using MessageBox = System.Windows.MessageBox;
+using Application = System.Windows.Application;
 
 namespace Fantome
 {
@@ -39,6 +40,8 @@ namespace Fantome
 
         public MainWindow()
         {
+            CheckWindowsVersion();
+
             Config.Load();
             CreateWorkFolders();
             StartPatcher();
@@ -83,6 +86,17 @@ namespace Fantome
                 Show();
                 this.WindowState = WindowState.Normal;
             };
+        }
+        private void CheckWindowsVersion()
+        {
+            OperatingSystem operatingSystem = Environment.OSVersion;
+            if (operatingSystem.Version.Major != 10)
+            {
+                if (MessageBox.Show("You need to be running Windows 10 in order to use Fantome", "", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                {
+                    Application.Current.Shutdown();
+                }
+            }
         }
 
         private void AddMod(object sender, RoutedEventArgs e)
