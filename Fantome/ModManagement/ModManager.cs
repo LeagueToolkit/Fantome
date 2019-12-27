@@ -195,10 +195,10 @@ namespace Fantome.ModManagement
                 if (!modWadFiles.ContainsKey(wadName))
                 {
                     modWadFiles.Add(wadName, new WADFile(3, 0));
+                    wadNames.Add(wadName);
                 }
 
                 modWadFiles[wadName].AddEntry(hash, memoryStream.ToArray(), true);
-                wadNames.Add(wadName);
             }
 
             //Shared Entry Check
@@ -209,7 +209,7 @@ namespace Fantome.ModManagement
                     //Check if the entry is present in the game files or if it's new
                     if (this.Index.Game.ContainsKey(entry.XXHash))
                     {
-                        foreach (string additionalWadPath in this.Index.Game[entry.XXHash].Where(x => x != wadName))
+                        foreach (string additionalWadPath in this.Index.Game[entry.XXHash].Where(x => Path.GetFileName(x) != wadName))
                         {
                             string additionalWadFile = Path.GetFileName(additionalWadPath);
                             if (!modWadFiles.ContainsKey(additionalWadFile))
