@@ -1,4 +1,4 @@
-![Fantome](https://github.com/LoL-Fantome/Fantome/blob/master/Images/fantome-banner.png)
+![Fantome](https://github.com/LoL-Fantome/Fantome/blob/master/Images/fantomebanner.png)
 
 **Fantome** is a mod installer for League of Legends.
 
