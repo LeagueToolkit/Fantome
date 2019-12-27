@@ -100,7 +100,6 @@ namespace Fantome.ModManagement
         public static ModDatabase Deserialize(string json)
         {
             ModDatabase database = JsonConvert.DeserializeObject<ModDatabase>(json);
-            database.SyncFileDictionary();
             return database;
         }
         public void Write(string fileLocation = ModManager.DATABASE_FILE)

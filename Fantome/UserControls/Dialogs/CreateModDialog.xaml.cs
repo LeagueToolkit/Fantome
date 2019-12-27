@@ -19,6 +19,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using Image = System.Drawing.Image;
 using System.IO;
 using System.Drawing.Imaging;
+using System.Collections.ObjectModel;
 
 namespace Fantome.UserControls.Dialogs
 {
@@ -28,10 +29,13 @@ namespace Fantome.UserControls.Dialogs
     public partial class CreateModDialog : UserControl
     {
         public CreateModDialogViewModel ViewModel { get => this.DataContext as CreateModDialogViewModel; }
+        public ObservableCollection<ValidationError> ValidationErrors { get; private set; } = new ObservableCollection<ValidationError>();
 
         public CreateModDialog()
         {
             InitializeComponent();
+
+            this.CreateButton.DataContext = this;
         }
 
         private void AddImage(object sender, RoutedEventArgs e)
@@ -83,6 +87,18 @@ namespace Fantome.UserControls.Dialogs
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 this.ViewModel.RawLocation = dialog.FileName;
+            }
+        }
+
+        private void OnValidationError(object sender, ValidationErrorEventArgs e)
+        {
+            if (e.Action == ValidationErrorEventAction.Added)
+            {
+                this.ValidationErrors.Add(e.Error);
+            }
+            else
+            {
+                this.ValidationErrors.Remove(e.Error);
             }
         }
     }

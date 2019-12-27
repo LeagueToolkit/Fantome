@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
-             xmlns:local="clr-namespace:Fantome"
+             xmlns:local="clr-namespace:Fantome.UserControls.Dialogs"
+             xmlns:ValidationRules="clr-namespace:Fantome.MVVM.ValidationRules"
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              TextElement.FontWeight="Regular"
              TextElement.FontSize="13"
@@ -14,15 +15,22 @@
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{MaterialDesign:MaterialDesignFont}" 
              mc:Ignorable="d" 
-             Height="450" Width="600">
+             Height="450" Width="600" Validation.Error="OnValidationError">
     <UserControl.Resources>
         <ResourceDictionary>
-            
+            <Style x:Key="CreateButtonValidation" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                <Setter Property="IsEnabled" Value="False"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding ValidationErrors.Count}" Value="0">
+                        <Setter Property="IsEnabled" Value="True"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <ValidationRules:VersionValidationRule x:Key="VersionValidationRule"/>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Margin="16">
-
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition />
@@ -55,7 +63,15 @@
                     <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="1" Margin="0, 0, 5, -7" Kind="PersonBox" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="1" Grid.Row="1" Margin="0 0 0 5" x:Name="AuthorTextBox" Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="Author" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
                     <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="2" Margin="0, 0, 5, -7" Kind="TagOutline" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Grid.Row="2" Margin="0 0 0 5" x:Name="VersionTextBox" Text="{Binding Version, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="Version" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                    <TextBox Grid.Column="1" Grid.Row="2" Margin="0 0 0 5" x:Name="VersionTextBox" MaterialDesign:HintAssist.Hint="Version" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
+                        <TextBox.Text>
+                            <Binding Path="Version" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <ValidationRules:VersionValidationRule ValidatesOnTargetUpdated="True"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
                 </Grid>
             </MaterialDesign:ColorZone>
         </Grid>
@@ -87,7 +103,7 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button Content="CREATE" IsDefault="True" Grid.Column="0" Command="{x:Static MaterialDesign:DialogHost.CloseDialogCommand}" Style="{StaticResource MaterialDesignFlatButton}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Margin="0,0,15,0">
+                <Button Content="CREATE" x:Name="CreateButton" IsDefault="True" Grid.Column="0" Command="{x:Static MaterialDesign:DialogHost.CloseDialogCommand}" Style="{StaticResource CreateButtonValidation}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Margin="0,0,15,0">
                     <Button.CommandParameter>
                         <system:Boolean>True</system:Boolean>
                     </Button.CommandParameter>

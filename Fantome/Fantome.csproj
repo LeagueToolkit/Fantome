@@ -93,6 +93,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ModManagement\ModDatabase.cs" />
+    <Compile Include="MVVM\ValidationRules\VersionValidationRule.cs" />
     <Compile Include="MVVM\ViewModels\LeagueLocationDialogViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModCardViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModListViewModel.cs" />
@@ -186,9 +187,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ValueConverters\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MaterialDesignThemes.3.0.0\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.3.0.0\build\MaterialDesignThemes.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
