@@ -50,7 +50,9 @@ namespace Fantome.ModManagement
                 LeagueFileIndex currentIndex = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
                 if (currentIndex.Version != GetLeagueVersion())
                 {
+                    //Create new Index and copy Mod Data from old one
                     this.Index = new LeagueFileIndex(this.LeagueFolder);
+                    currentIndex.CopyModData(this.Index);
 
                     //We need to reinstall mods
                     foreach (KeyValuePair<string, bool> mod in this.Database.Mods)

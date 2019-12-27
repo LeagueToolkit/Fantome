@@ -158,6 +158,25 @@ namespace Fantome.ModManagement
             return wadFiles;
         }
 
+        public void CopyModData(LeagueFileIndex targetIndex)
+        {
+            targetIndex.AssignModIndex(targetIndex.Mod);
+            targetIndex.AssignModFiles(targetIndex.ModFiles);
+            targetIndex.AssignWadModAssignments(targetIndex.WadModAssignments);
+        }
+        internal void AssignModIndex(Dictionary<ulong, List<string>> modIndex)
+        {
+            this._modIndex = modIndex;
+        }
+        internal void AssignModFiles(Dictionary<string, List<ulong>> modFiles)
+        {
+            this._modFiles = modFiles;
+        }
+        internal void AssignWadModAssignments(Dictionary<string, List<string>> wadModAssignments)
+        {
+            this._wadModAssignments = wadModAssignments;
+        }
+
         public static LeagueFileIndex Deserialize(string json)
         {
             return JsonConvert.DeserializeObject<LeagueFileIndex>(json, new VersionConverter());
