@@ -1,11 +1,4 @@
-<table>
-  <tbody>
-    <tr>
-      <td><img width=128 height=128 src="https://i.imgur.com/qHBUCXp.png"></td>
-      <td><h1>Fantome</h1></td>
-    </tr>
-  </tbody>
-</table> 
+![Fantome](https://github.com/LoL-Fantome/Fantome/blob/master/Images/fantome-banner.png)
 
 **Fantome** is a mod installer for League of Legends.
 
