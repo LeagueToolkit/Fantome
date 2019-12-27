@@ -22,6 +22,7 @@ using LoLCustomSharp;
 using System.Windows.Forms;
 
 using Application = System.Windows.Application;
+using System.ComponentModel;
 
 namespace Fantome
 {
@@ -73,7 +74,7 @@ namespace Fantome
             Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Fantome;component/Resources/fantome.ico")).Stream;
             this._notifyIcon = new NotifyIcon()
             {
-                Visible = true,
+                Visible = false,
                 Icon = new System.Drawing.Icon(iconStream)
             };
 
@@ -159,12 +160,22 @@ namespace Fantome
 
         protected override void OnStateChanged(EventArgs e)
         {
-            if(this.WindowState == WindowState.Minimized)
+            if (this.WindowState == WindowState.Minimized)
             {
+                this._notifyIcon.Visible = true;
                 Hide();
+            }
+            else if (this.WindowState == WindowState.Normal)
+            {
+                this._notifyIcon.Visible = false;
             }
 
             base.OnStateChanged(e);
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            this._notifyIcon.Dispose();
         }
     }
 }
