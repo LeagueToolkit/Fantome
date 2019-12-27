@@ -13,7 +13,7 @@ namespace Fantome.ModManagement
 
         public ModDatabase()
         {
-
+            SyncFileDictionary();
         }
 
         public ModDatabase(Dictionary<ModFile, bool> mods)
@@ -89,6 +89,8 @@ namespace Fantome.ModManagement
                     AddMod(new ModFile(modFilePath), false);
                 }
             }
+
+            Write();
         }
 
         public string Serialize()
