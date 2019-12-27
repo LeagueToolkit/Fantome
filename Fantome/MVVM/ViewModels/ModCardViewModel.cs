@@ -77,6 +77,7 @@ namespace Fantome.MVVM.ViewModels
         public void Remove()
         {
             this._modList.RemoveMod(this);
+            this._modManager.RemoveMod(this._mod);
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

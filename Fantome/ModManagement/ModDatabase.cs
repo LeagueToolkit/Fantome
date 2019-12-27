@@ -20,7 +20,7 @@ namespace Fantome.ModManagement
         {
             foreach (KeyValuePair<ModFile, bool> mod in mods)
             {
-                string id = mod.Key.GetModIdentifier();
+                string id = mod.Key.GetID();
 
                 this.Mods.Add(id, mod.Value);
                 this._modFiles.Add(id, mod.Key);
@@ -29,8 +29,8 @@ namespace Fantome.ModManagement
 
         public void AddMod(ModFile mod, bool isInstalled)
         {
-            this.Mods.Add(mod.GetModIdentifier(), isInstalled);
-            this._modFiles.Add(mod.GetModIdentifier(), mod);
+            this.Mods.Add(mod.GetID(), isInstalled);
+            this._modFiles.Add(mod.GetID(), mod);
 
             Write();
         }
@@ -53,9 +53,9 @@ namespace Fantome.ModManagement
         }
         public bool IsInstalled(ModFile mod)
         {
-            string id = mod.GetModIdentifier();
+            string id = mod.GetID();
 
-            if(this.Mods.ContainsKey(id))
+            if (this.Mods.ContainsKey(id))
             {
                 return this.Mods[id];
             }
@@ -65,9 +65,29 @@ namespace Fantome.ModManagement
 
         internal void SyncFileDictionary()
         {
+            List<string> modsToRemove = new List<string>();
+
             foreach (KeyValuePair<string, bool> mod in this.Mods)
             {
-                this._modFiles.Add(mod.Key, new ModFile(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, mod.Key)));
+                //Remove mods which are not present in the Mods folder anymore
+                string modPath = string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, mod.Key);
+                if (!File.Exists(modPath))
+                {
+                    modsToRemove.Add(mod.Key);
+                }
+
+                this._modFiles.Add(mod.Key, new ModFile(modPath));
+            }
+
+            //Scan Mod folder for mods which were potentially added by the user
+            foreach (string modFilePath in Directory.EnumerateFiles(ModManager.MOD_FOLDER))
+            {
+                string modFileName = Path.GetFileNameWithoutExtension(modFilePath);
+
+                if (!this.Mods.ContainsKey(modFileName))
+                {
+                    AddMod(new ModFile(modFilePath), false);
+                }
             }
         }
 

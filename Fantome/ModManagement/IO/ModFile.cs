@@ -79,10 +79,10 @@ namespace Fantome.ModManagement.IO
                     }
                 }
 
-                File.WriteAllBytes(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetModIdentifier()), memoryStream.ToArray());
+                File.WriteAllBytes(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetID()), memoryStream.ToArray());
             }
 
-            this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetModIdentifier()));
+            this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetID()));
         }
 
         public void AddFolder(string path, string folderLocation)
@@ -141,7 +141,7 @@ namespace Fantome.ModManagement.IO
             }
         }
 
-        public string GetModIdentifier()
+        public string GetID()
         {
             return string.Format("{0} - {1} (by {2})", this.Info.Name, this.Info.Version.ToString(), this.Info.Author);
         }

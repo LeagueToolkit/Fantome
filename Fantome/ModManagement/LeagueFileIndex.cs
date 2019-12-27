@@ -12,11 +12,15 @@ namespace Fantome.ModManagement
     public class LeagueFileIndex
     {
         public Version Version { get; set; } = new Version(0, 0, 0, 0);
-        [JsonIgnore] public Dictionary<ulong, List<string>> Game { get => this._gameIndex; }
-        [JsonIgnore] public Dictionary<ulong, List<string>> Mod { get => this._modIndex; }
+        [JsonIgnore] public Dictionary<ulong, List<string>> Game => this._gameIndex;
+        [JsonIgnore] public Dictionary<ulong, List<string>> Mod => this._modIndex;
+        [JsonIgnore] public Dictionary<string, List<ulong>> ModFiles => this._modFiles;
+        [JsonIgnore] public Dictionary<string, List<string>> WadModAssignments => this._wadModAssignments;
 
         [JsonProperty] private Dictionary<ulong, List<string>> _gameIndex { get; set; } = new Dictionary<ulong, List<string>>();
         [JsonProperty] private Dictionary<ulong, List<string>> _modIndex { get; set; } = new Dictionary<ulong, List<string>>();
+        [JsonProperty] private Dictionary<string, List<ulong>> _modFiles { get; set; } = new Dictionary<string, List<ulong>>();
+        [JsonProperty] private Dictionary<string, List<string>> _wadModAssignments { get; set; } = new Dictionary<string, List<string>>();
 
         private bool _shouldWrite = true;
 
@@ -58,29 +62,69 @@ namespace Fantome.ModManagement
         {
             this._shouldWrite = false;
         }
-
         public void EndEdit()
         {
             this._shouldWrite = true;
             Write();
         }
 
-        public void AddModFile(ulong hash, List<string> wads)
+        public void AddModFile(ulong hash, string modId, List<string> wads)
         {
+            //Add file to File-Wad map
             this._modIndex.Add(hash, wads);
+
+            //Add file to Mod-File map
+            if (!this._modFiles.ContainsKey(modId))
+            {
+                this._modFiles.Add(modId, new List<ulong>());
+            }
+            this._modFiles[modId].Add(hash);
 
             if (this._shouldWrite)
             {
                 Write();
             }
         }
-        public void RemoveModFile(ulong hash)
+        public void RemoveModFile(ulong hash, string modId)
         {
             this._modIndex.Remove(hash);
+            this._modFiles[modId].Remove(hash);
+
+            //Remove Mod entry since it's empty
+            if (this._modFiles[modId].Count == 0)
+            {
+                this._modFiles.Remove(modId);
+            }
 
             if (this._shouldWrite)
             {
                 Write();
+            }
+        }
+        public void AssignWadsToMod(string modId, List<string> wads)
+        {
+            foreach (string wadName in wads)
+            {
+                string wadPath = FindWADPath(wadName);
+
+                if (!this._wadModAssignments.ContainsKey(wadPath))
+                {
+                    this._wadModAssignments.Add(wadPath, new List<string>());
+                }
+
+                this._wadModAssignments[wadPath].Add(modId);
+            }
+
+            if (this._shouldWrite)
+            {
+                Write();
+            }
+        }
+        public void RemoveWadsFromMod(string modId)
+        {
+            foreach (KeyValuePair<string, List<string>> wadFile in this._wadModAssignments)
+            {
+                wadFile.Value.RemoveAll(x => x == modId);
             }
         }
 
@@ -98,6 +142,20 @@ namespace Fantome.ModManagement
             }
 
             return string.Empty;
+        }
+        public List<string> GetModWadFiles(string modId)
+        {
+            List<string> wadFiles = new List<string>();
+
+            foreach (KeyValuePair<string, List<string>> wadFile in this._wadModAssignments)
+            {
+                if (wadFile.Value.Any(x => x == modId))
+                {
+                    wadFiles.Add(wadFile.Key);
+                }
+            }
+
+            return wadFiles;
         }
 
         public static LeagueFileIndex Deserialize(string json)

@@ -19,6 +19,9 @@ using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using LoLCustomSharp;
+using System.Windows.Forms;
+
+using Application = System.Windows.Application;
 
 namespace Fantome
 {
@@ -28,6 +31,7 @@ namespace Fantome
 
         private ModManager _modManager;
         private OverlayPatcher _patcher;
+        private NotifyIcon _notifyIcon;
 
         public ICommand RunSettingsDialogCommand => new RelayCommand(RunSettingsDialog);
         public ICommand RunCreateModDialogCommand => new RelayCommand(RunCreateModDialog);
@@ -40,6 +44,7 @@ namespace Fantome
             InitializeComponent();
             InitializeModManager();
             BindMVVM();
+            InitializeTrayIcon();
         }
 
         private void InitializeModManager()
@@ -62,6 +67,21 @@ namespace Fantome
             this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
             this.ButtonCreateMod.DataContext = this;
             this.SettingsButton.DataContext = this;
+        }
+        private void InitializeTrayIcon()
+        {
+            Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Fantome;component/Resources/fantome.ico")).Stream;
+            this._notifyIcon = new NotifyIcon()
+            {
+                Visible = true,
+                Icon = new System.Drawing.Icon(iconStream)
+            };
+
+            this._notifyIcon.DoubleClick += delegate (object sender, EventArgs args)
+            {
+                Show();
+                this.WindowState = WindowState.Normal;
+            };
         }
 
         private void AddMod(object sender, RoutedEventArgs e)
@@ -135,6 +155,16 @@ namespace Fantome
                     leagueLocation = dialog.ViewModel.LeagueLocation;
                 }
             }
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            if(this.WindowState == WindowState.Minimized)
+            {
+                Hide();
+            }
+
+            base.OnStateChanged(e);
         }
     }
 }
