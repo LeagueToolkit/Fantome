@@ -98,6 +98,34 @@ namespace Fantome
                 }
             }
         }
+        private void RemoveExecutableAdminPrivilages()
+        {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers\", true))
+            {
+                if (key != null)
+                {
+                    string executableFile = key.GetValue(this._modManager.LeagueFolder + @"\Game\League of Legends.exe") as string;
+
+                    if (executableFile.Contains("RUNASADMIN"))
+                    {
+                        key.DeleteValue(this._modManager.LeagueFolder + @"\Game\League of Legends.exe");
+                    }
+                }
+            }
+
+            using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\WindowsNT\CurrentVersion\AppCompatFlags\Layers\", true))
+            {
+                if (key != null)
+                {
+                    string executableFile = key.GetValue(this._modManager.LeagueFolder + @"\Game\League of Legends.exe") as string;
+
+                    if (executableFile.Contains("RUNASADMIN"))
+                    {
+                        key.DeleteValue(this._modManager.LeagueFolder + @"\Game\League of Legends.exe");
+                    }
+                }
+            }
+        }
 
         private void AddMod(object sender, RoutedEventArgs e)
         {
@@ -150,11 +178,12 @@ namespace Fantome
             {
                 await GetLeagueLocation();
                 Config.Set("LeagueLocation", leagueLocation);
-                this._modManager.AssignLeague(leagueLocation);
             }
 
             this._modManager.AssignLeague(leagueLocation);
             this.ModList.Sync();
+
+            RemoveExecutableAdminPrivilages();
 
             async Task GetLeagueLocation()
             {
