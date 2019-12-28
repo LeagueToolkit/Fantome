@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Fantome.Utilities;
 
 namespace Fantome.ModManagement.IO
 {
@@ -102,11 +103,11 @@ namespace Fantome.ModManagement.IO
 
         public ZipArchiveEntry GetEntry(string path)
         {
-            char separator = GetPathSeparator(path);
+            char separator = Pathing.GetPathSeparator(path);
             ZipArchiveEntry entry = this.Content.GetEntry(path);
             if (entry == null)
             {
-                entry = this.Content.GetEntry(path.Replace(separator, GetInvertedPathSeparator(separator)));
+                entry = this.Content.GetEntry(path.Replace(separator, Pathing.GetInvertedPathSeparator(separator)));
             }
 
             return entry;
@@ -114,29 +115,6 @@ namespace Fantome.ModManagement.IO
         public IEnumerable<ZipArchiveEntry> GetEntries(string regexPattern)
         {
             return this.Content.Entries.Where(x => Regex.IsMatch(x.FullName, regexPattern));
-        }
-
-        private char GetPathSeparator(string path)
-        {
-            if (path.Contains('\\'))
-            {
-                return '\\';
-            }
-            else
-            {
-                return '/';
-            }
-        }
-        private char GetInvertedPathSeparator(char separator)
-        {
-            if (separator == '\\')
-            {
-                return '/';
-            }
-            else
-            {
-                return '\\';
-            }
         }
 
         public string GetID()

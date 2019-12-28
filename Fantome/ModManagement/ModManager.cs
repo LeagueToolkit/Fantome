@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Fantome.Libraries.League.Helpers.Cryptography;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.ModManagement.IO;
+using Fantome.Utilities;
 
 namespace Fantome.ModManagement
 {
@@ -141,7 +142,8 @@ namespace Fantome.ModManagement
         {
             foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD[\\/][\w.]+.wad.client(?![\\/])"))
             {
-                string wadName = zipEntry.FullName.Replace('/', '\\').Split('\\')[1];
+                char ps = Pathing.GetPathSeparator(zipEntry.FullName);
+                string wadName = zipEntry.FullName.Split(ps)[1];
 
                 zipEntry.ExtractToFile("wadtemp", true);
                 modWadFiles.Add(wadName, new WADFile(new MemoryStream(File.ReadAllBytes("wadtemp"))));
@@ -192,8 +194,9 @@ namespace Fantome.ModManagement
 
             foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD[\\/][\w.]+.wad.client[\\/].*"))
             {
-                string wadName = zipEntry.FullName.Replace('/', '\\').Split('\\')[1];
-                string path = zipEntry.FullName.Replace('/', '\\').Replace(string.Format("WAD\\{0}\\", wadName), "").Replace('\\', '/');
+                char ps = Pathing.GetPathSeparator(zipEntry.FullName);
+                string wadName = zipEntry.FullName.Split(ps)[1];
+                string path = zipEntry.FullName.Replace(string.Format("WAD{0}{1}{0}", ps, wadName), "").Replace('\\', '/');
                 ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
                 MemoryStream memoryStream = new MemoryStream();
@@ -252,7 +255,8 @@ namespace Fantome.ModManagement
         {
             foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"RAW[\\/].*"))
             {
-                string path = zipEntry.FullName.Replace('/', '\\').Replace(@"RAW\", "").Replace('\\', '/');
+                char ps = Pathing.GetPathSeparator(zipEntry.FullName);
+                string path = zipEntry.FullName.Replace(@"RAW" + ps, "").Replace('\\', '/');
                 ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
                 List<string> fileWadFiles = new List<string>();
 
@@ -292,20 +296,24 @@ namespace Fantome.ModManagement
                 if (!File.Exists(overlayModWadPath))
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(overlayModWadPath));
-                    File.Copy(gameModWadPath, overlayModWadPath + ".temp");
+
+                    using (WADFile mergedWad = WADMerger.Merge(new WADFile(gameModWadPath), modWadFile.Value))
+                    {
+                        mergedWad.Write(overlayModWadPath);
+                    }
                 }
                 else
                 {
                     File.Move(overlayModWadPath, overlayModWadPath + ".temp");
-                }
 
-                using (WADFile mergedWad = WADMerger.Merge(new WADFile(overlayModWadPath + ".temp"), modWadFile.Value))
-                {
-                    mergedWad.Write(overlayModWadPath);
-                }
+                    using (WADFile mergedWad = WADMerger.Merge(new WADFile(overlayModWadPath + ".temp"), modWadFile.Value))
+                    {
+                        mergedWad.Write(overlayModWadPath);
+                    }
 
-                //Delete temp wad file
-                File.Delete(overlayModWadPath + ".temp");
+                    //Delete temp wad file
+                    File.Delete(overlayModWadPath + ".temp");
+                }
             }
         }
 

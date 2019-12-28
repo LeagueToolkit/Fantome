@@ -14,7 +14,9 @@ namespace Fantome.ModManagement
             //First add new files and then modify changed ones
             foreach (WADEntry entry in wadMerge.Entries)
             {
-                if (!wadBase.Entries.Any(x => x.XXHash == entry.XXHash))
+                WADEntry baseEntry = wadBase.Entries.First(x => x.XXHash == entry.XXHash);
+
+                if (baseEntry == null)
                 {
                     if (entry.Type == EntryType.Uncompressed)
                     {
@@ -25,7 +27,7 @@ namespace Fantome.ModManagement
                         wadBase.AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, entry.Type);
                     }
                 }
-                else if (!entry.SHA.SequenceEqual(wadBase.Entries.Single(x => x.XXHash == entry.XXHash).SHA))
+                else if (!entry.SHA.SequenceEqual(baseEntry.SHA))
                 {
                     if (entry.Type == EntryType.Uncompressed)
                     {

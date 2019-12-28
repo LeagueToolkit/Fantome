@@ -113,6 +113,7 @@
     <Compile Include="MVVM\ViewModels\CreateModDialogViewModel.cs" />
     <Compile Include="MVVM\Commands\RelayCommand.cs" />
     <Compile Include="Utilities\Config.cs" />
+    <Compile Include="Utilities\Pathing.cs" />
     <Page Include="UserControls\Dialogs\LeagueLocationDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
