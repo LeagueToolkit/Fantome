@@ -139,9 +139,9 @@ namespace Fantome.ModManagement
         }
         private void CollectWADFiles(ModFile mod, Dictionary<string, WADFile> modWadFiles)
         {
-            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD\\[\w.]+.wad.client(?![\\])"))
+            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD[\\/][\w.]+.wad.client(?![\\/])"))
             {
-                string wadName = zipEntry.FullName.Split('\\')[1];
+                string wadName = zipEntry.FullName.Replace('/', '\\').Split('\\')[1];
 
                 zipEntry.ExtractToFile("wadtemp", true);
                 modWadFiles.Add(wadName, new WADFile(new MemoryStream(File.ReadAllBytes("wadtemp"))));
@@ -172,10 +172,6 @@ namespace Fantome.ModManagement
                             }
                         }
                     }
-                    else
-                    {
-                        
-                    }
 
                     //Add file to Index
                     //TODO: ASSET COLLISION
@@ -194,10 +190,10 @@ namespace Fantome.ModManagement
         {
             List<string> wadNames = new List<string>();
 
-            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD\\[\w.]+.wad.client\\.*"))
+            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD[\\/][\w.]+.wad.client[\\/].*"))
             {
-                string wadName = zipEntry.FullName.Split('\\')[1];
-                string path = zipEntry.FullName.Replace(string.Format("WAD\\{0}\\", wadName), "").Replace('\\', '/');
+                string wadName = zipEntry.FullName.Replace('/', '\\').Split('\\')[1];
+                string path = zipEntry.FullName.Replace('/', '\\').Replace(string.Format("WAD\\{0}\\", wadName), "").Replace('\\', '/');
                 ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
                 MemoryStream memoryStream = new MemoryStream();
@@ -254,9 +250,9 @@ namespace Fantome.ModManagement
         }
         private void CollectRAWFiles(ModFile mod, Dictionary<string, WADFile> modWadFiles)
         {
-            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"RAW\\[\s\S]*"))
+            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"RAW[\\/].*"))
             {
-                string path = zipEntry.FullName.Replace(@"RAW\", "").Replace('\\', '/');
+                string path = zipEntry.FullName.Replace('/', '\\').Replace(@"RAW\", "").Replace('\\', '/');
                 ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
                 List<string> fileWadFiles = new List<string>();
 
