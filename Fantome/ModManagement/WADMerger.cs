@@ -12,15 +12,29 @@ namespace Fantome.ModManagement
         public static WADFile Merge(WADFile wadBase, WADFile wadMerge)
         {
             //First add new files and then modify changed ones
-            foreach(WADEntry entry in wadMerge.Entries)
+            foreach (WADEntry entry in wadMerge.Entries)
             {
-                if(!wadBase.Entries.Any(x => x.XXHash == entry.XXHash))
+                if (!wadBase.Entries.Any(x => x.XXHash == entry.XXHash))
                 {
-                    wadBase.AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, entry.Type);
+                    if (entry.Type == EntryType.Uncompressed)
+                    {
+                        wadBase.AddEntry(entry.XXHash, entry.GetContent(false), false);
+                    }
+                    else if (entry.Type == EntryType.ZStandardCompressed || entry.Type == EntryType.Compressed)
+                    {
+                        wadBase.AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, entry.Type);
+                    }
                 }
-                else if(!entry.SHA.SequenceEqual(wadBase.Entries.Single(x => x.XXHash == entry.XXHash).SHA))
+                else if (!entry.SHA.SequenceEqual(wadBase.Entries.Single(x => x.XXHash == entry.XXHash).SHA))
                 {
-                    wadBase.Entries.Single(x => x.XXHash == entry.XXHash).EditData(entry.GetContent(false), entry.UncompressedSize);
+                    if (entry.Type == EntryType.Uncompressed)
+                    {
+                        wadBase.Entries.Single(x => x.XXHash == entry.XXHash).EditData(entry.GetContent(false));
+                    }
+                    else if (entry.Type == EntryType.ZStandardCompressed || entry.Type == EntryType.Compressed)
+                    {
+                        wadBase.Entries.Single(x => x.XXHash == entry.XXHash).EditData(entry.GetContent(false), entry.UncompressedSize);
+                    }
                 }
             }
 

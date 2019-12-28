@@ -139,7 +139,7 @@ namespace Fantome.ModManagement
         }
         private void CollectWADFiles(ModFile mod, Dictionary<string, WADFile> modWadFiles)
         {
-            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD\\\w*.wad.client(?![\\])"))
+            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD\\[\w.]+.wad.client(?![\\])"))
             {
                 string wadName = zipEntry.FullName.Split('\\')[1];
 
@@ -162,8 +162,19 @@ namespace Fantome.ModManagement
                                 modWadFiles.Add(additionalWadFile, new WADFile(3, 0));
                             }
 
-                            modWadFiles[additionalWadFile].AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, EntryType.ZStandardCompressed);
+                            if (entry.Type == EntryType.Uncompressed)
+                            {
+                                modWadFiles[additionalWadFile].AddEntry(entry.XXHash, entry.GetContent(false), false);
+                            }
+                            else if (entry.Type == EntryType.Compressed || entry.Type == EntryType.ZStandardCompressed)
+                            {
+                                modWadFiles[additionalWadFile].AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, entry.Type);
+                            }
                         }
+                    }
+                    else
+                    {
+
                     }
 
                     //Add file to Index
@@ -183,7 +194,7 @@ namespace Fantome.ModManagement
         {
             List<string> wadNames = new List<string>();
 
-            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD\\\w*.wad.client\\[\s\S]*"))
+            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD\\[\w.]+.wad.client\\[\s\S]*"))
             {
                 string wadName = zipEntry.FullName.Split('\\')[1];
                 string path = zipEntry.FullName.Replace(string.Format("WAD\\{0}\\", wadName), "").Replace('\\', '/');
@@ -198,7 +209,14 @@ namespace Fantome.ModManagement
                     wadNames.Add(wadName);
                 }
 
-                modWadFiles[wadName].AddEntry(hash, memoryStream.ToArray(), true);
+                if (Path.GetExtension(path) == ".wpk")
+                {
+                    modWadFiles[wadName].AddEntry(hash, memoryStream.ToArray(), false);
+                }
+                else
+                {
+                    modWadFiles[wadName].AddEntry(hash, memoryStream.ToArray(), true);
+                }
             }
 
             //Shared Entry Check
