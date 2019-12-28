@@ -5,6 +5,7 @@
 * **Windows 10** is required for the backgroud League patcher to work. If you don't have Windows 10 you won't be able to use any mods
 
 ## [Introduction](https://github.com/LoL-Fantome/Fantome/wiki/Introduction)
+## [Releases](https://github.com/LoL-Fantome/Fantome/releases)
 
 ## Discord
 If you want to talk to the developers or other people in the community, join our discord server:
