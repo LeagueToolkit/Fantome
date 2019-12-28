@@ -174,7 +174,7 @@ namespace Fantome.ModManagement
                     }
                     else
                     {
-
+                        
                     }
 
                     //Add file to Index
@@ -194,7 +194,7 @@ namespace Fantome.ModManagement
         {
             List<string> wadNames = new List<string>();
 
-            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD\\[\w.]+.wad.client\\[\s\S]*"))
+            foreach (ZipArchiveEntry zipEntry in mod.GetEntries(@"WAD\\[\w.]+.wad.client\\.*"))
             {
                 string wadName = zipEntry.FullName.Split('\\')[1];
                 string path = zipEntry.FullName.Replace(string.Format("WAD\\{0}\\", wadName), "").Replace('\\', '/');
