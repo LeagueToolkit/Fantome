@@ -14,7 +14,7 @@ namespace Fantome.ModManagement
             //First add new files and then modify changed ones
             foreach (WADEntry entry in wadMerge.Entries)
             {
-                WADEntry baseEntry = wadBase.Entries.First(x => x.XXHash == entry.XXHash);
+                WADEntry baseEntry = wadBase.Entries.FirstOrDefault(x => x.XXHash == entry.XXHash);
 
                 if (baseEntry == null)
                 {
