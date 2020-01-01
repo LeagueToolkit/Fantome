@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using System.ComponentModel;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Fantome.MVVM.ViewModels;
+using MaterialDesignThemes.Wpf;
 
 namespace Fantome.UserControls.Dialogs
 {
@@ -20,9 +11,32 @@ namespace Fantome.UserControls.Dialogs
     /// </summary>
     public partial class InstallingModDialog : UserControl
     {
+        public InstallingModViewModel ViewModel => this.DataContext as InstallingModViewModel;
+
         public InstallingModDialog()
         {
             InitializeComponent();
+        }
+
+        public void StartInstallation(object sender, EventArgs e)
+        {
+            using (BackgroundWorker worker = new BackgroundWorker())
+            {
+                worker.DoWork += InstallMod;
+                worker.RunWorkerCompleted += CloseDialog;
+
+                worker.RunWorkerAsync(this.ViewModel);
+            }
+        }
+
+        private void CloseDialog(object sender, RunWorkerCompletedEventArgs e)
+        {
+            DialogHost.CloseDialogCommand.Execute(null, null);
+        }
+
+        private void InstallMod(object sender, DoWorkEventArgs e)
+        {
+            (e.Argument as InstallingModViewModel).Install();
         }
     }
 }

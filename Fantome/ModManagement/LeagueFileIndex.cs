@@ -92,6 +92,10 @@ namespace Fantome.ModManagement
                 {
                     this._wadModMap[newWadMod.Key].AddRange(newWadMod.Value);
                 }
+                else
+                {
+                    this._wadModMap.Add(newWadMod.Key, newWadMod.Value);
+                }
             }
 
             Log.Information("Commited Index changes");

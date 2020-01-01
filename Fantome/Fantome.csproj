@@ -147,6 +147,7 @@
     </ApplicationDefinition>
     <Compile Include="ModManagement\ModDatabase.cs" />
     <Compile Include="MVVM\ValidationRules\VersionValidationRule.cs" />
+    <Compile Include="MVVM\ViewModels\InstallingModViewModel.cs" />
     <Compile Include="MVVM\ViewModels\LeagueLocationDialogViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModCardViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModListViewModel.cs" />
