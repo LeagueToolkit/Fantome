@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.IO;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
+using System.Windows.Forms;
 using System.Windows.Input;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
@@ -15,21 +13,20 @@ using Fantome.MVVM.Commands;
 using Fantome.MVVM.ViewModels;
 using Fantome.UserControls.Dialogs;
 using Fantome.Utilities;
+using LoLCustomSharp;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using LoLCustomSharp;
-using System.Windows.Forms;
-using System.ComponentModel;
-
-using MessageBox = System.Windows.MessageBox;
+using Serilog;
 using Application = System.Windows.Application;
-using System.Linq;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Fantome
 {
     public partial class MainWindow : Window
     {
+        public const string LOGS_FOLDER = "Logs";
+
         public ModListViewModel ModList { get => this.ModsListBox.DataContext as ModListViewModel; }
 
         private ModManager _modManager;
@@ -44,6 +41,7 @@ namespace Fantome
             CheckWindowsVersion();
 
             Config.Load();
+            InitializeLogger();
             CreateWorkFolders();
             StartPatcher();
             InitializeComponent();
@@ -54,27 +52,34 @@ namespace Fantome
 
         private void InitializeModManager()
         {
+            Log.Information("Initializing Mod Manager");
             this._modManager = new ModManager();
         }
         private void StartPatcher()
         {
+            Log.Information("Starting League Patcher");
             string overlayDirectory = (Directory.GetCurrentDirectory() + @"\" + ModManager.OVERLAY_FOLDER + @"\").Replace('\\', '/');
             this._patcher = new OverlayPatcher();
             this._patcher.Start(overlayDirectory);
         }
         private void CreateWorkFolders()
         {
+            Log.Information("Creating Work folders");
             Directory.CreateDirectory(ModManager.MOD_FOLDER);
             Directory.CreateDirectory(ModManager.OVERLAY_FOLDER);
+            Directory.CreateDirectory(LOGS_FOLDER);
         }
         private void BindMVVM()
         {
+            Log.Information("Binding View Models");
             this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
             this.ButtonCreateMod.DataContext = this;
             this.SettingsButton.DataContext = this;
         }
         private void InitializeTrayIcon()
         {
+            Log.Information("Initializing Tray Icon");
+
             Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Fantome;component/Resources/fantome.ico")).Stream;
             this._notifyIcon = new NotifyIcon()
             {
@@ -108,6 +113,7 @@ namespace Fantome
                     List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder)).ToList();
                     foreach (string value in toRemove)
                     {
+                        Log.Information("Removing Admin privialige from: " + value);
                         key.DeleteValue(value);
                     }
                 }
@@ -120,10 +126,20 @@ namespace Fantome
                     List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder)).ToList();
                     foreach (string value in toRemove)
                     {
+                        Log.Information("Removing Admin privialige from: " + value);
                         key.DeleteValue(value);
                     }
                 }
             }
+        }
+        private void InitializeLogger()
+        {
+            string logPath = string.Format(@"{0}\FantomeLog - {1}.txt", LOGS_FOLDER, DateTime.Now.ToString("dd.MM.yyyy - HH-mm-ss"));
+            string loggingPattern = Config.Get<string>("LoggingPattern");
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(logPath, outputTemplate: loggingPattern)
+                .CreateLogger();
         }
 
         private void AddMod(object sender, RoutedEventArgs e)
@@ -142,9 +158,11 @@ namespace Fantome
 
                 if (!File.Exists(modPath))
                 {
+                    Log.Information("Copying Mod: {0} to {1}", dialog.FileName, modPath);
                     File.Copy(dialog.FileName, modPath, true);
                 }
 
+                Log.Information("Loading Mod: {0}", modPath);
                 ModFile mod = new ModFile(modPath);
                 this.ModList.AddMod(mod, true);
             }

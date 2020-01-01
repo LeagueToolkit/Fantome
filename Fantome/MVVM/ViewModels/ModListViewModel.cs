@@ -8,12 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
+using Serilog;
 
 namespace Fantome.MVVM.ViewModels
 {
     public class ModListViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<ModCardViewModel> Items 
+        public ObservableCollection<ModCardViewModel> Items
         {
             get => this._items;
             set
@@ -44,7 +45,6 @@ namespace Fantome.MVVM.ViewModels
         public void AddMod(ModFile mod, bool install)
         {
             this.Items.Add(new ModCardViewModel(mod, install, this._modManager, this));
-
             this._modManager.AddMod(mod, install);
         }
         public void RemoveMod(ModCardViewModel mod)

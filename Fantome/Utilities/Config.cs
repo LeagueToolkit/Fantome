@@ -15,7 +15,8 @@ namespace Fantome.Utilities
 
         private static readonly Dictionary<string, object> _defaultConfig = new Dictionary<string, object>
         {
-            { "LeagueLocation", "" }
+            { "LeagueLocation", "" },
+            { "LoggingPattern", "{Timestamp:dd-MM-yyyy HH:mm:ss.fff} | [{Level}] |  {Message:lj}{NewLine}{Exception}" }
         };
         private static Dictionary<string, object> _config = new Dictionary<string, object>();
 
@@ -23,9 +24,13 @@ namespace Fantome.Utilities
         {
             if(!_config.ContainsKey(key))
             {
-                return default;
+                return GetDefault<T>(key);
             }
 
+            return (T)_config[key];
+        }
+        public static T GetDefault<T>(string key)
+        {
             return (T)_config[key];
         }
         public static void Set(string key, object value)
@@ -47,6 +52,15 @@ namespace Fantome.Utilities
             if(File.Exists(CONFIG_FILE))
             {
                 Deserialize(File.ReadAllText(fileLocation));
+
+                //Check if config is outdated
+                foreach(KeyValuePair<string, object> configEntry in _defaultConfig)
+                {
+                    if(!_config.ContainsKey(configEntry.Key))
+                    {
+                        _config.Add(configEntry.Key, configEntry.Value);
+                    }
+                }
             }
             else
             {

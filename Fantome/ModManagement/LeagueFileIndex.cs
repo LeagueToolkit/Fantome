@@ -6,6 +6,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using Fantome.Libraries.League.IO.WAD;
 using Newtonsoft.Json.Converters;
+using Fantome.ModManagement.IO;
+using Serilog;
 
 namespace Fantome.ModManagement
 {
@@ -14,23 +16,28 @@ namespace Fantome.ModManagement
         public Version Version { get; set; } = new Version(0, 0, 0, 0);
         [JsonIgnore] public Dictionary<ulong, List<string>> Game => this._gameIndex;
         [JsonIgnore] public Dictionary<ulong, List<string>> Mod => this._modIndex;
-        [JsonIgnore] public Dictionary<string, List<ulong>> ModFiles => this._modFiles;
-        [JsonIgnore] public Dictionary<string, List<string>> WadModAssignments => this._wadModAssignments;
+        [JsonIgnore] public Dictionary<string, List<ulong>> ModEntryMap => this._modEntryMap;
+        [JsonIgnore] public Dictionary<ulong, string> EntryModMap => this._entryModMap;
+        [JsonIgnore] public Dictionary<string, List<string>> WadModMap => this._wadModMap;
 
         [JsonProperty] private Dictionary<ulong, List<string>> _gameIndex { get; set; } = new Dictionary<ulong, List<string>>();
         [JsonProperty] private Dictionary<ulong, List<string>> _modIndex { get; set; } = new Dictionary<ulong, List<string>>();
-        [JsonProperty] private Dictionary<string, List<ulong>> _modFiles { get; set; } = new Dictionary<string, List<ulong>>();
-        [JsonProperty] private Dictionary<string, List<string>> _wadModAssignments { get; set; } = new Dictionary<string, List<string>>();
+        [JsonProperty] private Dictionary<string, List<ulong>> _modEntryMap { get; set; } = new Dictionary<string, List<ulong>>();
+        [JsonProperty] private Dictionary<ulong, string> _entryModMap { get; set; } = new Dictionary<ulong, string>();
+        [JsonProperty] private Dictionary<string, List<string>> _wadModMap { get; set; } = new Dictionary<string, List<string>>();
 
-        private bool _shouldWrite = true;
+        private Dictionary<ulong, List<string>> _newModIndex = new Dictionary<ulong, List<string>>();
+        private Dictionary<string, List<ulong>> _newModEntryMap = new Dictionary<string, List<ulong>>();
+        private Dictionary<ulong, string> _newEntryModMap = new Dictionary<ulong, string>();
+        private Dictionary<string, List<string>> _newWadModMap = new Dictionary<string, List<string>>();
+
+        private bool _isEditing = true;
 
         public LeagueFileIndex() { }
         public LeagueFileIndex(string leagueFolder)
         {
             string wadRootPath = Path.Combine(leagueFolder, @"Game\DATA\FINAL");
             this.Version = new Version(FileVersionInfo.GetVersionInfo(Path.Combine(leagueFolder, @"Game\League of Legends.exe")).FileVersion);
-
-            StartEdit();
 
             foreach (string wadFile in Directory.GetFiles(wadRootPath, "*", SearchOption.AllDirectories).Where(x => x.Contains(".wad")))
             {
@@ -55,79 +62,179 @@ namespace Fantome.ModManagement
                 }
             }
 
-            EndEdit();
+            Write();
         }
 
         public void StartEdit()
         {
-            this._shouldWrite = false;
+            Log.Information("Starting Index Edit");
+            this._isEditing = true;
         }
         public void EndEdit()
         {
-            this._shouldWrite = true;
+            this._isEditing = false;
+
+            foreach (KeyValuePair<ulong, List<string>> newModEntry in this._newModIndex)
+            {
+                this._modIndex.Add(newModEntry.Key, newModEntry.Value);
+            }
+            foreach (KeyValuePair<string, List<ulong>> newModEntry in this._newModEntryMap)
+            {
+                this._modEntryMap.Add(newModEntry.Key, newModEntry.Value);
+            }
+            foreach (KeyValuePair<ulong, string> newEntryMod in this._newEntryModMap)
+            {
+                this._entryModMap.Add(newEntryMod.Key, newEntryMod.Value);
+            }
+            foreach (KeyValuePair<string, List<string>> newWadMod in this._newWadModMap)
+            {
+                this._wadModMap.Add(newWadMod.Key, newWadMod.Value);
+            }
+
+            Log.Information("Commited Index changes");
+
+            this._newModIndex = new Dictionary<ulong, List<string>>();
+            this._newModEntryMap = new Dictionary<string, List<ulong>>();
+            this._newEntryModMap = new Dictionary<ulong, string>();
+            this._newWadModMap = new Dictionary<string, List<string>>();
+
             Write();
         }
 
         public void AddModFile(ulong hash, string modId, List<string> wads)
         {
-            //Add file to File-Wad map
-            this._modIndex.Add(hash, wads);
-
-            //Add file to Mod-File map
-            if (!this._modFiles.ContainsKey(modId))
+            if (this._isEditing)
             {
-                this._modFiles.Add(modId, new List<ulong>());
-            }
-            this._modFiles[modId].Add(hash);
+                //Add to Entry - WAD map
+                if (this._newModIndex.ContainsKey(hash))
+                {
+                    this._newModIndex[hash] = wads;
+                }
+                else
+                {
+                    this._newModIndex.Add(hash, wads);
+                }
 
-            if (this._shouldWrite)
-            {
-                Write();
+                //Add to Mod - Entry map
+                if (this._newModEntryMap.ContainsKey(modId))
+                {
+                    if(!this._newModEntryMap[modId].Contains(hash))
+                    {
+                        this._newModEntryMap[modId].Add(hash);
+                    }
+                }
+                else
+                {
+                    this._newModEntryMap.Add(modId, new List<ulong>() { hash });
+                }
+
+                //Add to Entry - Mod map
+                if (!this._newEntryModMap.ContainsKey(hash))
+                {
+                    this._newEntryModMap.Add(hash, modId);
+                }
             }
         }
         public void RemoveModFile(ulong hash, string modId)
         {
-            this._modIndex.Remove(hash);
-            this._modFiles[modId].Remove(hash);
+            if (this._modIndex.ContainsKey(hash))
+            {
+                this._modIndex.Remove(hash);
+            }
+            else
+            {
+                Log.Warning("Unable to remove Entry: {0} installed by {1} in the Mod Index", hash, modId);
+            }
+
+            if (this._modEntryMap.ContainsKey(modId))
+            {
+                this._modEntryMap[modId].Remove(hash);
+            }
+            else
+            {
+                Log.Warning("Unable to remove Mod: {0} from Mod Entry Map", modId);
+            }
+
+            if (this._entryModMap.ContainsKey(hash))
+            {
+                this._entryModMap.Remove(hash);
+            }
+            else
+            {
+                Log.Warning("Unable to remove Entry: {0} from Entry Mod Map", hash);
+            }
 
             //Remove Mod entry since it's empty
-            if (this._modFiles[modId].Count == 0)
+            if (this._modEntryMap.ContainsKey(modId) && this._modEntryMap[modId].Count == 0)
             {
-                this._modFiles.Remove(modId);
+                this._modEntryMap.Remove(modId);
             }
 
-            if (this._shouldWrite)
+            if (!this._isEditing)
             {
                 Write();
             }
         }
-        public void AssignWadsToMod(string modId, List<string> wads)
+        public void AddMod(string modId, List<string> wads)
         {
-            foreach (string wadName in wads)
+            if (this._isEditing)
             {
-                string wadPath = FindWADPath(wadName);
-
-                if (!this._wadModAssignments.ContainsKey(wadPath))
+                foreach (string wadPath in wads)
                 {
-                    this._wadModAssignments.Add(wadPath, new List<string>());
+                    if (this._newWadModMap.ContainsKey(wadPath))
+                    {
+                        this._newWadModMap[wadPath].Add(modId);
+                    }
+                    else
+                    {
+                        this._newWadModMap.Add(wadPath, new List<string>() { modId });
+                    }
                 }
-
-                this._wadModAssignments[wadPath].Add(modId);
-            }
-
-            if (this._shouldWrite)
-            {
-                Write();
             }
         }
-        public void RemoveWadsFromMod(string modId)
+        public void RemoveMod(string modId)
         {
-            foreach (KeyValuePair<string, List<string>> wadFile in this._wadModAssignments)
+            List<string> wadsToRemove = new List<string>();
+
+            foreach (KeyValuePair<string, List<string>> wadFile in this._wadModMap)
             {
                 wadFile.Value.RemoveAll(x => x == modId);
+                Log.Information("Removed Mod: {0} from WAD: {1} in WAD Mod Map", modId, wadFile.Key);
+
+                if(wadFile.Value.Count == 0)
+                {
+                    wadsToRemove.Add(wadFile.Key);
+                }
+            }
+
+            foreach(string wadToRemove in wadsToRemove)
+            {
+                this._wadModMap.Remove(wadToRemove);
             }
         }
 
+        public List<string> CheckForAssetCollisions(Dictionary<string, WADFile> modWadFiles)
+        {
+            List<string> collidingMods = new List<string>();
+
+            foreach (KeyValuePair<string, WADFile> modWadFile in modWadFiles)
+            {
+                foreach (WADEntry entry in modWadFile.Value.Entries)
+                {
+                    //Check whether the entry is already modded, if it is we add the colliding mod to the list
+                    if (this._modIndex.ContainsKey(entry.XXHash))
+                    {
+                        string collidingMod = this._entryModMap[entry.XXHash];
+                        if (!collidingMods.Contains(collidingMod))
+                        {
+                            collidingMods.Add(collidingMod);
+                        }
+                    }
+                }
+            }
+
+            return collidingMods;
+        }
         public string FindWADPath(string wadName)
         {
             foreach (KeyValuePair<ulong, List<string>> file in this._gameIndex)
@@ -147,7 +254,7 @@ namespace Fantome.ModManagement
         {
             List<string> wadFiles = new List<string>();
 
-            foreach (KeyValuePair<string, List<string>> wadFile in this._wadModAssignments)
+            foreach (KeyValuePair<string, List<string>> wadFile in this._wadModMap)
             {
                 if (wadFile.Value.Any(x => x == modId))
                 {
@@ -160,21 +267,26 @@ namespace Fantome.ModManagement
 
         public void CopyModData(LeagueFileIndex targetIndex)
         {
-            targetIndex.AssignModIndex(targetIndex.Mod);
-            targetIndex.AssignModFiles(targetIndex.ModFiles);
-            targetIndex.AssignWadModAssignments(targetIndex.WadModAssignments);
+            targetIndex.SetModIndex(this.Mod);
+            targetIndex.SetModEntryMap(this.ModEntryMap);
+            targetIndex.SetEntryModMap(this.EntryModMap);
+            targetIndex.SetWadModMap(this.WadModMap);
         }
-        internal void AssignModIndex(Dictionary<ulong, List<string>> modIndex)
+        internal void SetModIndex(Dictionary<ulong, List<string>> modIndex)
         {
             this._modIndex = modIndex;
         }
-        internal void AssignModFiles(Dictionary<string, List<ulong>> modFiles)
+        internal void SetModEntryMap(Dictionary<string, List<ulong>> modEntryMap)
         {
-            this._modFiles = modFiles;
+            this._modEntryMap = modEntryMap;
         }
-        internal void AssignWadModAssignments(Dictionary<string, List<string>> wadModAssignments)
+        internal void SetEntryModMap(Dictionary<ulong, string> entryModMap)
         {
-            this._wadModAssignments = wadModAssignments;
+            this._entryModMap = entryModMap;
+        }
+        internal void SetWadModMap(Dictionary<string, List<string>> wadModMap)
+        {
+            this._wadModMap = wadModMap;
         }
 
         public static LeagueFileIndex Deserialize(string json)
