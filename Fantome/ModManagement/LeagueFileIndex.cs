@@ -88,7 +88,10 @@ namespace Fantome.ModManagement
             }
             foreach (KeyValuePair<string, List<string>> newWadMod in this._newWadModMap)
             {
-                this._wadModMap.Add(newWadMod.Key, newWadMod.Value);
+                if(this._wadModMap.ContainsKey(newWadMod.Key))
+                {
+                    this._wadModMap[newWadMod.Key].AddRange(newWadMod.Value);
+                }
             }
 
             Log.Information("Commited Index changes");

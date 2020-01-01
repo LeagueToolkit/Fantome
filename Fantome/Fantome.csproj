@@ -151,6 +151,9 @@
     <Compile Include="MVVM\ViewModels\ModCardViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModListViewModel.cs" />
     <Compile Include="MVVM\ViewModels\SettingsViewModel.cs" />
+    <Compile Include="UserControls\Dialogs\InstallingModDialog.xaml.cs">
+      <DependentUpon>InstallingModDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\Dialogs\LeagueLocationDialog.xaml.cs">
       <DependentUpon>LeagueLocationDialog.xaml</DependentUpon>
     </Compile>
@@ -167,6 +170,10 @@
     <Compile Include="MVVM\Commands\RelayCommand.cs" />
     <Compile Include="Utilities\Config.cs" />
     <Compile Include="Utilities\Pathing.cs" />
+    <Page Include="UserControls\Dialogs\InstallingModDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\Dialogs\LeagueLocationDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
