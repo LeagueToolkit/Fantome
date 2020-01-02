@@ -196,6 +196,8 @@ namespace Fantome.ModManagement
                     {
                         this._newWadModMap.Add(wadPath, new List<string>() { modId });
                     }
+
+                    Log.Information("Added Mod: {0} to WAD: {1}", modId, wadPath);
                 }
             }
         }

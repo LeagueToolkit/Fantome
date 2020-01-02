@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,6 +40,7 @@ namespace Fantome
         public MainWindow()
         {
             CheckWindowsVersion();
+            CheckForExistingProcess();
 
             Config.Load();
             InitializeLogger();
@@ -140,6 +142,19 @@ namespace Fantome
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.File(logPath, outputTemplate: loggingPattern)
                 .CreateLogger();
+        }
+        private void CheckForExistingProcess()
+        {
+            foreach (Process process in Process.GetProcessesByName("Fantome").Where(x => x.Id != Process.GetCurrentProcess().Id))
+            {
+                if (process.MainModule.ModuleName == "Fantome.exe")
+                {
+                    if (MessageBox.Show("There is alrady a running instance of Fantome.\nPlease check your tray.", "", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    {
+                        Application.Current.Shutdown();
+                    }
+                }
+            }
         }
 
         private void AddMod(object sender, RoutedEventArgs e)

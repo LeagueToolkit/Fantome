@@ -41,11 +41,13 @@ namespace Fantome.ModManagement
             {
                 //Error
             }
+            else
+            {
+                this.LeagueFolder = leagueFolder;
 
-            this.LeagueFolder = leagueFolder;
-
-            ProcessDatabase();
-            ProcessLeagueFileIndex();
+                ProcessDatabase();
+                ProcessLeagueFileIndex();
+            }
         }
 
         public void ProcessLeagueFileIndex()
@@ -53,11 +55,17 @@ namespace Fantome.ModManagement
             if (File.Exists(INDEX_FILE))
             {
                 LeagueFileIndex currentIndex = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
-                if (currentIndex.Version != GetLeagueVersion())
+                Version leagueVersion = GetLeagueVersion();
+                if (currentIndex.Version != leagueVersion)
                 {
+                    Log.Information("Index is out of date, creating new Index");
+                    Log.Information("Current Index Version: {0}", currentIndex.Version.ToString());
+                    Log.Information("League Version: {0}", leagueVersion.ToString());
+
                     //Create new Index and copy Mod Data from old one
                     this.Index = new LeagueFileIndex(this.LeagueFolder);
                     currentIndex.CopyModData(this.Index);
+                    Log.Information("Copied old Mod Index Data to new Index");
 
                     //We need to reinstall mods
                     foreach (KeyValuePair<string, bool> mod in this.Database.Mods)
@@ -67,15 +75,19 @@ namespace Fantome.ModManagement
                             InstallMod(this.Database.GetMod(mod.Key));
                         }
                     }
+
+                    Log.Information("Created new Index");
                 }
                 else
                 {
                     this.Index = currentIndex;
+                    Log.Information("Loaded File Index from: " + INDEX_FILE);
                 }
             }
             else
             {
                 this.Index = new LeagueFileIndex(this.LeagueFolder);
+                Log.Information("Created new Game Index from: " + this.LeagueFolder);
             }
         }
         public void ProcessDatabase()
@@ -83,10 +95,12 @@ namespace Fantome.ModManagement
             if (File.Exists(DATABASE_FILE))
             {
                 this.Database = ModDatabase.Deserialize(File.ReadAllText(DATABASE_FILE));
+                Log.Information("Loaded Mod Database: " + DATABASE_FILE);
             }
             else
             {
                 this.Database = new ModDatabase();
+                Log.Information("Created new Mod Database");
             }
         }
 
@@ -281,7 +295,12 @@ namespace Fantome.ModManagement
         }
         private void WriteModWADFiles(Dictionary<string, WADFile> modWadFiles)
         {
-            foreach (KeyValuePair<string, WADFile> modWadFile in modWadFiles)
+            ParallelOptions parallelOptions = new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount
+            };
+
+            Parallel.ForEach(modWadFiles, (modWadFile) =>
             {
                 string wadPath = this.Index.FindWADPath(modWadFile.Key);
                 string overlayModWadPath = string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath);
@@ -313,11 +332,12 @@ namespace Fantome.ModManagement
                     File.Delete(overlayModWadPath + ".temp");
                     modWadFile.Value.Dispose();
                 }
-            }
+            });
         }
 
         public void UninstallMod(ModFile mod)
         {
+            Log.Information("Uninstalling Mod: " + mod.GetID());
             List<ulong> modFiles = new List<ulong>(this.Index.ModEntryMap[mod.GetID()]);
             Dictionary<string, WADFile> wadFiles = new Dictionary<string, WADFile>();
 
@@ -345,11 +365,7 @@ namespace Fantome.ModManagement
 
             //Now we need to either delete empty WAD files or fill the ones from which we removed the entries with original files
             //if the modified ones are the same as original then we need to delete those too
-            ParallelOptions parallelOptions = new ParallelOptions()
-            {
-                MaxDegreeOfParallelism = Environment.ProcessorCount
-            };
-            Parallel.ForEach(wadFiles, parallelOptions, (wadFile) =>
+            foreach(KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
                 //If the WAD isn't being used by any other mod or is empty we can delete it
                 if (!this.Index.WadModMap[wadFile.Key].Any(x => x != mod.GetID()) ||
@@ -374,7 +390,7 @@ namespace Fantome.ModManagement
                     File.Delete(overlayWadPath);
                     File.Move(overlayWadPath + ".temp", overlayWadPath);
                 }
-            });
+            }
 
             this.Database.ChangeModState(mod.GetID(), false);
             this.Index.RemoveMod(mod.GetID());
