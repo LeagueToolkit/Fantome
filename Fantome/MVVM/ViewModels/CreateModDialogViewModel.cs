@@ -75,6 +75,8 @@ namespace Fantome.MVVM.ViewModels
             }
         }
 
+        public ModManager ModManager { get; private set; }
+
         private string _wadLocation;
         private string _rawLocation;
         private string _name;
@@ -85,8 +87,9 @@ namespace Fantome.MVVM.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public CreateModDialogViewModel(ModListViewModel modList)
+        public CreateModDialogViewModel(ModListViewModel modList, ModManager modManager)
         {
+            this.ModManager = modManager;
             this._modList = modList;
         }
 

@@ -20,7 +20,7 @@ namespace Fantome.Utilities
                 DataContext = new InstallingModViewModel(mod, modManager)
             };
 
-            return await DialogHost.Show(dialog, "RootDialog", dialog.StartInstallation, null);
+            return await DialogHost.Show(dialog, "OperationDialog", dialog.StartInstallation, null);
         }
 
         public static async Task<object> Uninstall(ModFile mod, ModManager modManager)
@@ -30,7 +30,7 @@ namespace Fantome.Utilities
                 DataContext = new UninstallingModViewModel(mod, modManager)
             };
 
-            return await DialogHost.Show(dialog, "RootDialog", dialog.StartUninstallation, null);
+            return await DialogHost.Show(dialog, "OperationDialog", dialog.StartUninstallation, null);
         }
     }
 }

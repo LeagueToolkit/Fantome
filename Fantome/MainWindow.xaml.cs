@@ -197,7 +197,7 @@ namespace Fantome
         {
             CreateModDialog dialog = new CreateModDialog
             {
-                DataContext = new CreateModDialogViewModel(this.ModList)
+                DataContext = new CreateModDialogViewModel(this.ModList, this._modManager)
             };
 
 
@@ -205,7 +205,7 @@ namespace Fantome
         }
         private async void DialogHost_Loaded(object sender, EventArgs e)
         {
-            DialogHelper.RootDialog = this.RootDialog;
+            DialogHelper.OperationDialog = this.OperationDialog;
 
             string leagueLocation = Config.Get<string>("LeagueLocation");
             if (string.IsNullOrEmpty(leagueLocation))

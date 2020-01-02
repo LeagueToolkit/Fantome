@@ -9,6 +9,6 @@ namespace Fantome.Utilities
 {
     public static class DialogHelper
     {
-        public static DialogHost RootDialog { get; set; }
+        public static DialogHost OperationDialog { get; set; }
     }
 }

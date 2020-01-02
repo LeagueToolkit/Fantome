@@ -13,6 +13,8 @@ namespace Fantome.MVVM.ViewModels
         public ModFile Mod { get; private set; }
         public ModManager ModManager { get; private set; }
 
+        public string InstallingString => "Installing " + this.Mod.GetID();
+
         public InstallingModViewModel(ModFile mod, ModManager modManager)
         {
             this.Mod = mod;

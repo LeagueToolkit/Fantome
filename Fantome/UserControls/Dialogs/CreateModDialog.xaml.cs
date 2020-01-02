@@ -20,6 +20,7 @@ using Image = System.Drawing.Image;
 using System.IO;
 using System.Drawing.Imaging;
 using System.Collections.ObjectModel;
+using Fantome.Utilities;
 
 namespace Fantome.UserControls.Dialogs
 {
@@ -73,10 +74,16 @@ namespace Fantome.UserControls.Dialogs
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                this.ViewModel.WadLocation = dialog.FileName;
+                if(ValidateWADFolder(dialog.FileName))
+                {
+                    this.ViewModel.WadLocation = dialog.FileName;
+                }
+                else
+                {
+
+                }
             }
         }
-
         private void SelectRAWFolder(object sender, RoutedEventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog()
@@ -86,8 +93,55 @@ namespace Fantome.UserControls.Dialogs
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                this.ViewModel.RawLocation = dialog.FileName;
+                if(ValidateRAWFolder(dialog.FileName))
+                {
+                    this.ViewModel.RawLocation = dialog.FileName;
+                }
+                else
+                {
+
+                }
             }
+        }
+        private bool ValidateWADFolder(string wadFolder)
+        {
+            foreach (string directory in Directory.EnumerateDirectories(wadFolder))
+            {
+                char separator = Pathing.GetPathSeparator(directory);
+                string directoryName = directory.Substring(directory.LastIndexOf(separator) + 1);
+                if (string.IsNullOrEmpty(this.ViewModel.ModManager.Index.FindWADPath(directoryName)))
+                {
+                    return false;
+                }
+            }
+            foreach(string file in Directory.EnumerateFiles(wadFolder))
+            {
+                if(!file.EndsWith(".wad.client"))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        private bool ValidateRAWFolder(string rawFolder)
+        {
+            foreach (string directory in Directory.EnumerateDirectories(rawFolder))
+            {
+                if (directory.EndsWith(".wad.client"))
+                {
+                    return false;
+                }
+            }
+            foreach (string file in Directory.EnumerateFiles(rawFolder))
+            {
+                if (file.EndsWith(".wad.client"))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private void OnValidationError(object sender, ValidationErrorEventArgs e)

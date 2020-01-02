@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:ControlzEx="clr-namespace:ControlzEx;assembly=MaterialDesignThemes.Wpf"
+        xmlns:Utilities="clr-namespace:MaterialDesignUtilities;assembly=MaterialDesignUtilities"
         xmlns:UserControls="clr-namespace:Fantome.UserControls"
         xmlns:local="clr-namespace:Fantome"
         mc:Ignorable="d"
@@ -21,55 +23,73 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.Teal.Named.Primary.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DialogHost.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="MaterialDesignTransparentDialog" TargetType="ControlzEx:PopupEx" BasedOn="{StaticResource MaterialDesignDialogHostPopup}">
+                <Setter Property="AllowsTransparency" Value="True" />
+                <Setter Property="Utilities:TreeHelpers.Modifiers">
+                    <Setter.Value>
+                        <Utilities:ModifierCollection>
+                            <Utilities:Modifier TemplatePartName="PART_PopupContentElement" Property="{x:Static Control.BackgroundProperty}">
+                                <Utilities:Modifier.Value>
+                                    <SolidColorBrush Color="Transparent" />
+                                </Utilities:Modifier.Value>
+                            </Utilities:Modifier>
+                        </Utilities:ModifierCollection>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
-    <MaterialDesign:DialogHost x:Name="RootDialog" Identifier="RootDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" Loaded="DialogHost_Loaded">
-        <Grid x:Name="MainGrid">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Mode="PrimaryDark">
-                <Grid>
-                    <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Image Source="pack://application:,,/Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
-                            <Image.Effect>
-                                <DropShadowEffect/>
-                            </Image.Effect>
-                        </Image>
-                    </DockPanel>
-                    <DockPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
-                        <Button x:Name="SettingsButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding RunSettingsDialogCommand}">
-                            <MaterialDesign:PackIcon Kind="Gear" Width="35" Height="35"/>
-                        </Button>
-                    </DockPanel>
+    <MaterialDesign:DialogHost x:Name="MessageDialog" Identifier="MessageDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}">
+        <MaterialDesign:DialogHost Name="OperationDialog" Identifier="OperationDialog" PopupStyle="{StaticResource MaterialDesignTransparentDialog}">
+            <MaterialDesign:DialogHost x:Name="RootDialog" Identifier="RootDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" Loaded="DialogHost_Loaded">
+                <Grid x:Name="MainGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Mode="PrimaryDark">
+                        <Grid>
+                            <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Image Source="pack://application:,,/Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
+                                    <Image.Effect>
+                                        <DropShadowEffect/>
+                                    </Image.Effect>
+                                </Image>
+                            </DockPanel>
+                            <DockPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
+                                <Button x:Name="SettingsButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding RunSettingsDialogCommand}">
+                                    <MaterialDesign:PackIcon Kind="Gear" Width="35" Height="35"/>
+                                </Button>
+                            </DockPanel>
+                        </Grid>
+                    </MaterialDesign:ColorZone>
+                    <Grid Grid.Row="1" Margin="16">
+                        <ListBox x:Name="ModsListBox" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <UserControls:ModCard/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,20,20">
+                            <StackPanel>
+                                <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Click="AddMod">
+                                    <MaterialDesign:PackIcon Kind="CreditCardAdd"/>
+                                </Button>
+                                <Button x:Name="ButtonCreateMod" ToolTip="Create Mod" Command="{Binding RunCreateModDialogCommand}">
+                                    <MaterialDesign:PackIcon Kind="CreateNewFolder"/>
+                                </Button>
+                            </StackPanel>
+                        </MaterialDesign:PopupBox>
+                    </Grid>
                 </Grid>
-            </MaterialDesign:ColorZone>
-            <Grid Grid.Row="1" Margin="16">
-                <ListBox x:Name="ModsListBox" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged}">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <UserControls:ModCard/>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,20,20">
-                    <StackPanel>
-                        <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Click="AddMod">
-                            <MaterialDesign:PackIcon Kind="CreditCardAdd"/>
-                        </Button>
-                        <Button x:Name="ButtonCreateMod" ToolTip="Create Mod" Command="{Binding RunCreateModDialogCommand}">
-                            <MaterialDesign:PackIcon Kind="CreateNewFolder"/>
-                        </Button>
-                    </StackPanel>
-                </MaterialDesign:PopupBox>
-            </Grid>
-        </Grid>
+            </MaterialDesign:DialogHost>
+        </MaterialDesign:DialogHost>
     </MaterialDesign:DialogHost>
 </Window>

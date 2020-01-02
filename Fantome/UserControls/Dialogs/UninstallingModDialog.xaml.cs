@@ -42,7 +42,7 @@ namespace Fantome.UserControls.Dialogs
 
         private void CloseDialog(object sender, RunWorkerCompletedEventArgs e)
         {
-            DialogHelper.RootDialog.IsOpen = false;
+            DialogHelper.OperationDialog.IsOpen = false;
         }
 
         private void InstallMod(object sender, DoWorkEventArgs e)

@@ -81,7 +81,7 @@ namespace Fantome.ModManagement.IO
                 }
             }
 
-            this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetID()));
+           this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetID()));
         }
 
         public void AddFolder(string path, string folderLocation)

@@ -42,5 +42,31 @@ namespace Fantome.ModManagement
 
             return wadBase;
         }
+
+        public static WADFile Merge(WADFile wadBase, WADFile wadMerge, out bool returnedMerge)
+        {
+            returnedMerge = false;
+
+            //If the Modded WAD mods all entries of the original WAD then it will be returned to prevent memory halting and increase speed
+            bool containsBaseEntries = true;
+            foreach (WADEntry baseEntry in wadBase.Entries)
+            {
+                if(!wadMerge.Entries.Any(x => x.XXHash == baseEntry.XXHash))
+                {
+                    containsBaseEntries = false;
+                    break;
+                }
+            }
+
+            if(containsBaseEntries)
+            {
+                returnedMerge = containsBaseEntries;
+                return wadMerge;
+            }
+            else
+            {
+                return Merge(wadBase, wadMerge);
+            }
+        }
     }
 }

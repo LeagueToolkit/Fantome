@@ -13,6 +13,8 @@ namespace Fantome.MVVM.ViewModels
         public ModFile Mod { get; private set; }
         public ModManager ModManager { get; private set; }
 
+        public string UninstallingString => "Uninstalling " + this.Mod.GetID();
+
         public UninstallingModViewModel(ModFile mod, ModManager modManager)
         {
             this.Mod = mod;

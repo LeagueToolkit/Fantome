@@ -312,12 +312,21 @@ namespace Fantome.ModManagement
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(overlayModWadPath));
 
-                    using (WADFile mergedWad = WADMerger.Merge(new WADFile(gameModWadPath), modWadFile.Value))
+                    WADFile baseWad = new WADFile(gameModWadPath);
+                    bool returnedModdedWad = false;
+                    using (WADFile mergedWad = WADMerger.Merge(baseWad, modWadFile.Value, out returnedModdedWad))
                     {
                         mergedWad.Write(overlayModWadPath);
                     }
 
-                    modWadFile.Value.Dispose();
+                    if(returnedModdedWad)
+                    {
+                        baseWad.Dispose();
+                    }
+                    else
+                    {
+                        modWadFile.Value.Dispose();
+                    }
                 }
                 else
                 {
