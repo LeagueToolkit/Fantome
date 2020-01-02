@@ -46,11 +46,6 @@ namespace Fantome.MVVM.ViewModels
         public void AddMod(ModFile mod, bool install)
         {
             this.Items.Add(new ModCardViewModel(mod, install, this._modManager, this));
-
-            /*if(install)
-            {
-                this.Items.Last().Install();
-            }*/
         }
         public void RemoveMod(ModCardViewModel mod)
         {
