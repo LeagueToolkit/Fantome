@@ -130,6 +130,7 @@
     <Compile Include="MVVM\ViewModels\ModCardViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModListViewModel.cs" />
     <Compile Include="MVVM\ViewModels\SettingsViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\UninstallingModViewModel.cs" />
     <Compile Include="UserControls\Dialogs\InstallingModDialog.xaml.cs">
       <DependentUpon>InstallingModDialog.xaml</DependentUpon>
     </Compile>
@@ -138,6 +139,9 @@
     </Compile>
     <Compile Include="UserControls\Dialogs\SettingsDialog.xaml.cs">
       <DependentUpon>SettingsDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Dialogs\UninstallingModDialog.xaml.cs">
+      <DependentUpon>UninstallingModDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ModCard.xaml.cs">
       <DependentUpon>ModCard.xaml</DependentUpon>
@@ -160,6 +164,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Dialogs\SettingsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Dialogs\UninstallingModDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

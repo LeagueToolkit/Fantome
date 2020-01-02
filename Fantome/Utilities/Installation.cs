@@ -15,12 +15,22 @@ namespace Fantome.Utilities
     {
         public static async Task<object> Install(ModFile mod, ModManager modManager)
         {
-            InstallingModDialog installingModDialog = new InstallingModDialog()
+            InstallingModDialog dialog = new InstallingModDialog()
             {
                 DataContext = new InstallingModViewModel(mod, modManager)
             };
 
-            return await DialogHost.Show(installingModDialog, "RootDialog", installingModDialog.StartInstallation, null);
+            return await DialogHost.Show(dialog, "RootDialog", dialog.StartInstallation, null);
+        }
+
+        public static async Task<object> Uninstall(ModFile mod, ModManager modManager)
+        {
+            UninstallingModDialog dialog = new UninstallingModDialog()
+            {
+                DataContext = new UninstallingModViewModel(mod, modManager)
+            };
+
+            return await DialogHost.Show(dialog, "RootDialog", dialog.StartUninstallation, null);
         }
     }
 }

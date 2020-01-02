@@ -69,11 +69,11 @@ namespace Fantome.MVVM.ViewModels
                 this.IsInstalled = true;
             }
         }
-        public void Uninstall()
+        public async void Uninstall()
         {
             if (!this.IsInstalled && this._modManager.Database.IsInstalled(this._mod))
             {
-                this._modManager.UninstallMod(this._mod);
+                await Installation.Uninstall(this._mod, this._modManager);
                 this.IsInstalled = false;
             }
         }
