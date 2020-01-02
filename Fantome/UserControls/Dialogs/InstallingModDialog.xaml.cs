@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Controls;
 using Fantome.MVVM.ViewModels;
+using Fantome.Utilities;
 using MaterialDesignThemes.Wpf;
 
 namespace Fantome.UserControls.Dialogs
@@ -30,7 +31,7 @@ namespace Fantome.UserControls.Dialogs
 
         private void CloseDialog(object sender, RunWorkerCompletedEventArgs e)
         {
-            DialogHost.CloseDialogCommand.Execute(true, null);
+            DialogHelper.RootDialog.IsOpen = false;
         }
 
         private void InstallMod(object sender, DoWorkEventArgs e)

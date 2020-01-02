@@ -190,6 +190,8 @@ namespace Fantome
         }
         private async void DialogHost_Loaded(object sender, EventArgs e)
         {
+            DialogHelper.RootDialog = this.RootDialog;
+
             string leagueLocation = Config.Get<string>("LeagueLocation");
             if (string.IsNullOrEmpty(leagueLocation))
             {

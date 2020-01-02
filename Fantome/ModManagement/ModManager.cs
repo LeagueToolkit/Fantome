@@ -90,17 +90,15 @@ namespace Fantome.ModManagement
             }
         }
 
-        public async Task<object> AddMod(ModFile mod, bool install = false)
+        public async void AddMod(ModFile mod, bool install = false)
         {
             Log.Information("Adding Mod: {0} to Mod Manager", mod.GetID());
             this.Database.AddMod(mod, install);
 
             if (install)
             {
-                return await Installation.Install(mod, this);
+                await Installation.Install(mod, this);
             }
-
-            return null;
         }
         public void RemoveMod(ModFile mod)
         {
