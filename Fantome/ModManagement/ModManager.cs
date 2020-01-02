@@ -5,10 +5,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Fantome.Libraries.League.Helpers.Cryptography;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.ModManagement.IO;
+using Fantome.MVVM.ViewModels;
+using Fantome.UserControls.Dialogs;
 using Fantome.Utilities;
+using MaterialDesignThemes.Wpf;
 using Serilog;
 
 namespace Fantome.ModManagement
@@ -86,15 +90,17 @@ namespace Fantome.ModManagement
             }
         }
 
-        public void AddMod(ModFile mod, bool install = false)
+        public async Task<object> AddMod(ModFile mod, bool install = false)
         {
             Log.Information("Adding Mod: {0} to Mod Manager", mod.GetID());
             this.Database.AddMod(mod, install);
 
             if (install)
             {
-                InstallMod(mod);
+                return await Installation.Install(mod, this);
             }
+
+            return null;
         }
         public void RemoveMod(ModFile mod)
         {
@@ -341,7 +347,11 @@ namespace Fantome.ModManagement
 
             //Now we need to either delete empty WAD files or fill the ones from which we removed the entries with original files
             //if the modified ones are the same as original then we need to delete those too
-            foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
+            ParallelOptions parallelOptions = new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount
+            };
+            Parallel.ForEach(wadFiles, parallelOptions, (wadFile) =>
             {
                 //If the WAD isn't being used by any other mod or is empty we can delete it
                 if (!this.Index.WadModMap[wadFile.Key].Any(x => x != mod.GetID()) ||
@@ -366,7 +376,7 @@ namespace Fantome.ModManagement
                     File.Delete(overlayWadPath);
                     File.Move(overlayWadPath + ".temp", overlayWadPath);
                 }
-            }
+            });
 
             this.Database.ChangeModState(mod.GetID(), false);
             this.Index.RemoveMod(mod.GetID());

@@ -12,12 +12,12 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="Auto"
              FontFamily="{MaterialDesign:MaterialDesignFont}">
-    <Grid>
+    <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <ProgressBar Grid.Row="0" Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True" Width="100" Height="100" />
-        <TextBlock HorizontalAlignment="Center" Grid.Row="1" Text="Installing" Margin="0,8,0,0" FontSize="24"/>
+        <TextBlock HorizontalAlignment="Center" Grid.Row="1" Text="Installing..." Margin="0,15,0,0" FontSize="24"/>
     </Grid>
 </UserControl>

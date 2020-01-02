@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
 using Fantome.UserControls.Dialogs;
+using Fantome.Utilities;
 using MaterialDesignThemes.Wpf;
 
 namespace Fantome.MVVM.ViewModels
@@ -64,12 +65,7 @@ namespace Fantome.MVVM.ViewModels
         {
             if (this.IsInstalled && !this._modManager.Database.IsInstalled(this._mod))
             {
-                InstallingModDialog dialog = new InstallingModDialog()
-                {
-                    DataContext = new InstallingModViewModel(this._mod, this._modManager)
-                };
-
-                await DialogHost.Show(dialog, "RootDialog", dialog.StartInstallation, null);
+                await Installation.Install(this._mod, this._modManager);
                 this.IsInstalled = true;
             }
         }

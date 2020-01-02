@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
+using Fantome.Utilities;
 using Serilog;
 
 namespace Fantome.MVVM.ViewModels
@@ -45,7 +46,11 @@ namespace Fantome.MVVM.ViewModels
         public void AddMod(ModFile mod, bool install)
         {
             this.Items.Add(new ModCardViewModel(mod, install, this._modManager, this));
-            this._modManager.AddMod(mod, install);
+
+            if(install)
+            {
+                this.Items.Last().Install();
+            }
         }
         public void RemoveMod(ModCardViewModel mod)
         {

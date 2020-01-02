@@ -20,23 +20,25 @@ namespace Fantome.UserControls.Dialogs
 
         public void StartInstallation(object sender, EventArgs e)
         {
-            using (BackgroundWorker worker = new BackgroundWorker())
-            {
-                worker.DoWork += InstallMod;
-                worker.RunWorkerCompleted += CloseDialog;
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.DoWork += InstallMod;
+            worker.RunWorkerCompleted += CloseDialog;
+            worker.WorkerSupportsCancellation = true;
 
-                worker.RunWorkerAsync(this.ViewModel);
-            }
+            worker.RunWorkerAsync(new Tuple<BackgroundWorker, InstallingModViewModel>(worker, this.ViewModel));
         }
 
         private void CloseDialog(object sender, RunWorkerCompletedEventArgs e)
         {
-            DialogHost.CloseDialogCommand.Execute(null, null);
+            DialogHost.CloseDialogCommand.Execute(true, null);
         }
 
         private void InstallMod(object sender, DoWorkEventArgs e)
         {
-            (e.Argument as InstallingModViewModel).Install();
+            Tuple<BackgroundWorker, InstallingModViewModel> argument = e.Argument as Tuple<BackgroundWorker, InstallingModViewModel>;
+
+            argument.Item2.Install();
+            argument.Item1.CancelAsync();
         }
     }
 }
