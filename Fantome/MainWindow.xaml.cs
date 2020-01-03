@@ -24,11 +24,13 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace Fantome
 {
+#warning Don't forget to add PopupStyle to OperationDialog in MainWindow.xaml before creating a release
+
     public partial class MainWindow : Window
     {
         public const string LOGS_FOLDER = "Logs";
 
-        public ModListViewModel ModList { get => this.ModsListBox.DataContext as ModListViewModel; }
+        public ModListViewModel ModList => this.ModsListBox.DataContext as ModListViewModel;
 
         private ModManager _modManager;
         private OverlayPatcher _patcher;
@@ -36,6 +38,7 @@ namespace Fantome
 
         public ICommand RunSettingsDialogCommand => new RelayCommand(RunSettingsDialog);
         public ICommand RunCreateModDialogCommand => new RelayCommand(RunCreateModDialog);
+        public ICommand OpenGithubCommand => new RelayCommand(OpenGithub);
 
         public MainWindow()
         {
@@ -77,6 +80,11 @@ namespace Fantome
             this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
             this.ButtonCreateMod.DataContext = this;
             this.SettingsButton.DataContext = this;
+            this.GithubButton.DataContext = this;
+
+            DialogHelper.MessageDialog = this.MessageDialog;
+            DialogHelper.OperationDialog = this.OperationDialog;
+            DialogHelper.RootDialog = this.RootDialog;
         }
         private void InitializeTrayIcon()
         {
@@ -203,10 +211,8 @@ namespace Fantome
 
             object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as CreateModDialogViewModel).ClosingEventHandler);
         }
-        private async void DialogHost_Loaded(object sender, EventArgs e)
+        private async void OnRootDialogLoad(object sender, EventArgs e)
         {
-            DialogHelper.OperationDialog = this.OperationDialog;
-
             string leagueLocation = Config.Get<string>("LeagueLocation");
             if (string.IsNullOrEmpty(leagueLocation))
             {
@@ -235,6 +241,11 @@ namespace Fantome
             }
         }
 
+        private async void OpenGithub(object o)
+        {
+            Process.Start("https://github.com/LoL-Fantome/Fantome");
+        }
+
         protected override void OnStateChanged(EventArgs e)
         {
             if (this.WindowState == WindowState.Minimized)
@@ -249,7 +260,6 @@ namespace Fantome
 
             base.OnStateChanged(e);
         }
-
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             this._notifyIcon.Dispose();

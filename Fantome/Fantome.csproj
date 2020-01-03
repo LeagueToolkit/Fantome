@@ -137,6 +137,9 @@
     <Compile Include="UserControls\Dialogs\LeagueLocationDialog.xaml.cs">
       <DependentUpon>LeagueLocationDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\Dialogs\ModContentValidationDialog.xaml.cs">
+      <DependentUpon>ModContentValidationDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\Dialogs\SettingsDialog.xaml.cs">
       <DependentUpon>SettingsDialog.xaml</DependentUpon>
     </Compile>
@@ -160,6 +163,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Dialogs\LeagueLocationDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Dialogs\ModContentValidationDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

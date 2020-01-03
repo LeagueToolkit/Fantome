@@ -41,8 +41,10 @@
     </Window.Resources>
 
     <MaterialDesign:DialogHost x:Name="MessageDialog" Identifier="MessageDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}">
-        <MaterialDesign:DialogHost Name="OperationDialog" Identifier="OperationDialog" PopupStyle="{StaticResource MaterialDesignTransparentDialog}">
-            <MaterialDesign:DialogHost x:Name="RootDialog" Identifier="RootDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" Loaded="DialogHost_Loaded">
+        <!--DO NOT ATTEMPT TO SET THIS STYLE WITH CODE. IT WILL CRASH FANTOME-->
+        <!--PopupStyle="{StaticResource MaterialDesignTransparentDialog}"-->
+        <MaterialDesign:DialogHost Name="OperationDialog" Identifier="OperationDialog">
+            <MaterialDesign:DialogHost x:Name="RootDialog" Identifier="RootDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" Loaded="OnRootDialogLoad">
                 <Grid x:Name="MainGrid">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -60,6 +62,11 @@
                             <DockPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
                                 <Button x:Name="SettingsButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding RunSettingsDialogCommand}">
                                     <MaterialDesign:PackIcon Kind="Gear" Width="35" Height="35"/>
+                                </Button>
+                            </DockPanel>
+                            <DockPanel HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10 0 0 0">
+                                <Button x:Name="GithubButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding OpenGithubCommand}">
+                                    <MaterialDesign:PackIcon Kind="GithubCircle" Width="35" Height="35"/>
                                 </Button>
                             </DockPanel>
                         </Grid>

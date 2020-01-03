@@ -80,7 +80,7 @@ namespace Fantome.UserControls.Dialogs
                 }
                 else
                 {
-
+                    DialogHelper.ShowModContentValidationDialog("WAD");
                 }
             }
         }
@@ -99,7 +99,7 @@ namespace Fantome.UserControls.Dialogs
                 }
                 else
                 {
-
+                    DialogHelper.ShowModContentValidationDialog("RAW");
                 }
             }
         }
