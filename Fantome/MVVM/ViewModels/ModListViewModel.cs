@@ -37,7 +37,7 @@ namespace Fantome.MVVM.ViewModels
 
         public void Sync()
         {
-            foreach(KeyValuePair<string, bool> modEntry in this._modManager.Database.Mods)
+            foreach (KeyValuePair<string, bool> modEntry in this._modManager.Database.Mods)
             {
                 this.Items.Add(new ModCardViewModel(this._modManager.Database.GetMod(modEntry.Key), modEntry.Value, this._modManager, this));
             }
@@ -45,7 +45,15 @@ namespace Fantome.MVVM.ViewModels
 
         public void AddMod(ModFile mod, bool install)
         {
-            this.Items.Add(new ModCardViewModel(mod, install, this._modManager, this));
+            if (this.Items.Any(x => x.Mod == mod))
+            {
+                DialogHelper.ShowMessageDialog("A Mod with the same ID has already been added");
+                Log.Information("Cannot load Mod: {0} because it is already present in the databse", mod.GetID());
+            }
+            else
+            {
+                this.Items.Add(new ModCardViewModel(mod, install, this._modManager, this));
+            }
         }
         public void RemoveMod(ModCardViewModel mod)
         {

@@ -14,7 +14,7 @@ using Fantome.Utilities;
 
 namespace Fantome.ModManagement.IO
 {
-    public class ModFile
+    public class ModFile : IEquatable<ModFile>, IDisposable
     {
         public ModInfo Info
         {
@@ -81,7 +81,7 @@ namespace Fantome.ModManagement.IO
                 }
             }
 
-           this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetID()));
+            this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetID()));
         }
 
         public void AddFolder(string path, string folderLocation)
@@ -117,6 +117,67 @@ namespace Fantome.ModManagement.IO
             return this.Content.Entries.Where(x => Regex.IsMatch(x.FullName, regexPattern));
         }
 
+        public string Validate(ModManager modManager)
+        {
+            bool invalidWADFolder = false;
+
+            //Get all files in the WAD folder
+            string wadFolderFileError = string.Format("The WAD folder of {0} contains invalid files:\n", GetID());
+            foreach (ZipArchiveEntry entry in GetEntries(@"WAD[\\/].*(?![\\/])"))
+            {
+                if (!entry.Name.Contains(".wad.client") || string.IsNullOrEmpty(modManager.Index.FindWADPath(entry.Name)))
+                {
+                    invalidWADFolder = true;
+                    wadFolderFileError += entry.FullName + '\n';
+                }
+            }
+            if (invalidWADFolder)
+            {
+                return wadFolderFileError;
+            }
+
+            //Get all folders in the WAD folder by iterating through all the files
+            string wadFolderFoldersError = string.Format("The WAD folder of {0} contains invalid folders:\n", GetID());
+            List<string> foundInvalidFolders = new List<string>();
+            foreach (ZipArchiveEntry entry in GetEntries(@"WAD[\\/].*[\\/].*"))
+            {
+                char separator = Pathing.GetPathSeparator(entry.FullName);
+                string folder = entry.FullName.Split(separator)[1];
+                if (!folder.EndsWith(".wad.client"))
+                {
+                    if (!foundInvalidFolders.Contains(folder))
+                    {
+                        foundInvalidFolders.Add(folder);
+                        invalidWADFolder = true;
+                        wadFolderFoldersError += folder + '\n';
+                    }
+                }
+            }
+            if (invalidWADFolder)
+            {
+                return wadFolderFoldersError;
+            }
+
+
+            //Get all files in RAW folder and see if they contain a reference to WAD files
+            bool rawError = false;
+            string rawFolderError = string.Format("The RAW folder of {0} contains invalid entries:\n", GetID());
+            foreach (ZipArchiveEntry entry in GetEntries(@"RAW[\\/].*(?![\\/])"))
+            {
+                if (entry.FullName.Contains(".wad.client"))
+                {
+                    rawError = true;
+                    rawFolderError += entry.FullName + '\n';
+                }
+            }
+            if (rawError)
+            {
+                return rawFolderError;
+            }
+
+            return "";
+        }
+
         public string GetID()
         {
             return this.Info.CreateID();
@@ -148,6 +209,24 @@ namespace Fantome.ModManagement.IO
             {
                 return null;
             }
+        }
+
+        public void Dispose()
+        {
+            this.Content.Dispose();
+        }
+
+        public bool Equals(ModFile other)
+        {
+            return this == other;
+        }
+        public static bool operator ==(ModFile mod1, ModFile mod2)
+        {
+            return mod1.Info == mod2.Info;
+        }
+        public static bool operator !=(ModFile mod1, ModFile mod2)
+        {
+            return mod1.Info != mod2.Info;
         }
     }
 }

@@ -28,13 +28,14 @@ namespace Fantome.MVVM.ViewModels
                 NotifyPropertyChanged();
             }
         }
-        public string Name { get => this._mod.Info.Name; }
-        public string Author { get => this._mod.Info.Author; }
-        public BitmapImage Image { get => this._image; }
+        public string Name => this.Mod.Info.Name;
+        public string Author => this.Mod.Info.Author;
+        public string Version => this.Mod.Info.Version.ToString();
+        public BitmapImage Image => this._image;
+        public ModFile Mod { get; private set; }
 
         private bool _isInstalled;
         private BitmapImage _image;
-        private ModFile _mod;
         private ModManager _modManager;
         private ModListViewModel _modList;
 
@@ -42,7 +43,7 @@ namespace Fantome.MVVM.ViewModels
 
         public ModCardViewModel(ModFile mod, bool isInstalled, ModManager _modManager, ModListViewModel modList)
         {
-            this._mod = mod;
+            this.Mod = mod;
             this._modManager = _modManager;
             this._modList = modList;
             this._isInstalled = isInstalled;
@@ -63,24 +64,34 @@ namespace Fantome.MVVM.ViewModels
 
         public async void Install()
         {
-            if (this.IsInstalled && !this._modManager.Database.IsInstalled(this._mod))
+            if (this.IsInstalled && !this._modManager.Database.IsInstalled(this.Mod))
             {
-                await Installation.Install(this._mod, this._modManager);
-                this.IsInstalled = true;
+                //Validate Mod before installation
+                string validationError = this.Mod.Validate(this._modManager);
+                if(!string.IsNullOrEmpty(validationError))
+                {
+                    DialogHelper.ShowMessageDialog(validationError);
+                    this.IsInstalled = false;
+                }
+                else
+                {
+                    await Installation.Install(this.Mod, this._modManager);
+                    this.IsInstalled = true;
+                }
             }
         }
         public async void Uninstall()
         {
-            if (!this.IsInstalled && this._modManager.Database.IsInstalled(this._mod))
+            if (!this.IsInstalled && this._modManager.Database.IsInstalled(this.Mod))
             {
-                await Installation.Uninstall(this._mod, this._modManager);
+                await Installation.Uninstall(this.Mod, this._modManager);
                 this.IsInstalled = false;
             }
         }
         public void Remove()
         {
             this._modList.RemoveMod(this);
-            this._modManager.RemoveMod(this._mod);
+            this._modManager.RemoveMod(this.Mod);
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

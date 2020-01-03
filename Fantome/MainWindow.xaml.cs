@@ -177,17 +177,33 @@ namespace Fantome
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 string modName = Path.GetFileName(dialog.FileName);
-                string modPath = string.Format(@"{0}\{1}", ModManager.MOD_FOLDER, modName);
+                string modPath = "";
+                string modID = "";
+                string validationError = "";
 
-                if (!File.Exists(modPath))
+                using (ModFile originalMod = new ModFile(dialog.FileName))
                 {
-                    Log.Information("Copying Mod: {0} to {1}", dialog.FileName, modPath);
-                    File.Copy(dialog.FileName, modPath, true);
+                    modID = originalMod.GetID();
+                    modPath = string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, modID);
+                    validationError = originalMod.Validate(this._modManager);
                 }
 
-                Log.Information("Loading Mod: {0}", modPath);
-                ModFile mod = new ModFile(modPath);
-                this.ModList.AddMod(mod, true);
+                if (!string.IsNullOrEmpty(validationError))
+                {
+                    DialogHelper.ShowMessageDialog(validationError);
+                }
+                else
+                {
+                    if (!File.Exists(modPath))
+                    {
+                        Log.Information("Copying Mod: {0} to {1}", dialog.FileName, modPath);
+                        File.Copy(dialog.FileName, modPath, true);
+                    }
+
+                    Log.Information("Loading Mod: {0}", modPath);
+                    ModFile mod = new ModFile(modPath);
+                    this.ModList.AddMod(mod, true);
+                }
             }
         }
 
@@ -241,7 +257,7 @@ namespace Fantome
             }
         }
 
-        private async void OpenGithub(object o)
+        private void OpenGithub(object o)
         {
             Process.Start("https://github.com/LoL-Fantome/Fantome");
         }

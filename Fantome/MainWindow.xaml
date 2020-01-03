@@ -71,7 +71,7 @@
                             </DockPanel>
                         </Grid>
                     </MaterialDesign:ColorZone>
-                    <Grid Grid.Row="1" Margin="16">
+                    <Grid Grid.Row="1" Margin="15">
                         <ListBox x:Name="ModsListBox" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged}">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -80,7 +80,7 @@
                             </ListBox.ItemsPanel>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <UserControls:ModCard/>
+                                    <UserControls:ModCard Margin="0 0 0 6"/>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>

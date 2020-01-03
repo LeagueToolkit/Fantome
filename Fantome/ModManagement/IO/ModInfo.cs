@@ -4,7 +4,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Fantome.ModManagement.IO
 {
-    public class ModInfo
+    public class ModInfo : IEquatable<ModInfo>
     {
         public string Name { get; private set; }
         public string Author { get; private set; }
@@ -31,6 +31,19 @@ namespace Fantome.ModManagement.IO
         public static ModInfo Deserialize(string json)
         {
             return JsonConvert.DeserializeObject<ModInfo>(json, new VersionConverter());
+        }
+
+        public bool Equals(ModInfo other)
+        {
+            return this == other;
+        }
+        public static bool operator ==(ModInfo info1, ModInfo info2)
+        {
+            return info1?.CreateID() == info2?.CreateID();
+        }
+        public static bool operator !=(ModInfo info1, ModInfo info2)
+        {
+            return info1?.CreateID() != info2?.CreateID();
         }
     }
 }

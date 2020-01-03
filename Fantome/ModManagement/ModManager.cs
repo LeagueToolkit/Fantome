@@ -319,7 +319,7 @@ namespace Fantome.ModManagement
                         mergedWad.Write(overlayModWadPath);
                     }
 
-                    if(returnedModdedWad)
+                    if (returnedModdedWad)
                     {
                         baseWad.Dispose();
                     }
@@ -374,7 +374,7 @@ namespace Fantome.ModManagement
 
             //Now we need to either delete empty WAD files or fill the ones from which we removed the entries with original files
             //if the modified ones are the same as original then we need to delete those too
-            foreach(KeyValuePair<string, WADFile> wadFile in wadFiles)
+            foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
                 //If the WAD isn't being used by any other mod or is empty we can delete it
                 if (!this.Index.WadModMap[wadFile.Key].Any(x => x != mod.GetID()) ||

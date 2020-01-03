@@ -20,5 +20,12 @@ namespace Fantome.Utilities
 
             await DialogHost.Show(dialog, "MessageDialog");
         }
+
+        public static async void ShowMessageDialog(string message)
+        {
+            MessageDialog dialog = new MessageDialog(message);
+
+            await DialogHost.Show(dialog, "MessageDialog");
+        }
     }
 }
