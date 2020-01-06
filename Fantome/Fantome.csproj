@@ -127,10 +127,13 @@
     <Compile Include="MVVM\ValidationRules\VersionValidationRule.cs" />
     <Compile Include="MVVM\ViewModels\InstallingModViewModel.cs" />
     <Compile Include="MVVM\ViewModels\LeagueLocationDialogViewModel.cs" />
-    <Compile Include="MVVM\ViewModels\ModCardViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\ModListItemViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ModListViewModel.cs" />
     <Compile Include="MVVM\ViewModels\SettingsViewModel.cs" />
     <Compile Include="MVVM\ViewModels\UninstallingModViewModel.cs" />
+    <Compile Include="UserControls\Dialogs\AssetCollisionDialog.xaml.cs">
+      <DependentUpon>AssetCollisionDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\Dialogs\InstallingModDialog.xaml.cs">
       <DependentUpon>InstallingModDialog.xaml</DependentUpon>
     </Compile>
@@ -157,10 +160,16 @@
     </Compile>
     <Compile Include="MVVM\ViewModels\CreateModDialogViewModel.cs" />
     <Compile Include="MVVM\Commands\RelayCommand.cs" />
+    <Compile Include="UserControls\ModListRow.xaml.cs">
+      <DependentUpon>ModListRow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\Config.cs" />
     <Compile Include="Utilities\DialogHelper.cs" />
-    <Compile Include="Utilities\Installation.cs" />
     <Compile Include="Utilities\Pathing.cs" />
+    <Page Include="UserControls\Dialogs\AssetCollisionDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\Dialogs\InstallingModDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -208,6 +217,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UserControls\ModListRow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ModManagement\ModManager.cs" />

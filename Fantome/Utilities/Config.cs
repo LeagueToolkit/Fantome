@@ -16,18 +16,19 @@ namespace Fantome.Utilities
         private static readonly Dictionary<string, object> _defaultConfig = new Dictionary<string, object>
         {
             { "LeagueLocation", "" },
-            { "LoggingPattern", "{Timestamp:dd-MM-yyyy HH:mm:ss.fff} | [{Level}] |  {Message:lj}{NewLine}{Exception}" }
+            { "LoggingPattern", "{Timestamp:dd-MM-yyyy HH:mm:ss.fff} | [{Level}] |  {Message:lj}{NewLine}{Exception}" },
+            { "ModListType", 0 }
         };
         private static Dictionary<string, object> _config = new Dictionary<string, object>();
 
         public static T Get<T>(string key)
         {
-            if(!_config.ContainsKey(key))
+            if (!_config.ContainsKey(key))
             {
                 return GetDefault<T>(key);
             }
 
-            return (T)_config[key];
+            return (T)Convert.ChangeType(_config[key], typeof(T));
         }
         public static T GetDefault<T>(string key)
         {
@@ -35,7 +36,7 @@ namespace Fantome.Utilities
         }
         public static void Set(string key, object value)
         {
-            if(_config.ContainsKey(key))
+            if (_config.ContainsKey(key))
             {
                 _config[key] = value;
             }
@@ -49,14 +50,14 @@ namespace Fantome.Utilities
 
         public static void Load(string fileLocation = CONFIG_FILE)
         {
-            if(File.Exists(CONFIG_FILE))
+            if (File.Exists(CONFIG_FILE))
             {
                 Deserialize(File.ReadAllText(fileLocation));
 
                 //Check if config is outdated
-                foreach(KeyValuePair<string, object> configEntry in _defaultConfig)
+                foreach (KeyValuePair<string, object> configEntry in _defaultConfig)
                 {
-                    if(!_config.ContainsKey(configEntry.Key))
+                    if (!_config.ContainsKey(configEntry.Key))
                     {
                         _config.Add(configEntry.Key, configEntry.Value);
                     }

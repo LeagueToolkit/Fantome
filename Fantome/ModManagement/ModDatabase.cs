@@ -9,22 +9,18 @@ namespace Fantome.ModManagement
     public class ModDatabase
     {
         public Dictionary<string, bool> Mods { get; set; } = new Dictionary<string, bool>();
+
         private Dictionary<string, ModFile> _modFiles = new Dictionary<string, ModFile>();
+        private ModManager _modManager;
 
         public ModDatabase()
         {
-            SyncFileDictionary();
+
         }
-
-        public ModDatabase(Dictionary<ModFile, bool> mods)
+        public ModDatabase(ModManager modManager)
         {
-            foreach (KeyValuePair<ModFile, bool> mod in mods)
-            {
-                string id = mod.Key.GetID();
-
-                this.Mods.Add(id, mod.Value);
-                this._modFiles.Add(id, mod.Key);
-            }
+            this._modManager = modManager;
+            SyncFileDictionary();
         }
 
         public void AddMod(ModFile mod, bool isInstalled)
@@ -63,7 +59,7 @@ namespace Fantome.ModManagement
             return false;
         }
 
-        internal void SyncFileDictionary()
+        public void SyncFileDictionary()
         {
             List<string> modsToRemove = new List<string>();
 
@@ -76,7 +72,7 @@ namespace Fantome.ModManagement
                     modsToRemove.Add(mod.Key);
                 }
 
-                this._modFiles.Add(mod.Key, new ModFile(modPath));
+                this._modFiles.Add(mod.Key, new ModFile(this._modManager, modPath));
             }
 
             //Scan Mod folder for mods which were potentially added by the user
@@ -86,20 +82,27 @@ namespace Fantome.ModManagement
 
                 if (!this.Mods.ContainsKey(modFileName))
                 {
-                    AddMod(new ModFile(modFilePath), false);
+                    AddMod(new ModFile(this._modManager, modFilePath), false);
                 }
             }
 
             Write();
+        }
+        public void SetModManager(ModManager modManager)
+        {
+            this._modManager = modManager;
         }
 
         public string Serialize()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
-        public static ModDatabase Deserialize(string json)
+        public static ModDatabase Deserialize(ModManager modManager, string json)
         {
             ModDatabase database = JsonConvert.DeserializeObject<ModDatabase>(json);
+            database.SetModManager(modManager);
+            database.SyncFileDictionary();
+
             return database;
         }
         public void Write(string fileLocation = ModManager.DATABASE_FILE)

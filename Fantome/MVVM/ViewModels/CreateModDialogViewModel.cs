@@ -104,7 +104,7 @@ namespace Fantome.MVVM.ViewModels
                     image = SImage.FromStream(this._image.StreamSource);
                 }
 
-                ModFile mod = new ModFile(this._wadLocation, this._rawLocation, info, image);
+                ModFile mod = new ModFile(this.ModManager, this._wadLocation, this._rawLocation, info, image);
                 this._modList.AddMod(mod, false);
             }
         }

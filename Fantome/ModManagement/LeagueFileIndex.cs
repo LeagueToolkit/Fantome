@@ -107,6 +107,14 @@ namespace Fantome.ModManagement
 
             Write();
         }
+        public void CancelEdit()
+        {
+            this._isEditing = false;
+            this._newModIndex = new Dictionary<ulong, List<string>>();
+            this._newModEntryMap = new Dictionary<string, List<ulong>>();
+            this._newEntryModMap = new Dictionary<ulong, string>();
+            this._newWadModMap = new Dictionary<string, List<string>>();
+        }
 
         public void AddModFile(ulong hash, string modId, List<string> wads)
         {

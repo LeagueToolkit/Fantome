@@ -37,6 +37,35 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <Style x:Key="ModListStyle" TargetType="ListBox" BasedOn="{StaticResource MaterialDesignListBox}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding ElementName=ModListTypeCardRadio, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                        <Setter Property="ItemsPanel">
+                            <Setter.Value>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="ItemTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <UserControls:ModCard Margin="0 0 0 6"/>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding ElementName=ModListTypeRowRadio, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                        <Setter Property="ItemTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <UserControls:ModListRow/>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -60,9 +89,23 @@
                                 </Image>
                             </DockPanel>
                             <DockPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
-                                <Button x:Name="SettingsButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding RunSettingsDialogCommand}">
-                                    <MaterialDesign:PackIcon Kind="Gear" Width="35" Height="35"/>
-                                </Button>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0 0 15 0">
+                                        <RadioButton x:Name="ModListTypeCardRadio" Style="{StaticResource MaterialDesignTabRadioButton}" IsChecked="{Binding IsModListTypeCard}">
+                                            <MaterialDesign:PackIcon Kind="CardBulleted" Width="30" Height="30"/>
+                                        </RadioButton>
+                                        <RadioButton x:Name="ModListTypeRowRadio" Style="{StaticResource MaterialDesignTabRadioButton}" IsChecked="{Binding IsModListTypeRow}">
+                                            <MaterialDesign:PackIcon Kind="TableRow" Width="30" Height="30"/>
+                                        </RadioButton>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" x:Name="SettingsButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding RunSettingsDialogCommand}">
+                                        <MaterialDesign:PackIcon Kind="Gear" Width="35" Height="35"/>
+                                    </Button>
+                                </Grid>
                             </DockPanel>
                             <DockPanel HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10 0 0 0">
                                 <Button x:Name="GithubButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding OpenGithubCommand}">
@@ -72,18 +115,7 @@
                         </Grid>
                     </MaterialDesign:ColorZone>
                     <Grid Grid.Row="1" Margin="15">
-                        <ListBox x:Name="ModsListBox" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged}">
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel/>
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <UserControls:ModCard Margin="0 0 0 6"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                        <ListView x:Name="ModsListBox" Style="{StaticResource ModListStyle}" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Stretch"/>
                         <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,20,20">
                             <StackPanel>
                                 <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Click="AddMod">

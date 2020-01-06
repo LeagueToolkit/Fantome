@@ -11,6 +11,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Fantome.Utilities;
+using Fantome.Libraries.League.IO.WAD;
+using Fantome.Libraries.League.Helpers.Cryptography;
 
 namespace Fantome.ModManagement.IO
 {
@@ -41,16 +43,32 @@ namespace Fantome.ModManagement.IO
             }
         }
         public ZipArchive Content { get; private set; }
+        public Dictionary<string, WADFile> WadFiles
+        {
+            get
+            {
+                if (this._wadFiles == null)
+                {
+                    this._wadFiles = GetWadFiles();
+                }
+
+                return this._wadFiles;
+            }
+        }
 
         private ModInfo _info;
         private Image _image;
+        private Dictionary<string, WADFile> _wadFiles;
+        private ModManager _modManager;
 
-        public ModFile(string fileLocation)
+        public ModFile(ModManager modManager, string fileLocation)
         {
+            this._modManager = modManager;
             this.Content = new ZipArchive(File.OpenRead(fileLocation));
         }
-        public ModFile(string wadLocation, string rawLocation, ModInfo info, Image image)
+        public ModFile(ModManager modManager, string wadLocation, string rawLocation, ModInfo info, Image image)
         {
+            this._modManager = modManager;
             using (FileStream fileStream = new FileStream(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, info.CreateID()), FileMode.Create))
             {
                 using (this.Content = new ZipArchive(fileStream, ZipArchiveMode.Update))
@@ -122,55 +140,43 @@ namespace Fantome.ModManagement.IO
             bool invalidWADFolder = false;
 
             //Get all files in the WAD folder
-            string wadFolderFileError = string.Format("The WAD folder of {0} contains invalid files:\n", GetID());
-            foreach (ZipArchiveEntry entry in GetEntries(@"WAD[\\/].*(?![\\/])"))
+            string wadFolderError = string.Format("The WAD folder of {0} contains invalid entries:\n", GetID());
+            foreach (ZipArchiveEntry entry in GetEntries(@"WAD[\\/].*"))
             {
-                if (!entry.Name.Contains(".wad.client") || string.IsNullOrEmpty(modManager.Index.FindWADPath(entry.Name)))
+                if (!entry.FullName.Contains(".wad.client"))
                 {
                     invalidWADFolder = true;
-                    wadFolderFileError += entry.FullName + '\n';
+                    wadFolderError += entry.FullName + '\n';
                 }
-            }
-            if (invalidWADFolder)
-            {
-                return wadFolderFileError;
-            }
-
-            //Get all folders in the WAD folder by iterating through all the files
-            string wadFolderFoldersError = string.Format("The WAD folder of {0} contains invalid folders:\n", GetID());
-            List<string> foundInvalidFolders = new List<string>();
-            foreach (ZipArchiveEntry entry in GetEntries(@"WAD[\\/].*[\\/].*"))
-            {
-                char separator = Pathing.GetPathSeparator(entry.FullName);
-                string folder = entry.FullName.Split(separator)[1];
-                if (!folder.EndsWith(".wad.client"))
+                else
                 {
-                    if (!foundInvalidFolders.Contains(folder))
+                    //See if the WAD file exists in the game
+                    string wadName = entry.FullName.Split(Pathing.GetPathSeparator(entry.FullName))[1];
+                    if (string.IsNullOrEmpty(modManager.Index.FindWADPath(wadName)))
                     {
-                        foundInvalidFolders.Add(folder);
                         invalidWADFolder = true;
-                        wadFolderFoldersError += folder + '\n';
+                        wadFolderError += entry.FullName + '\n';
                     }
                 }
             }
             if (invalidWADFolder)
             {
-                return wadFolderFoldersError;
+                return wadFolderError;
             }
 
 
             //Get all files in RAW folder and see if they contain a reference to WAD files
-            bool rawError = false;
+            bool invalidRawFolder = false;
             string rawFolderError = string.Format("The RAW folder of {0} contains invalid entries:\n", GetID());
             foreach (ZipArchiveEntry entry in GetEntries(@"RAW[\\/].*(?![\\/])"))
             {
                 if (entry.FullName.Contains(".wad.client"))
                 {
-                    rawError = true;
+                    invalidRawFolder = true;
                     rawFolderError += entry.FullName + '\n';
                 }
             }
-            if (rawError)
+            if (invalidRawFolder)
             {
                 return rawFolderError;
             }
@@ -210,10 +216,154 @@ namespace Fantome.ModManagement.IO
                 return null;
             }
         }
+        private Dictionary<string, WADFile> GetWadFiles()
+        {
+            Dictionary<string, WADFile> modWadFiles = new Dictionary<string, WADFile>();
+
+            //Collect WAD files in WAD folder
+            CollectWADFiles();
+
+            //Pack WAD folders files into WAD files
+            CollectWADFolders();
+
+            //Collect files from the RAW folder
+            CollectRAWFiles();
+
+            return modWadFiles;
+
+            void CollectWADFiles()
+            {
+                foreach (ZipArchiveEntry zipEntry in GetEntries(@"WAD[\\/][\w.]+.wad.client(?![\\/])"))
+                {
+                    char ps = Pathing.GetPathSeparator(zipEntry.FullName);
+                    string wadPath = this._modManager.Index.FindWADPath(zipEntry.FullName.Split(ps)[1]);
+
+                    zipEntry.ExtractToFile("wadtemp", true);
+                    modWadFiles.Add(wadPath, new WADFile(new MemoryStream(File.ReadAllBytes("wadtemp"))));
+                    File.Delete("wadtemp");
+
+                    //We need to check each entry to see if they're shared across any other WAD files
+                    //if they are, we need to also modify those WADs
+                    foreach (WADEntry entry in modWadFiles[wadPath].Entries)
+                    {
+                        //Check if the entry is present in the game files or if it's new
+                        if (this._modManager.Index.Game.ContainsKey(entry.XXHash))
+                        {
+                            foreach (string additionalWadPath in this._modManager.Index.Game[entry.XXHash].Where(x => x != wadPath))
+                            {
+                                if (!modWadFiles.ContainsKey(additionalWadPath))
+                                {
+                                    modWadFiles.Add(additionalWadPath, new WADFile(3, 0));
+                                }
+
+                                if (entry.Type == EntryType.Uncompressed)
+                                {
+                                    modWadFiles[additionalWadPath].AddEntry(entry.XXHash, entry.GetContent(false), false);
+                                }
+                                else if (entry.Type == EntryType.Compressed || entry.Type == EntryType.ZStandardCompressed)
+                                {
+                                    modWadFiles[additionalWadPath].AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, entry.Type);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            void CollectWADFolders()
+            {
+                List<string> wadPaths = new List<string>();
+
+                foreach (ZipArchiveEntry zipEntry in GetEntries(@"WAD[\\/][\w.]+.wad.client[\\/].*"))
+                {
+                    char ps = Pathing.GetPathSeparator(zipEntry.FullName);
+                    string wadName = zipEntry.FullName.Split(ps)[1];
+                    string wadPath = this._modManager.Index.FindWADPath(wadName);
+                    string path = zipEntry.FullName.Replace(string.Format("WAD{0}{1}{0}", ps, wadName), "").Replace('\\', '/');
+                    ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
+
+                    MemoryStream memoryStream = new MemoryStream();
+                    zipEntry.Open().CopyTo(memoryStream);
+
+                    if (!modWadFiles.ContainsKey(wadPath))
+                    {
+                        modWadFiles.Add(wadPath, new WADFile(3, 0));
+                        wadPaths.Add(wadPath);
+                    }
+
+                    if (Path.GetExtension(path) == ".wpk")
+                    {
+                        modWadFiles[wadPath].AddEntry(hash, memoryStream.ToArray(), false);
+                    }
+                    else
+                    {
+                        modWadFiles[wadPath].AddEntry(hash, memoryStream.ToArray(), true);
+                    }
+                }
+
+                //Shared Entry Check
+                foreach (string wadPath in wadPaths)
+                {
+                    foreach (WADEntry entry in modWadFiles[wadPath].Entries)
+                    {
+                        //Check if the entry is present in the game files or if it's new
+                        if (this._modManager.Index.Game.ContainsKey(entry.XXHash))
+                        {
+                            foreach (string additionalWadPath in this._modManager.Index.Game[entry.XXHash].Where(x => x != wadPath))
+                            {
+                                if (!modWadFiles.ContainsKey(additionalWadPath))
+                                {
+                                    modWadFiles.Add(additionalWadPath, new WADFile(3, 0));
+                                }
+
+                                modWadFiles[additionalWadPath].AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, EntryType.ZStandardCompressed);
+                            }
+                        }
+                    }
+                }
+            }
+            void CollectRAWFiles()
+            {
+                foreach (ZipArchiveEntry zipEntry in GetEntries(@"RAW[\\/].*"))
+                {
+                    char ps = Pathing.GetPathSeparator(zipEntry.FullName);
+                    string path = zipEntry.FullName.Replace(@"RAW" + ps, "").Replace('\\', '/');
+                    ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
+                    List<string> fileWadFiles = new List<string>();
+
+                    //Check if file exists, if not, we discard it
+                    if (this._modManager.Index.Game.ContainsKey(hash))
+                    {
+                        fileWadFiles = this._modManager.Index.Game[hash];
+                        foreach (string wadFilePath in fileWadFiles)
+                        {
+                            if (!modWadFiles.ContainsKey(wadFilePath))
+                            {
+                                modWadFiles.Add(wadFilePath, new WADFile(3, 0));
+                            }
+
+                            MemoryStream memoryStream = new MemoryStream();
+                            zipEntry.Open().CopyTo(memoryStream);
+
+                            modWadFiles[wadFilePath].AddEntry(hash, memoryStream.ToArray(), true);
+                        }
+                    }
+                }
+            }
+        }
 
         public void Dispose()
         {
             this.Content.Dispose();
+            DisposeWADFiles();
+        }
+        public void DisposeWADFiles()
+        {
+            foreach (KeyValuePair<string, WADFile> wad in this._wadFiles)
+            {
+                wad.Value.Dispose();
+            }
+
+            this._wadFiles = null;
         }
 
         public bool Equals(ModFile other)

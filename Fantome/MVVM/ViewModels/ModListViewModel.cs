@@ -15,7 +15,7 @@ namespace Fantome.MVVM.ViewModels
 {
     public class ModListViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<ModCardViewModel> Items
+        public ObservableCollection<ModListItemViewModel> Items
         {
             get => this._items;
             set
@@ -25,7 +25,7 @@ namespace Fantome.MVVM.ViewModels
             }
         }
 
-        private ObservableCollection<ModCardViewModel> _items = new ObservableCollection<ModCardViewModel>();
+        private ObservableCollection<ModListItemViewModel> _items = new ObservableCollection<ModListItemViewModel>();
         private ModManager _modManager;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -39,7 +39,7 @@ namespace Fantome.MVVM.ViewModels
         {
             foreach (KeyValuePair<string, bool> modEntry in this._modManager.Database.Mods)
             {
-                this.Items.Add(new ModCardViewModel(this._modManager.Database.GetMod(modEntry.Key), modEntry.Value, this._modManager, this));
+                this.Items.Add(new ModListItemViewModel(this._modManager.Database.GetMod(modEntry.Key), modEntry.Value, this._modManager, this));
             }
         }
 
@@ -52,10 +52,10 @@ namespace Fantome.MVVM.ViewModels
             }
             else
             {
-                this.Items.Add(new ModCardViewModel(mod, install, this._modManager, this));
+                this.Items.Add(new ModListItemViewModel(mod, install, this._modManager, this));
             }
         }
-        public void RemoveMod(ModCardViewModel mod)
+        public void RemoveMod(ModListItemViewModel mod)
         {
             this.Items.Remove(mod);
         }

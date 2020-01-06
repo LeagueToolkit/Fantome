@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -26,15 +27,44 @@ namespace Fantome
 {
 #warning Don't forget to add PopupStyle to OperationDialog in MainWindow.xaml before creating a release
 
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public const string LOGS_FOLDER = "Logs";
 
         public ModListViewModel ModList => this.ModsListBox.DataContext as ModListViewModel;
 
+        public bool IsModListTypeCard
+        {
+            get => Config.Get<int>("ModListType") == 0;
+            set
+            {
+                if (value)
+                {
+                    Config.Set("ModListType", 0);
+                }
+
+                NotifyPropertyChanged();
+            }
+        }
+        public bool IsModListTypeRow
+        {
+            get => Config.Get<int>("ModListType") == 1;
+            set
+            {
+                if (value)
+                {
+                    Config.Set("ModListType", 1);
+                }
+
+                NotifyPropertyChanged();
+            }
+        }
+
         private ModManager _modManager;
         private OverlayPatcher _patcher;
         private NotifyIcon _notifyIcon;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public ICommand RunSettingsDialogCommand => new RelayCommand(RunSettingsDialog);
         public ICommand RunCreateModDialogCommand => new RelayCommand(RunCreateModDialog);
@@ -58,7 +88,7 @@ namespace Fantome
         private void InitializeModManager()
         {
             Log.Information("Initializing Mod Manager");
-            this._modManager = new ModManager();
+            this._modManager = new ModManager(this.ModList);
         }
         private void StartPatcher()
         {
@@ -77,10 +107,8 @@ namespace Fantome
         private void BindMVVM()
         {
             Log.Information("Binding View Models");
+            this.DataContext = this;
             this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
-            this.ButtonCreateMod.DataContext = this;
-            this.SettingsButton.DataContext = this;
-            this.GithubButton.DataContext = this;
 
             DialogHelper.MessageDialog = this.MessageDialog;
             DialogHelper.OperationDialog = this.OperationDialog;
@@ -176,15 +204,12 @@ namespace Fantome
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                string modName = Path.GetFileName(dialog.FileName);
                 string modPath = "";
-                string modID = "";
                 string validationError = "";
 
-                using (ModFile originalMod = new ModFile(dialog.FileName))
+                using (ModFile originalMod = new ModFile(this._modManager, dialog.FileName))
                 {
-                    modID = originalMod.GetID();
-                    modPath = string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, modID);
+                    modPath = string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, originalMod.GetID());
                     validationError = originalMod.Validate(this._modManager);
                 }
 
@@ -201,7 +226,7 @@ namespace Fantome
                     }
 
                     Log.Information("Loading Mod: {0}", modPath);
-                    ModFile mod = new ModFile(modPath);
+                    ModFile mod = new ModFile(this._modManager, modPath);
                     this.ModList.AddMod(mod, true);
                 }
             }
@@ -279,6 +304,11 @@ namespace Fantome
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             this._notifyIcon.Dispose();
+        }
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

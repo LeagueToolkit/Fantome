@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.MVVM.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,18 +13,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Fantome.MVVM.ViewModels;
 
 namespace Fantome.UserControls
 {
     /// <summary>
-    /// Interaction logic for ModCard.xaml
+    /// Interaction logic for ModListRow.xaml
     /// </summary>
-    public partial class ModCard : UserControl
+    public partial class ModListRow : UserControl
     {
-        public ModListItemViewModel ViewModel { get => this.DataContext as ModListItemViewModel; }
+        public ModListItemViewModel ViewModel => this.DataContext as ModListItemViewModel;
 
-        public ModCard()
+        public ModListRow()
         {
             InitializeComponent();
         }
