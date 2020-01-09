@@ -14,7 +14,7 @@ namespace Fantome.MVVM.ViewModels
 {
     public class SettingsViewModel : INotifyPropertyChanged
     {
-        public string LeagueLocation 
+        public string LeagueLocation
         {
             get => this._leagueLocation;
             set
@@ -23,8 +23,38 @@ namespace Fantome.MVVM.ViewModels
                 NotifyPropertyChanged();
             }
         }
+        public bool ParallelWadInstallation
+        {
+            get => this._parallelWadInstallation;
+            set
+            {
+                this._parallelWadInstallation = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public bool PackWadFolders
+        {
+            get => this._packWadFolders;
+            set
+            {
+                this._packWadFolders = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public bool InstallAddedMods
+        {
+            get => this._installAddedMods;
+            set
+            {
+                this._installAddedMods = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         private string _leagueLocation;
+        private bool _parallelWadInstallation;
+        private bool _packWadFolders;
+        private bool _installAddedMods;
 
         private bool _needsRestart;
 
@@ -33,26 +63,30 @@ namespace Fantome.MVVM.ViewModels
         public SettingsViewModel()
         {
             this._leagueLocation = Config.Get<string>("LeagueLocation");
+            this._parallelWadInstallation = Config.Get<bool>("ParallelWadInstallation");
+            this._packWadFolders = Config.Get<bool>("PackWadFolders");
+            this._installAddedMods = Config.Get<bool>("InstallAddedMods");
         }
 
         public void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
         {
-            //No changes to config needed
-            if((bool)eventArgs.Parameter == false)
+            if ((bool)eventArgs.Parameter)
             {
-                return;
-            }
+                if (this._leagueLocation != Config.Get<string>("LeagueLocation"))
+                {
+                    this._needsRestart = true;
+                    Config.Set("LeagueLocation", this._leagueLocation);
+                }
 
-            if(this._leagueLocation != Config.Get<string>("LeagueLocation"))
-            {
-                this._needsRestart = true;
-                Config.Set("LeagueLocation", this._leagueLocation);
-            }
+                Config.Set("ParallelWadInstallation", this._parallelWadInstallation);
+                Config.Set("PackWadFolders", this._packWadFolders);
+                Config.Set("InstallAddedMods", this._installAddedMods);
 
-            if(this._needsRestart)
-            {
-                Process.Start(Application.ResourceAssembly.Location);
-                Application.Current.Shutdown();
+                if (this._needsRestart)
+                {
+                    Process.Start(Application.ResourceAssembly.Location);
+                    Application.Current.Shutdown();
+                }
             }
         }
 

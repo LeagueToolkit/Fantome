@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Fantome.MVVM.ViewModels;
+using Fantome.Utilities;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace Fantome.UserControls.Dialogs
@@ -38,7 +40,15 @@ namespace Fantome.UserControls.Dialogs
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                this.ViewModel.LeagueLocation = dialog.FileName;
+                if (File.Exists(string.Format(@"{0}\League of Legends.exe", dialog.FileName)))
+                {
+                    this.ViewModel.LeagueLocation = dialog.FileName;
+                }
+                else
+                {
+                    DialogHelper.ShowMessageDialog("You've selected an incorrect League of Legends game folder.\n" +
+                        @"Make sure it you're selecting the ""Game"" folder that contains the League of Legends.exe file");
+                }
             }
         }
     }

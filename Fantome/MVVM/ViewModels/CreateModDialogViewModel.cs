@@ -93,7 +93,7 @@ namespace Fantome.MVVM.ViewModels
             this._modList = modList;
         }
 
-        public void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
+        public async void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
         {
             if ((bool)eventArgs.Parameter == true)
             {
@@ -105,7 +105,7 @@ namespace Fantome.MVVM.ViewModels
                 }
 
                 ModFile mod = new ModFile(this.ModManager, this._wadLocation, this._rawLocation, info, image);
-                this._modList.AddMod(mod, false);
+                await this._modList.AddMod(mod, false);
             }
         }
 

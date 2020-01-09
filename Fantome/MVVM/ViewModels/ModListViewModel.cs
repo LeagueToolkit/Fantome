@@ -39,11 +39,12 @@ namespace Fantome.MVVM.ViewModels
         {
             foreach (KeyValuePair<string, bool> modEntry in this._modManager.Database.Mods)
             {
-                this.Items.Add(new ModListItemViewModel(this._modManager.Database.GetMod(modEntry.Key), modEntry.Value, this._modManager, this));
+                this.Items.Add(new ModListItemViewModel(this._modManager.Database.GetMod(modEntry.Key), this._modManager, this));
+                this.Items.Last().IsInstalled = modEntry.Value;
             }
         }
 
-        public void AddMod(ModFile mod, bool install)
+        public async Task AddMod(ModFile mod, bool install)
         {
             if (this.Items.Any(x => x.Mod == mod))
             {
@@ -52,7 +53,21 @@ namespace Fantome.MVVM.ViewModels
             }
             else
             {
-                this.Items.Add(new ModListItemViewModel(mod, install, this._modManager, this));
+                string validationError = mod.Validate(this._modManager);
+                if (!string.IsNullOrEmpty(validationError))
+                {
+                    DialogHelper.ShowMessageDialog(validationError);
+                }
+                else
+                {
+                    ModListItemViewModel modListItem = new ModListItemViewModel(mod, this._modManager, this);
+                    this.Items.Add(modListItem);
+
+                    if (install)
+                    {
+                        await modListItem.Install(true);
+                    }
+                }
             }
         }
         public void RemoveMod(ModListItemViewModel mod)

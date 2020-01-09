@@ -8,6 +8,7 @@ using Fantome.Libraries.League.IO.WAD;
 using Newtonsoft.Json.Converters;
 using Fantome.ModManagement.IO;
 using Serilog;
+using Fantome.Utilities;
 
 namespace Fantome.ModManagement
 {
@@ -36,8 +37,8 @@ namespace Fantome.ModManagement
         public LeagueFileIndex() { }
         public LeagueFileIndex(string leagueFolder)
         {
-            string wadRootPath = Path.Combine(leagueFolder, @"Game\DATA\FINAL");
-            this.Version = new Version(FileVersionInfo.GetVersionInfo(Path.Combine(leagueFolder, @"Game\League of Legends.exe")).FileVersion);
+            string wadRootPath = Path.Combine(leagueFolder, @"DATA\FINAL");
+            this.Version = new Version(FileVersionInfo.GetVersionInfo(Path.Combine(leagueFolder, "League of Legends.exe")).FileVersion);
 
             foreach (string wadFile in Directory.GetFiles(wadRootPath, "*", SearchOption.AllDirectories).Where(x => x.Contains(".wad")))
             {
@@ -48,7 +49,7 @@ namespace Fantome.ModManagement
                     {
                         fileHashes.Add(entry.XXHash);
 
-                        string gameWadPath = wadFile.Replace(Path.Combine(leagueFolder, @"Game\"), "");
+                        string gameWadPath = wadFile.Replace(leagueFolder + Pathing.GetPathSeparator(leagueFolder), "");
 
                         if (this._gameIndex.ContainsKey(entry.XXHash))
                         {

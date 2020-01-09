@@ -115,7 +115,7 @@ namespace Fantome.ModManagement
 
             if (install)
             {
-                await DialogHelper.InstallMod(mod, this);
+                await DialogHelper.ShowInstallModDialog(mod, this);
             }
         }
         public void RemoveMod(ModFile mod)
@@ -168,16 +168,33 @@ namespace Fantome.ModManagement
         }
         private void WriteModWADFiles(ModFile mod)
         {
-            ParallelOptions parallelOptions = new ParallelOptions()
-            {
-                MaxDegreeOfParallelism = Environment.ProcessorCount
-            };
+            Action<KeyValuePair<string, WADFile>> writeWadFileDelegate = new Action<KeyValuePair<string, WADFile>>(WriteWadFile);
 
-            Parallel.ForEach(mod.WadFiles, (modWadFile) =>
+            if (Config.Get<bool>("ParallelWadInstallation"))
+            {
+                ParallelOptions parallelOptions = new ParallelOptions()
+                {
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                };
+
+                Parallel.ForEach(mod.WadFiles, (modWadFile) =>
+                {
+                    writeWadFileDelegate.Invoke(modWadFile);
+                });
+            }
+            else
+            {
+                foreach(KeyValuePair<string, WADFile> modWadFile in mod.WadFiles)
+                {
+                    writeWadFileDelegate.Invoke(modWadFile);
+                }
+            }
+
+            void WriteWadFile(KeyValuePair<string, WADFile> modWadFile)
             {
                 string wadPath = this.Index.FindWADPath(modWadFile.Key);
                 string overlayModWadPath = string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath);
-                string gameModWadPath = string.Format(@"{0}\Game\{1}", this.LeagueFolder, wadPath);
+                string gameModWadPath = string.Format(@"{0}\{1}", this.LeagueFolder, wadPath);
 
                 //Check if the WAD already exists, if it does, we need to merge the 2 WADs
                 //if it doesnt, then we need to copy it from the game directory
@@ -214,7 +231,7 @@ namespace Fantome.ModManagement
                     File.Delete(overlayModWadPath + ".temp");
                     modWadFile.Value.Dispose();
                 }
-            });
+            }
         }
 
         public void UninstallMod(ModFile mod)
@@ -259,7 +276,7 @@ namespace Fantome.ModManagement
                 //If it's used by some other mods we need to merge it into the original WAD
                 else
                 {
-                    string gameWadPath = string.Format(@"{0}\Game\{1}", this.LeagueFolder, wadFile.Key);
+                    string gameWadPath = string.Format(@"{0}\{1}", this.LeagueFolder, wadFile.Key);
                     string overlayWadPath = string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadFile.Key);
                     WADFile originalWad = new WADFile(gameWadPath);
 
@@ -294,11 +311,11 @@ namespace Fantome.ModManagement
 
         private Version GetLeagueVersion()
         {
-            return new Version(FileVersionInfo.GetVersionInfo(Path.Combine(this.LeagueFolder, "Game/League of Legends.exe")).FileVersion);
+            return new Version(FileVersionInfo.GetVersionInfo(Path.Combine(this.LeagueFolder, "League of Legends.exe")).FileVersion);
         }
         private bool IsValidLeagueFolder(string leagueFolder)
         {
-            return File.Exists(Path.Combine(leagueFolder, "LeagueClient.exe"));
+            return File.Exists(Path.Combine(leagueFolder, "League of Legends.exe"));
         }
     }
 }

@@ -14,7 +14,8 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-        Title="Fantome" Height="720" Width="1280" Closing="Window_Closing">
+        Title="Fantome" Height="720" Width="1280" Closing="OnClosing"
+        AllowDrop="True" Drop="OnDrop">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -118,7 +119,7 @@
                         <ListView x:Name="ModsListBox" Style="{StaticResource ModListStyle}" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Stretch"/>
                         <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,20,20">
                             <StackPanel>
-                                <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Click="AddMod">
+                                <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Click="OnAddMod">
                                     <MaterialDesign:PackIcon Kind="CreditCardAdd"/>
                                 </Button>
                                 <Button x:Name="ButtonCreateMod" ToolTip="Create Mod" Command="{Binding RunCreateModDialogCommand}">

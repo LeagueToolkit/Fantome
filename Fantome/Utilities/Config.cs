@@ -17,7 +17,10 @@ namespace Fantome.Utilities
         {
             { "LeagueLocation", "" },
             { "LoggingPattern", "{Timestamp:dd-MM-yyyy HH:mm:ss.fff} | [{Level}] |  {Message:lj}{NewLine}{Exception}" },
-            { "ModListType", 0 }
+            { "ModListType", 0 },
+            { "ParallelWadInstallation", true },
+            { "PackWadFolders", true },
+            { "InstallAddedMods", true }
         };
         private static Dictionary<string, object> _config = new Dictionary<string, object>();
 

@@ -38,7 +38,14 @@ namespace Fantome.Utilities
             await DialogHost.Show(dialog, "MessageDialog");
         }
 
-        public static async Task<object> InstallMod(ModFile mod, ModManager modManager)
+        public static async Task<object> ShowGenerateWadFilesDialog(ModFile mod)
+        {
+            GeneratingWadFilesDialog dialog = new GeneratingWadFilesDialog(mod);
+
+            return await DialogHost.Show(dialog, "OperationDialog", dialog.StartGeneration, null);
+        }
+
+        public static async Task<object> ShowInstallModDialog(ModFile mod, ModManager modManager)
         {
             InstallingModDialog dialog = new InstallingModDialog()
             {
@@ -48,7 +55,7 @@ namespace Fantome.Utilities
             return await DialogHost.Show(dialog, "OperationDialog", dialog.StartInstallation, null);
         }
 
-        public static async Task<object> UninstallMod(ModFile mod, ModManager modManager)
+        public static async Task<object> ShowUninstallModDialog(ModFile mod, ModManager modManager)
         {
             UninstallingModDialog dialog = new UninstallingModDialog()
             {

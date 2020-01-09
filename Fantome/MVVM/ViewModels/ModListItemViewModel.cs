@@ -38,12 +38,11 @@ namespace Fantome.MVVM.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ModListItemViewModel(ModFile mod, bool isInstalled, ModManager _modManager, ModListViewModel modList)
+        public ModListItemViewModel(ModFile mod, ModManager modManager, ModListViewModel modList)
         {
             this.Mod = mod;
-            this._modManager = _modManager;
+            this._modManager = modManager;
             this._modList = modList;
-            this._isInstalled = isInstalled;
 
             if (mod.Image != null)
             {
@@ -59,9 +58,9 @@ namespace Fantome.MVVM.ViewModels
             }
         }
 
-        public async void Install()
+        public async Task Install(bool forceInstall = false)
         {
-            if (this.IsInstalled && !this._modManager.Database.IsInstalled(this.Mod))
+            if ((this.IsInstalled && !this._modManager.Database.IsInstalled(this.Mod)) || forceInstall)
             {
                 //Validate Mod before installation
                 string validationError = this.Mod.Validate(this._modManager);
@@ -72,19 +71,22 @@ namespace Fantome.MVVM.ViewModels
                 }
                 else
                 {
+                    //Generate WAD files for the Mod
+                    await DialogHelper.ShowGenerateWadFilesDialog(this.Mod);
+
                     //Now we need to check for asset collisions
                     List<string> collisions = this._modManager.Index.CheckForAssetCollisions(this.Mod.WadFiles);
                     if (collisions.Count != 0)
                     {
-                        object result = await DialogHelper.ShowAssetConflictDialog(this.Mod, collisions);
-                        if ((bool)result == true)
+                        object uninstallCollisions = await DialogHelper.ShowAssetConflictDialog(this.Mod, collisions);
+                        if ((bool)uninstallCollisions == true)
                         {
                             foreach (string collision in collisions)
                             {
                                 ModFile collisionMod = this._modManager.Database.GetMod(collision);
-                                ModListItemViewModel modViewModel = this._modList.Items.FirstOrDefault(x => x.Mod == collisionMod);
-                                
-                                await modViewModel.Uninstall(true);
+                                ModListItemViewModel collisionModViewModel = this._modList.Items.FirstOrDefault(x => x.Mod == collisionMod);
+
+                                await collisionModViewModel.Uninstall(true);
                             }
                         }
                         else
@@ -94,22 +96,24 @@ namespace Fantome.MVVM.ViewModels
                         }
                     }
 
-                    await DialogHelper.InstallMod(this.Mod, this._modManager);
+                    await DialogHelper.ShowInstallModDialog(this.Mod, this._modManager);
                     this.IsInstalled = true;
                 }
+
+                //Do this to release all memory allocated by the ZipArchive
+                this.Mod.DisposeReopen();
             }
         }
-        public async Task<object> Uninstall(bool forceUninstall = false)
+        public async Task Uninstall(bool forceUninstall = false)
         {
             if ((!this.IsInstalled && this._modManager.Database.IsInstalled(this.Mod)) || forceUninstall)
             {
-                object result = await DialogHelper.UninstallMod(this.Mod, this._modManager);
+                await DialogHelper.ShowUninstallModDialog(this.Mod, this._modManager);
                 this.IsInstalled = false;
 
-                return result;
+                //Do this to release all memory allocated by the ZipArchive
+                this.Mod.DisposeReopen();
             }
-
-            return null;
         }
         public void Remove()
         {

@@ -28,14 +28,14 @@ namespace Fantome.UserControls
             InitializeComponent();
         }
 
-        private void IsInstalledToggle_Checked(object sender, RoutedEventArgs e)
+        private async void IsInstalledToggle_Checked(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.Install();
+            await this.ViewModel.Install();
         }
 
-        private void IsInstalledToggle_Unchecked(object sender, RoutedEventArgs e)
+        private async void IsInstalledToggle_Unchecked(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.Uninstall();
+            await this.ViewModel.Uninstall();
         }
 
         private void RemoveModButton_Click(object sender, RoutedEventArgs e)

@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Forms;
-using System.Windows.Input;
-using Fantome.ModManagement;
+﻿using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.Commands;
 using Fantome.MVVM.ViewModels;
@@ -20,7 +9,19 @@ using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Forms;
+using System.Windows.Input;
 using Application = System.Windows.Application;
+using DataFormats = System.Windows.DataFormats;
 using MessageBox = System.Windows.MessageBox;
 
 namespace Fantome
@@ -72,9 +73,12 @@ namespace Fantome
 
         public MainWindow()
         {
+            //Initial checks to see if we can run Fantome
             CheckWindowsVersion();
             CheckForExistingProcess();
+            CheckForPathUnicodeCharacters();
 
+            //Main loading sequence
             Config.Load();
             InitializeLogger();
             CreateWorkFolders();
@@ -192,8 +196,23 @@ namespace Fantome
                 }
             }
         }
+        private void CheckForPathUnicodeCharacters()
+        {
+            string currentDirectory = Environment.CurrentDirectory;
+            if (currentDirectory.Any(c => c > 255))
+            {
+                string message = currentDirectory + '\n';
+                message += "The path to Fantome contains Unicode characters, please remove them from the path or move Fantome to a different directory\n";
+                message += "Unicode characters are letters from languages such as Russian, Chinese etc....";
 
-        private void AddMod(object sender, RoutedEventArgs e)
+                if (MessageBox.Show(message, "", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                {
+                    Application.Current.Shutdown();
+                }
+            }
+        }
+
+        private async void OnAddMod(object sender, RoutedEventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog("Choose the ZIP file of your mod")
             {
@@ -204,32 +223,29 @@ namespace Fantome
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                string modPath = "";
-                string validationError = "";
-
-                using (ModFile originalMod = new ModFile(this._modManager, dialog.FileName))
-                {
-                    modPath = string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, originalMod.GetID());
-                    validationError = originalMod.Validate(this._modManager);
-                }
-
-                if (!string.IsNullOrEmpty(validationError))
-                {
-                    DialogHelper.ShowMessageDialog(validationError);
-                }
-                else
-                {
-                    if (!File.Exists(modPath))
-                    {
-                        Log.Information("Copying Mod: {0} to {1}", dialog.FileName, modPath);
-                        File.Copy(dialog.FileName, modPath, true);
-                    }
-
-                    Log.Information("Loading Mod: {0}", modPath);
-                    ModFile mod = new ModFile(this._modManager, modPath);
-                    this.ModList.AddMod(mod, true);
-                }
+                await AddMod(dialog.FileName);
             }
+        }
+        private async Task AddMod(string modLocation)
+        {
+            string modPath = "";
+
+            using (ModFile originalMod = new ModFile(this._modManager, modLocation))
+            {
+                modPath = string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, originalMod.GetID());
+            }
+
+            //If mod is not in Mods folder then we copy it
+            if (!File.Exists(modPath))
+            {
+                Log.Information("Copying Mod: {0} to {1}", modLocation, modPath);
+                File.Copy(modLocation, modPath, true);
+            }
+
+            Log.Information("Loading Mod: {0}", modPath);
+            bool install = Config.Get<bool>("InstallAddedMods");
+            ModFile mod = new ModFile(this._modManager, modPath);
+            await this.ModList.AddMod(mod, install);
         }
 
         private async void RunSettingsDialog(object o)
@@ -301,9 +317,20 @@ namespace Fantome
 
             base.OnStateChanged(e);
         }
-        private void Window_Closing(object sender, CancelEventArgs e)
+        private void OnClosing(object sender, CancelEventArgs e)
         {
             this._notifyIcon.Dispose();
+        }
+        private async void OnDrop(object sender, System.Windows.DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                for (int i = 0; i < files.Length; i++)
+                {
+                    await AddMod(files[i]);
+                }
+            }
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

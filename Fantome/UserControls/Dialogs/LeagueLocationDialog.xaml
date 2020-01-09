@@ -21,13 +21,13 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Vertical" Margin="16">
-            <TextBlock Text="Please select the location of your League of Legends installation:" Margin="0 0 0 15"/>
+            <TextBlock Text="Please select the location of your League of Legends Game folder:" Margin="0 0 0 15"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Text="{Binding LeagueLocation, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="League of Legends installation folder" MaterialDesign:HintAssist.HelperText="Select the folder which contains LeagueClient.exe"/>
+                <TextBox Grid.Column="0" Text="{Binding LeagueLocation, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="League of Legends Game folder" MaterialDesign:HintAssist.HelperText="Select the folder which contains League of Legends.exe"/>
                 <Button Grid.Column="1" x:Name="SelectLeagueLocationButton" Grid.Row="1" Width="25" Height="25" Content="{MaterialDesign:PackIcon Kind=Folder}" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Click="SelectLeagueLocationButton_Click" Padding="1" Margin="20,0,0,0"/>
             </Grid>
         </StackPanel>

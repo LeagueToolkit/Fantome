@@ -78,7 +78,15 @@ namespace Fantome.ModManagement.IO
 
                     if (!string.IsNullOrEmpty(wadLocation))
                     {
-                        AddFolder("WAD", wadLocation);
+                        //Check if we want to pack the WAD folders into WAD files
+                        if (Config.Get<bool>("PackWadFolders"))
+                        {
+                            PackWadFolders(wadLocation);
+                        }
+                        else
+                        {
+                            AddFolder("WAD", wadLocation);
+                        }
                     }
 
                     if (!string.IsNullOrEmpty(rawLocation))
@@ -116,6 +124,32 @@ namespace Fantome.ModManagement.IO
             using (Stream entryStream = entry.Open())
             {
                 entryStream.Write(data, 0, data.Length);
+            }
+        }
+        private void PackWadFolders(string wadLocation)
+        {
+            //Loop through each WAD folder
+            foreach (string wadFolder in Directory.EnumerateDirectories(wadLocation))
+            {
+                char separator = Pathing.GetPathSeparator(wadFolder);
+                string wadName = wadFolder.Split(separator).Last();
+
+                using (WADFile wad = new WADFile(3, 0))
+                {
+                    //Add each file to the WAD
+                    foreach (string wadFolderFile in Directory.EnumerateFiles(wadFolder, "*", SearchOption.AllDirectories))
+                    {
+                        string path = wadFolderFile.Replace(wadFolder + separator, "").Replace('\\', '/');
+                        ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
+                        string extension = Path.GetExtension(wadFolderFile);
+
+                        wad.AddEntry(hash, File.ReadAllBytes(wadFolderFile), extension != ".wpk" && extension != ".bnk" ? true : false);
+                    }
+
+                    //After WAD creation is finished we can write the WAD to the ZIP
+                    ZipArchiveEntry archiveEntry = this.Content.CreateEntry(string.Format(@"WAD\{0}", wadName));
+                    wad.Write(archiveEntry.Open());
+                }
             }
         }
 
@@ -182,6 +216,10 @@ namespace Fantome.ModManagement.IO
             }
 
             return "";
+        }
+        public void GenerateWadFiles()
+        {
+            this._wadFiles = GetWadFiles();
         }
 
         public string GetID()
@@ -281,22 +319,23 @@ namespace Fantome.ModManagement.IO
                     string path = zipEntry.FullName.Replace(string.Format("WAD{0}{1}{0}", ps, wadName), "").Replace('\\', '/');
                     ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
-                    MemoryStream memoryStream = new MemoryStream();
-                    zipEntry.Open().CopyTo(memoryStream);
-
                     if (!modWadFiles.ContainsKey(wadPath))
                     {
                         modWadFiles.Add(wadPath, new WADFile(3, 0));
                         wadPaths.Add(wadPath);
                     }
 
-                    if (Path.GetExtension(path) == ".wpk")
+                    using (MemoryStream memoryStream = new MemoryStream())
                     {
-                        modWadFiles[wadPath].AddEntry(hash, memoryStream.ToArray(), false);
-                    }
-                    else
-                    {
-                        modWadFiles[wadPath].AddEntry(hash, memoryStream.ToArray(), true);
+                        zipEntry.Open().CopyTo(memoryStream);
+                        if (Path.GetExtension(path) == ".wpk")
+                        {
+                            modWadFiles[wadPath].AddEntry(hash, memoryStream.ToArray(), false);
+                        }
+                        else
+                        {
+                            modWadFiles[wadPath].AddEntry(hash, memoryStream.ToArray(), true);
+                        }
                     }
                 }
 
@@ -341,10 +380,11 @@ namespace Fantome.ModManagement.IO
                                 modWadFiles.Add(wadFilePath, new WADFile(3, 0));
                             }
 
-                            MemoryStream memoryStream = new MemoryStream();
-                            zipEntry.Open().CopyTo(memoryStream);
-
-                            modWadFiles[wadFilePath].AddEntry(hash, memoryStream.ToArray(), true);
+                            using (MemoryStream memoryStream = new MemoryStream())
+                            {
+                                zipEntry.Open().CopyTo(memoryStream);
+                                modWadFiles[wadFilePath].AddEntry(hash, memoryStream.ToArray(), true);
+                            }
                         }
                     }
                 }
@@ -355,15 +395,27 @@ namespace Fantome.ModManagement.IO
         {
             this.Content.Dispose();
             DisposeWADFiles();
+
+            //This is very bad but it works :( if someone finds where there is a memory leak happening please let me now
+            GC.Collect();
         }
         public void DisposeWADFiles()
         {
-            foreach (KeyValuePair<string, WADFile> wad in this._wadFiles)
+            if (this._wadFiles != null)
             {
-                wad.Value.Dispose();
+                foreach (KeyValuePair<string, WADFile> wad in this._wadFiles)
+                {
+                    wad.Value.Dispose();
+                }
             }
 
             this._wadFiles = null;
+        }
+        public void DisposeReopen()
+        {
+            Dispose();
+
+            this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, GetID()));
         }
 
         public bool Equals(ModFile other)
