@@ -31,7 +31,7 @@ namespace Fantome.UserControls.Dialogs
             InitializeComponent();
         }
 
-        private void SelectLeagueLocationButton_Click(object sender, RoutedEventArgs e)
+        private async void SelectLeagueLocationButton_Click(object sender, RoutedEventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog()
             {
@@ -40,13 +40,15 @@ namespace Fantome.UserControls.Dialogs
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                if (File.Exists(string.Format(@"{0}\League of Legends.exe", dialog.FileName)))
+                if (File.Exists(string.Format(@"{0}\League of Legends.exe", dialog.FileName)) &&
+                    File.Exists(string.Format(@"{0}\BsSndRpt.exe", dialog.FileName)) &&
+                    Directory.Exists(string.Format(@"{0}\DATA", dialog.FileName)))
                 {
                     this.ViewModel.LeagueLocation = dialog.FileName;
                 }
                 else
                 {
-                    DialogHelper.ShowMessageDialog("You've selected an incorrect League of Legends game folder.\n" +
+                    await DialogHelper.ShowMessageDialog("You've selected an incorrect League of Legends game folder.\n" +
                         @"Make sure it you're selecting the ""Game"" folder that contains the League of Legends.exe file");
                 }
             }

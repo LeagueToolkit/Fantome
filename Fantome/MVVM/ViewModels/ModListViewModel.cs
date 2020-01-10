@@ -30,18 +30,18 @@ namespace Fantome.MVVM.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ModListViewModel(ModManager modManager)
+        public ModListViewModel() { }
+
+        public void Sync(ModManager modManager)
         {
             this._modManager = modManager;
-        }
 
-        public void Sync()
-        {
             foreach (KeyValuePair<string, bool> modEntry in this._modManager.Database.Mods)
             {
                 this.Items.Add(new ModListItemViewModel(this._modManager.Database.GetMod(modEntry.Key), this._modManager, this));
                 this.Items.Last().IsInstalled = modEntry.Value;
             }
+
         }
 
         public async Task AddMod(ModFile mod, bool install)

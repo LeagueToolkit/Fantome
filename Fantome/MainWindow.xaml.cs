@@ -143,7 +143,7 @@ namespace Fantome
         {
             Log.Information("Binding View Models");
             this.DataContext = this;
-            this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
+            this.ModsListBox.DataContext = new ModListViewModel();
 
             DialogHelper.MessageDialog = this.MessageDialog;
             DialogHelper.OperationDialog = this.OperationDialog;
@@ -337,7 +337,7 @@ namespace Fantome
             }
 
             this._modManager.AssignLeague(leagueLocation);
-            this.ModList.Sync();
+            this.ModList.Sync(this._modManager);
 
             RemoveExecutableAdminPrivilages();
 

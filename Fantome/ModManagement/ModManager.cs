@@ -41,17 +41,10 @@ namespace Fantome.ModManagement
 
         public void AssignLeague(string leagueFolder)
         {
-            if (!IsValidLeagueFolder(leagueFolder))
-            {
-                //Error
-            }
-            else
-            {
-                this.LeagueFolder = leagueFolder;
+            this.LeagueFolder = leagueFolder;
 
-                ProcessDatabase();
-                ProcessLeagueFileIndex();
-            }
+            ProcessDatabase();
+            ProcessLeagueFileIndex();
         }
 
         public void ProcessLeagueFileIndex()
@@ -312,10 +305,6 @@ namespace Fantome.ModManagement
         private Version GetLeagueVersion()
         {
             return new Version(FileVersionInfo.GetVersionInfo(Path.Combine(this.LeagueFolder, "League of Legends.exe")).FileVersion);
-        }
-        private bool IsValidLeagueFolder(string leagueFolder)
-        {
-            return File.Exists(Path.Combine(leagueFolder, "League of Legends.exe"));
         }
     }
 }
