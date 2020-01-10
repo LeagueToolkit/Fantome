@@ -31,7 +31,7 @@ namespace Fantome.Utilities
             return await DialogHost.Show(dialog, "MessageDialog");
         }
 
-        public static async void ShowMessageDialog(string message)
+        public static async Task ShowMessageDialog(string message)
         {
             MessageDialog dialog = new MessageDialog(message);
 

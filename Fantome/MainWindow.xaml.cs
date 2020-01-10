@@ -20,9 +20,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Octokit;
 using Application = System.Windows.Application;
 using DataFormats = System.Windows.DataFormats;
 using MessageBox = System.Windows.MessageBox;
+using System.Reflection;
 
 namespace Fantome
 {
@@ -60,6 +62,17 @@ namespace Fantome
                 NotifyPropertyChanged();
             }
         }
+        public bool IsUpdateAvailable 
+        {
+            get => _isUpdateAvailable;
+            set
+            {
+                this._isUpdateAvailable = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private bool _isUpdateAvailable;
 
         private ModManager _modManager;
         private OverlayPatcher _patcher;
@@ -70,6 +83,7 @@ namespace Fantome
         public ICommand RunSettingsDialogCommand => new RelayCommand(RunSettingsDialog);
         public ICommand RunCreateModDialogCommand => new RelayCommand(RunCreateModDialog);
         public ICommand OpenGithubCommand => new RelayCommand(OpenGithub);
+        public ICommand OpenGithubReleasesCommand => new RelayCommand(OpenGithubReleases);
 
         public MainWindow()
         {
@@ -87,6 +101,7 @@ namespace Fantome
             InitializeModManager();
             BindMVVM();
             InitializeTrayIcon();
+            CheckForUpdate();
         }
 
         private void InitializeModManager()
@@ -211,6 +226,21 @@ namespace Fantome
                 }
             }
         }
+        private async void CheckForUpdate()
+        {
+            GitHubClient gitClient = new GitHubClient(new ProductHeaderValue("Fantome"));
+
+            IReadOnlyList<Release> releases = await gitClient.Repository.Release.GetAll("LoL-Fantome", "Fantome");
+            Release newestRelease = releases[0];
+            Version newestVersion = new Version(newestRelease.TagName);
+
+            if (newestVersion > Assembly.GetExecutingAssembly().GetName().Version)
+            {
+                this.IsUpdateAvailable = true;
+
+                await DialogHelper.ShowMessageDialog(@"A new version of Fantome is available.\nClick the ""Update"" button to download it.");
+            }
+        }
 
         private async void OnAddMod(object sender, RoutedEventArgs e)
         {
@@ -301,6 +331,10 @@ namespace Fantome
         private void OpenGithub(object o)
         {
             Process.Start("https://github.com/LoL-Fantome/Fantome");
+        }
+        private void OpenGithubReleases(object o)
+        {
+            Process.Start("https://github.com/LoL-Fantome/Fantome/releases");
         }
 
         protected override void OnStateChanged(EventArgs e)

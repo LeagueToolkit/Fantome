@@ -67,6 +67,7 @@
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </Window.Resources>
 
@@ -109,9 +110,18 @@
                                 </Grid>
                             </DockPanel>
                             <DockPanel HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10 0 0 0">
-                                <Button x:Name="GithubButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding OpenGithubCommand}">
-                                    <MaterialDesign:PackIcon Kind="GithubCircle" Width="35" Height="35"/>
-                                </Button>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" x:Name="GithubButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding OpenGithubCommand}">
+                                        <MaterialDesign:PackIcon Kind="GithubCircle" Width="35" Height="35"/>
+                                    </Button>
+                                    <Button Grid.Column="1" Content="UPDATE" Visibility="{Binding IsUpdateAvailable, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            Style="{StaticResource MaterialDesignFlatDarkBgButton}" FontSize="22" Command="{Binding OpenGithubReleasesCommand}"/>
+                                </Grid>
+                                
                             </DockPanel>
                         </Grid>
                     </MaterialDesign:ColorZone>
