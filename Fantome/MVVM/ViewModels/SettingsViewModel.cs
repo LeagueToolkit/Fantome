@@ -12,6 +12,8 @@ using System.Windows;
 using Fantome.Utilities;
 using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
+using Microsoft.Win32;
+using System.Reflection;
 
 namespace Fantome.MVVM.ViewModels
 {
@@ -53,6 +55,7 @@ namespace Fantome.MVVM.ViewModels
                 NotifyPropertyChanged();
             }
         }
+
         public bool IsDarkTheme
         {
             get => this._isDarkTheme;
@@ -94,7 +97,6 @@ namespace Fantome.MVVM.ViewModels
         private PrimaryColor _selectedPrimaryColor;
         private SecondaryColor _selectedSecondaryColor;
 
-        private PaletteHelper _paletteHelper = new PaletteHelper();
         private bool _needsRestart;
 
         public event PropertyChangedEventHandler PropertyChanged;

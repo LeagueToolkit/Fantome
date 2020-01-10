@@ -104,8 +104,8 @@ namespace Fantome
             InitializeModManager();
             BindMVVM();
             InitializeTrayIcon();
-            CheckForUpdate();
             ThemeHelper.LoadTheme();
+            CheckForUpdate();
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -113,8 +113,10 @@ namespace Fantome
             string message = "A Fatal Error has occurred, Fantome will now terminate.\n";
             message += "Please delete the FILE_INDEX.json, MOD_DATABSE.json files and Overlay folder if the error happened during Installation or Uninstallation\n";
             message += ((Exception)e.ExceptionObject).Message + '\n';
+            message += ((Exception)e.ExceptionObject).Source + '\n';
             message += ((Exception)e.ExceptionObject).StackTrace;
 
+            Log.Fatal(message);
             MessageBox.Show(message, "Fantome - Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
@@ -151,6 +153,7 @@ namespace Fantome
         {
             Log.Information("Initializing Tray Icon");
 
+            string[] arguments = Environment.GetCommandLineArgs();
             Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Fantome;component/Resources/fantome.ico")).Stream;
             this._notifyIcon = new NotifyIcon()
             {
@@ -163,6 +166,18 @@ namespace Fantome
                 Show();
                 this.WindowState = WindowState.Normal;
             };
+
+            if (arguments.Length > 1)
+            {
+                Log.Information(arguments[1]);
+
+                //If we are starting with -tray flag then we minimize window to tray
+                if (arguments.Any(x => x == "-tray"))
+                {
+                    this.WindowState = WindowState.Minimized;
+                    OnStateChanged(new EventArgs());
+                }
+            }
         }
         private void CheckWindowsVersion()
         {
