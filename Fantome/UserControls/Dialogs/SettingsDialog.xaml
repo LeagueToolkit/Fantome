@@ -30,6 +30,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
@@ -39,9 +40,35 @@
                 <TextBox Grid.Column="0" Text="{Binding LeagueLocation, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="League of Legends Game folder" MaterialDesign:HintAssist.HelperText="Select the folder which contains League of Legends.exe"/>
                 <Button Grid.Column="1" x:Name="SelectLeagueLocationButton" Grid.Row="1" Width="25" Height="25" Content="{MaterialDesign:PackIcon Kind=Folder}" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" Margin="15 0 0 0" Click="SelectLeagueLocationButton_Click"/>
             </Grid>
-            <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding ParallelWadInstallation, UpdateSourceTrigger=PropertyChanged}" Content="Parallel WAD Installation" Grid.Row="1" Margin="0,35,0,0"/>
-            <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding PackWadFolders, UpdateSourceTrigger=PropertyChanged}" Content="Pack WAD folders to WAD files on Mod creation" Grid.Row="2" Margin="0,10,0,0"/>
-            <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding InstallAddedMods, UpdateSourceTrigger=PropertyChanged}" Content="Install Added Mods" Grid.Row="3" Margin="0,10,0,0"/>
+            <GroupBox Grid.Row="1" Margin="0,40,0,0" Header="Theme" Style="{DynamicResource MaterialDesignGroupBox}" MaterialDesign:ShadowAssist.ShadowDepth="Depth3" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Margin="8" Grid.Column="0">
+                        <TextBlock VerticalAlignment="Center">Light</TextBlock>
+                        <ToggleButton Margin="12 0 16 0" IsChecked="{Binding IsDarkTheme, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock VerticalAlignment="Center">Dark</TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <TextBlock VerticalAlignment="Center" Text="Primary"/>
+                        <ComboBox Style="{StaticResource MaterialDesignComboBox}" Margin="10,0,0,0"
+                                  SelectedItem="{Binding SelectedPrimaryColor, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemsSource="{Binding PrimaryColors}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Column="2">
+                        <TextBlock VerticalAlignment="Center" Text="Secondary"/>
+                        <ComboBox Style="{StaticResource MaterialDesignComboBox}" Margin="10,0,0,0"
+                                  SelectedItem="{Binding SelectedSecondaryColor, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemsSource="{Binding SecondaryColors}"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding ParallelWadInstallation, UpdateSourceTrigger=PropertyChanged}" Content="Parallel WAD Installation" Grid.Row="2" Margin="0,35,0,0"/>
+            <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding PackWadFolders, UpdateSourceTrigger=PropertyChanged}" Content="Pack WAD folders to WAD files on Mod creation" Grid.Row="3" Margin="0,10,0,0"/>
+            <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding InstallAddedMods, UpdateSourceTrigger=PropertyChanged}" Content="Install Added Mods" Grid.Row="4" Margin="0,10,0,0"/>
         </Grid>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>

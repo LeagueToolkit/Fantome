@@ -105,6 +105,7 @@ namespace Fantome
             BindMVVM();
             InitializeTrayIcon();
             CheckForUpdate();
+            ThemeHelper.LoadTheme();
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -180,7 +181,7 @@ namespace Fantome
             {
                 if (key != null)
                 {
-                    List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder)).ToList();
+                    List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder.Replace(@"\Game", ""))).ToList();
                     foreach (string value in toRemove)
                     {
                         Log.Information("Removing Admin privialige from: " + value);
@@ -193,7 +194,7 @@ namespace Fantome
             {
                 if (key != null)
                 {
-                    List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder)).ToList();
+                    List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder.Replace(@"\Game", ""))).ToList();
                     foreach (string value in toRemove)
                     {
                         Log.Information("Removing Admin privialige from: " + value);
@@ -299,7 +300,7 @@ namespace Fantome
             };
 
 
-            object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as SettingsViewModel).ClosingEventHandler);
+            object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as SettingsViewModel).OnSaveSettings);
         }
         private async void RunCreateModDialog(object o)
         {

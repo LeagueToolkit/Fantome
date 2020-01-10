@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows.Media;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Fantome.Utilities;
+using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 
 namespace Fantome.MVVM.ViewModels
@@ -50,12 +53,48 @@ namespace Fantome.MVVM.ViewModels
                 NotifyPropertyChanged();
             }
         }
+        public bool IsDarkTheme
+        {
+            get => this._isDarkTheme;
+            set
+            {
+                this._isDarkTheme = value;
+                ChangeTheme();
+                NotifyPropertyChanged();
+            }
+        }
+        public PrimaryColor SelectedPrimaryColor
+        {
+            get => this._selectedPrimaryColor;
+            set
+            {
+                this._selectedPrimaryColor = value;
+                ChangeTheme();
+                NotifyPropertyChanged();
+            }
+        }
+        public IEnumerable<PrimaryColor> PrimaryColors => Enum.GetValues(typeof(PrimaryColor)).Cast<PrimaryColor>();
+        public SecondaryColor SelectedSecondaryColor
+        {
+            get => this._selectedSecondaryColor;
+            set
+            {
+                this._selectedSecondaryColor = value;
+                ChangeTheme();
+                NotifyPropertyChanged();
+            }
+        }
+        public IEnumerable<SecondaryColor> SecondaryColors => Enum.GetValues(typeof(SecondaryColor)).Cast<SecondaryColor>();
 
         private string _leagueLocation;
         private bool _parallelWadInstallation;
         private bool _packWadFolders;
         private bool _installAddedMods;
+        private bool _isDarkTheme;
+        private PrimaryColor _selectedPrimaryColor;
+        private SecondaryColor _selectedSecondaryColor;
 
+        private PaletteHelper _paletteHelper = new PaletteHelper();
         private bool _needsRestart;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -66,9 +105,12 @@ namespace Fantome.MVVM.ViewModels
             this._parallelWadInstallation = Config.Get<bool>("ParallelWadInstallation");
             this._packWadFolders = Config.Get<bool>("PackWadFolders");
             this._installAddedMods = Config.Get<bool>("InstallAddedMods");
+            this._isDarkTheme = Config.Get<bool>("IsDarkTheme");
+            this._selectedPrimaryColor = Config.Get<PrimaryColor>("PrimaryColor");
+            this._selectedSecondaryColor = Config.Get<SecondaryColor>("SecondaryColor");
         }
 
-        public void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
+        public void OnSaveSettings(object sender, DialogClosingEventArgs eventArgs)
         {
             if ((bool)eventArgs.Parameter)
             {
@@ -81,6 +123,9 @@ namespace Fantome.MVVM.ViewModels
                 Config.Set("ParallelWadInstallation", this._parallelWadInstallation);
                 Config.Set("PackWadFolders", this._packWadFolders);
                 Config.Set("InstallAddedMods", this._installAddedMods);
+                Config.Set("IsDarkTheme", this._isDarkTheme);
+                Config.Set("PrimaryColor", this._selectedPrimaryColor);
+                Config.Set("SecondaryColor", this._selectedSecondaryColor);
 
                 if (this._needsRestart)
                 {
@@ -88,6 +133,23 @@ namespace Fantome.MVVM.ViewModels
                     Application.Current.Shutdown();
                 }
             }
+            else
+            {
+                ThemeHelper.LoadTheme();
+            }
+        }
+
+        private void ChangeTheme()
+        {
+            ThemeHelper.ChangeTheme(this._isDarkTheme ? Theme.Dark : Theme.Light, GetPrimaryColor(), GetSecondaryColor());
+        }
+        private Color GetPrimaryColor()
+        {
+            return ThemeHelper.ConvertPrimaryColor(this._selectedPrimaryColor);
+        }
+        private Color GetSecondaryColor()
+        {
+            return ThemeHelper.ConvertSecondaryColor(this._selectedSecondaryColor);
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

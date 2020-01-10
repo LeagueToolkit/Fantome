@@ -155,6 +155,7 @@
     <Compile Include="Utilities\Config.cs" />
     <Compile Include="Utilities\DialogHelper.cs" />
     <Compile Include="Utilities\Pathing.cs" />
+    <Compile Include="Utilities\ThemeHelper.cs" />
     <Page Include="UserControls\Dialogs\AssetCollisionDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

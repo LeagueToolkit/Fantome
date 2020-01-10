@@ -4,7 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MaterialDesignColors;
+using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 namespace Fantome.Utilities
@@ -20,7 +23,10 @@ namespace Fantome.Utilities
             { "ModListType", 0 },
             { "ParallelWadInstallation", false },
             { "PackWadFolders", true },
-            { "InstallAddedMods", true }
+            { "InstallAddedMods", true },
+            { "IsDarkTheme", true },
+            { "PrimaryColor", PrimaryColor.Teal },
+            { "SecondaryColor", SecondaryColor.Lime }
         };
         private static Dictionary<string, object> _config = new Dictionary<string, object>();
 
@@ -29,6 +35,11 @@ namespace Fantome.Utilities
             if (!_config.ContainsKey(key))
             {
                 return GetDefault<T>(key);
+            }
+
+            if (typeof(T).BaseType == typeof(Enum))
+            {
+                return (T)Enum.Parse(typeof(T), _config[key].ToString());
             }
 
             return (T)Convert.ChangeType(_config[key], typeof(T));
