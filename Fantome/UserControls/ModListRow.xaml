@@ -12,7 +12,7 @@
              TextOptions.TextRenderingMode="Auto"
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{MaterialDesign:MaterialDesignFont}"
-             mc:Ignorable="d">
+             mc:Ignorable="d" Margin="0 0 65 0">
     <UserControl.Resources>
         <ResourceDictionary>
             <Style TargetType="local:ModListRow">
