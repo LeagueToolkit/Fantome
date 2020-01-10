@@ -25,6 +25,7 @@ using Application = System.Windows.Application;
 using DataFormats = System.Windows.DataFormats;
 using MessageBox = System.Windows.MessageBox;
 using System.Reflection;
+using System.Windows.Threading;
 
 namespace Fantome
 {
@@ -62,7 +63,7 @@ namespace Fantome
                 NotifyPropertyChanged();
             }
         }
-        public bool IsUpdateAvailable 
+        public bool IsUpdateAvailable
         {
             get => _isUpdateAvailable;
             set
@@ -87,6 +88,8 @@ namespace Fantome
 
         public MainWindow()
         {
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+
             //Initial checks to see if we can run Fantome
             CheckWindowsVersion();
             CheckForExistingProcess();
@@ -102,6 +105,16 @@ namespace Fantome
             BindMVVM();
             InitializeTrayIcon();
             CheckForUpdate();
+        }
+
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            string message = "A Fatal Error has occurred, Fantome will now terminate.\n";
+            message += "Please delete the FILE_INDEX.json, MOD_DATABSE.json files and Overlay folder if the error happened during Installation or Uninstallation\n";
+            message += ((Exception)e.ExceptionObject).Message + '\n';
+            message += ((Exception)e.ExceptionObject).StackTrace;
+
+            MessageBox.Show(message, "Fantome - Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void InitializeModManager()
@@ -238,7 +251,7 @@ namespace Fantome
             {
                 this.IsUpdateAvailable = true;
 
-                await DialogHelper.ShowMessageDialog(@"A new version of Fantome is available.\nClick the ""Update"" button to download it.");
+                await DialogHelper.ShowMessageDialog("A new version of Fantome is available." + '\n' + @"Click the ""Update"" button to download it.");
             }
         }
 
