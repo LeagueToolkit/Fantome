@@ -18,7 +18,7 @@ namespace Fantome.Utilities
             { "LeagueLocation", "" },
             { "LoggingPattern", "{Timestamp:dd-MM-yyyy HH:mm:ss.fff} | [{Level}] |  {Message:lj}{NewLine}{Exception}" },
             { "ModListType", 0 },
-            { "ParallelWadInstallation", true },
+            { "ParallelWadInstallation", false },
             { "PackWadFolders", true },
             { "InstallAddedMods", true }
         };
