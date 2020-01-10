@@ -171,51 +171,97 @@ namespace Fantome.ModManagement.IO
 
         public string Validate(ModManager modManager)
         {
-            bool invalidWADFolder = false;
+            string validationError = "";
 
-            //Get all files in the WAD folder
-            string wadFolderError = string.Format("The WAD folder of {0} contains invalid entries:\n", GetID());
-            foreach (ZipArchiveEntry entry in GetEntries(@"WAD[\\/].*"))
+            //Check for RAW, WAD and META folders, and collect entries from RAW and WAD
+            IEnumerable<ZipArchiveEntry> wadEntries = GetEntries(@"WAD[\\/].*");
+            IEnumerable<ZipArchiveEntry> rawEntries = GetEntries(@"RAW[\\/].*");
+            IEnumerable<ZipArchiveEntry> metaEntries = GetEntries(@"META[\\/].*");
+
+            validationError = ValidateBaseFolders();
+            if(!string.IsNullOrEmpty(validationError))
             {
-                if (!entry.FullName.Contains(".wad.client"))
+                return validationError;
+            }
+
+            validationError = ValidateBaseFoldersContent();
+            if(!string.IsNullOrEmpty(validationError))
+            {
+                return validationError;
+            }
+
+            return string.Empty;
+
+            string ValidateBaseFolders()
+            {
+                if (wadEntries.Count() == 0 && rawEntries.Count() == 0)
                 {
-                    invalidWADFolder = true;
-                    wadFolderError += entry.FullName + '\n';
+                    return string.Format("{0} does not contain neither a WAD folder nor a RAW folder", GetID());
+                }
+
+                //Check if META folder exists
+                if (metaEntries.Count() != 0)
+                {
+                    //If it does then we check if it contains info.json
+                    if (!metaEntries.Any(x => x.Name == "info.json"))
+                    {
+                        return string.Format("The META folder of {0} does not contain a META/info.json file", GetID());
+                    }
                 }
                 else
                 {
-                    //See if the WAD file exists in the game
-                    string wadName = entry.FullName.Split(Pathing.GetPathSeparator(entry.FullName))[1];
-                    if (string.IsNullOrEmpty(modManager.Index.FindWADPath(wadName)))
+                    return string.Format("{0} does not contain a META folder", GetID());
+                }
+
+                return string.Empty;
+            }
+            string ValidateBaseFoldersContent()
+            {
+                bool isInvalid = false;
+
+                //Get all files in the WAD folder
+                validationError = string.Format("The WAD folder of {0} contains invalid entries:\n", GetID());
+                foreach (ZipArchiveEntry entry in wadEntries)
+                {
+                    if (!entry.FullName.Contains(".wad.client"))
                     {
-                        invalidWADFolder = true;
-                        wadFolderError += entry.FullName + '\n';
+                        isInvalid = true;
+                        validationError += entry.FullName + '\n';
+                    }
+                    else
+                    {
+                        //See if the WAD file exists in the game
+                        string wadName = entry.FullName.Split(Pathing.GetPathSeparator(entry.FullName))[1];
+                        if (string.IsNullOrEmpty(modManager.Index.FindWADPath(wadName)))
+                        {
+                            isInvalid = true;
+                            validationError += entry.FullName + '\n';
+                        }
                     }
                 }
-            }
-            if (invalidWADFolder)
-            {
-                return wadFolderError;
-            }
-
-
-            //Get all files in RAW folder and see if they contain a reference to WAD files
-            bool invalidRawFolder = false;
-            string rawFolderError = string.Format("The RAW folder of {0} contains invalid entries:\n", GetID());
-            foreach (ZipArchiveEntry entry in GetEntries(@"RAW[\\/].*(?![\\/])"))
-            {
-                if (entry.FullName.Contains(".wad.client"))
+                if (isInvalid)
                 {
-                    invalidRawFolder = true;
-                    rawFolderError += entry.FullName + '\n';
+                    return validationError;
                 }
-            }
-            if (invalidRawFolder)
-            {
-                return rawFolderError;
-            }
 
-            return "";
+
+                //Get all files in RAW folder and see if they contain a reference to WAD files
+                validationError = string.Format("The RAW folder of {0} contains invalid entries:\n", GetID());
+                foreach (ZipArchiveEntry entry in rawEntries)
+                {
+                    if (entry.FullName.Contains(".wad.client"))
+                    {
+                        isInvalid = true;
+                        validationError += entry.FullName + '\n';
+                    }
+                }
+                if (isInvalid)
+                {
+                    return validationError;
+                }
+
+                return string.Empty;
+            }
         }
         public void GenerateWadFiles()
         {

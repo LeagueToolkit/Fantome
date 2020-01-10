@@ -1,5 +1,6 @@
 ﻿using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace Fantome.Utilities
 
         public static void LoadTheme()
         {
+            Log.Information("Loading Theme from Config");
+
             bool isDarkTheme = Config.Get<bool>("IsDarkTheme");
             Color primaryColor = ConvertPrimaryColor(Config.Get<PrimaryColor>("PrimaryColor"));
             Color secondaryColor = ConvertSecondaryColor(Config.Get<SecondaryColor>("SecondaryColor"));
@@ -25,6 +28,7 @@ namespace Fantome.Utilities
 
         public static void ChangeTheme(IBaseTheme theme, Color primaryColor, Color secondaryColor)
         {
+            Log.Information("Changing Theme");
             _paletteHelper.SetTheme(Theme.Create(theme, primaryColor, secondaryColor));
         }
 

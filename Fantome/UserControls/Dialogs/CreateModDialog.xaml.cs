@@ -74,7 +74,7 @@ namespace Fantome.UserControls.Dialogs
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                if(ValidateWADFolder(dialog.FileName))
+                if (ValidateWADFolder(dialog.FileName))
                 {
                     this.ViewModel.WadLocation = dialog.FileName;
                 }
@@ -93,7 +93,7 @@ namespace Fantome.UserControls.Dialogs
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                if(ValidateRAWFolder(dialog.FileName))
+                if (ValidateRAWFolder(dialog.FileName))
                 {
                     this.ViewModel.RawLocation = dialog.FileName;
                 }
@@ -105,7 +105,16 @@ namespace Fantome.UserControls.Dialogs
         }
         private bool ValidateWADFolder(string wadFolder)
         {
-            foreach (string directory in Directory.EnumerateDirectories(wadFolder))
+            IEnumerable<string> directories = Directory.EnumerateDirectories(wadFolder);
+            IEnumerable<string> files = Directory.EnumerateFiles(wadFolder);
+
+            //WAD needs to have either directories or files
+            if (directories.Count() == 0 && files.Count() == 0)
+            {
+                return false;
+            }
+
+            foreach (string directory in directories)
             {
                 char separator = Pathing.GetPathSeparator(directory);
                 string directoryName = directory.Substring(directory.LastIndexOf(separator) + 1);
@@ -114,9 +123,9 @@ namespace Fantome.UserControls.Dialogs
                     return false;
                 }
             }
-            foreach(string file in Directory.EnumerateFiles(wadFolder))
+            foreach (string file in files)
             {
-                if(!file.EndsWith(".wad.client"))
+                if (!file.EndsWith(".wad.client"))
                 {
                     return false;
                 }
@@ -126,14 +135,23 @@ namespace Fantome.UserControls.Dialogs
         }
         private bool ValidateRAWFolder(string rawFolder)
         {
-            foreach (string directory in Directory.EnumerateDirectories(rawFolder))
+            IEnumerable<string> directories = Directory.EnumerateDirectories(rawFolder);
+            IEnumerable<string> files = Directory.EnumerateFiles(rawFolder, "*", SearchOption.AllDirectories);
+
+            //RAW needs to have files, but those files also need to be in folders
+            if (directories.Count() == 0 || files.Count() == 0)
+            {
+                return false;
+            }
+
+            foreach (string directory in directories)
             {
                 if (directory.EndsWith(".wad.client"))
                 {
                     return false;
                 }
             }
-            foreach (string file in Directory.EnumerateFiles(rawFolder))
+            foreach (string file in files)
             {
                 if (file.EndsWith(".wad.client"))
                 {
