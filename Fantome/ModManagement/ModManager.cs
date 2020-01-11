@@ -170,7 +170,7 @@ namespace Fantome.ModManagement
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
-                Parallel.ForEach(mod.WadFiles, (modWadFile) =>
+                Parallel.ForEach(mod.WadFiles, parallelOptions, (modWadFile) =>
                 {
                     writeWadFileDelegate.Invoke(modWadFile);
                 });

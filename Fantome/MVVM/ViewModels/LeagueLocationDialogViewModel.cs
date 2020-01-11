@@ -31,7 +31,6 @@ namespace Fantome.MVVM.ViewModels
             }
         }
 
-
         private string _leagueLocation;
         private bool _isLeagueSelected;
 
