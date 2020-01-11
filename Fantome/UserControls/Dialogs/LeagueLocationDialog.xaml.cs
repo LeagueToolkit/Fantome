@@ -40,8 +40,8 @@ namespace Fantome.UserControls.Dialogs
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                if (File.Exists(string.Format(@"{0}\League of Legends.exe", dialog.FileName)) &&
-                    File.Exists(string.Format(@"{0}\BsSndRpt.exe", dialog.FileName)) &&
+                if (string.IsNullOrEmpty(dialog.FileName) &&
+                    File.Exists(string.Format(@"{0}\League of Legends.exe", dialog.FileName)) &&
                     Directory.Exists(string.Format(@"{0}\DATA", dialog.FileName)))
                 {
                     this.ViewModel.LeagueLocation = dialog.FileName;
