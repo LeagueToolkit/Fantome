@@ -15,6 +15,11 @@
              FontFamily="{MaterialDesign:MaterialDesignFont}" 
              mc:Ignorable="d" 
              Height="150" Width="750">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -31,7 +36,11 @@
                 <Button Grid.Column="1" x:Name="SelectLeagueLocationButton" Grid.Row="1" Width="25" Height="25" Content="{MaterialDesign:PackIcon Kind=Folder}" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Click="SelectLeagueLocationButton_Click" Padding="1" Margin="20,0,0,0"/>
             </Grid>
         </StackPanel>
-        <Button Grid.Row="1" Content="CONTINUE" IsDefault="True" Command="{x:Static MaterialDesign:DialogHost.CloseDialogCommand}" Style="{StaticResource MaterialDesignFlatButton}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,10,0,10" Height="42" Width="141">
+        <Button Grid.Row="1" Content="CONTINUE" IsDefault="True"
+                Command="{x:Static MaterialDesign:DialogHost.CloseDialogCommand}" 
+                Style="{StaticResource MaterialDesignFlatButton}"
+                Visibility="{Binding IsLeagueSelected, Converter={StaticResource BoolToVisibilityConverter}}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,10,0,10" Height="42" Width="141">
             <Button.CommandParameter>
                 <system:Boolean>True</system:Boolean>
             </Button.CommandParameter>

@@ -17,11 +17,23 @@ namespace Fantome.MVVM.ViewModels
             set
             {
                 this._leagueLocation = value;
+                this.IsLeagueSelected = true;
+                NotifyPropertyChanged();
+            }
+        }
+        public bool IsLeagueSelected
+        {
+            get => this._isLeagueSelected;
+            set
+            {
+                this._isLeagueSelected = value;
                 NotifyPropertyChanged();
             }
         }
 
+
         private string _leagueLocation;
+        private bool _isLeagueSelected;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

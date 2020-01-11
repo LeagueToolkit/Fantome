@@ -40,16 +40,16 @@ namespace Fantome.UserControls.Dialogs
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                if (string.IsNullOrEmpty(dialog.FileName) &&
-                    File.Exists(string.Format(@"{0}\League of Legends.exe", dialog.FileName)) &&
-                    Directory.Exists(string.Format(@"{0}\DATA", dialog.FileName)))
+                if (File.Exists(string.Format(@"{0}\League of Legends.exe", dialog.FileName)))
                 {
                     this.ViewModel.LeagueLocation = dialog.FileName;
                 }
                 else
                 {
                     await DialogHelper.ShowMessageDialog("You've selected an incorrect League of Legends game folder.\n" +
-                        @"Make sure it you're selecting the ""Game"" folder that contains the League of Legends.exe file");
+                        @"Make sure it you're selecting the ""Game"" folder that contains the League of Legends.exe file" + '\n' +
+                        @"For official servers this is: C:\Riot Games\League of Legends\Game" + '\n' +
+                        @"For Garena: C:\Program Files (x86)\lol\{numbers}\Game");
                 }
             }
         }
