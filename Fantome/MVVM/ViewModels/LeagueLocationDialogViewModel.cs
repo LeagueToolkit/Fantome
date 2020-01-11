@@ -38,18 +38,7 @@ namespace Fantome.MVVM.ViewModels
 
         public LeagueLocationDialogViewModel()
         {
-            //This will only work for old League installations
-            using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Riot Games, Inc\League of Legends"))
-            {
-                if (key != null)
-                {
-                    object leagueLocationObject = key.GetValue("Location");
-                    if (leagueLocationObject != null)
-                    {
-                        this._leagueLocation = (leagueLocationObject as string) + @"\Game";
-                    }
-                }
-            }
+
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
