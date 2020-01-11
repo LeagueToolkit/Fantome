@@ -82,6 +82,11 @@ namespace Fantome.ModManagement.IO
                         if (Config.Get<bool>("PackWadFolders"))
                         {
                             PackWadFolders(wadLocation);
+
+                            foreach (string wadFile in Directory.EnumerateFiles(wadLocation))
+                            {
+                                AddFile(string.Format("WAD\\{0}", Path.GetFileName(wadFile)), File.ReadAllBytes(wadFile));
+                            }
                         }
                         else
                         {
@@ -179,13 +184,13 @@ namespace Fantome.ModManagement.IO
             IEnumerable<ZipArchiveEntry> metaEntries = GetEntries(@"META[\\/].*");
 
             validationError = ValidateBaseFolders();
-            if(!string.IsNullOrEmpty(validationError))
+            if (!string.IsNullOrEmpty(validationError))
             {
                 return validationError;
             }
 
             validationError = ValidateBaseFoldersContent();
-            if(!string.IsNullOrEmpty(validationError))
+            if (!string.IsNullOrEmpty(validationError))
             {
                 return validationError;
             }
