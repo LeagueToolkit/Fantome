@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Windows;
 
-namespace MaterialDesignUtilities
+namespace Fantome.Utilities.MaterialDesign
 {
     public class TreeHelpers
     {

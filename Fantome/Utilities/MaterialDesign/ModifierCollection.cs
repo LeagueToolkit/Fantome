@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace MaterialDesignUtilities
+namespace Fantome.Utilities.MaterialDesign
 {
     public class ModifierCollection : Collection<Modifier>
     {

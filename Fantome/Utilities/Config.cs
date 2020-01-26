@@ -24,7 +24,6 @@ namespace Fantome.Utilities
             { "ParallelWadInstallation", false },
             { "PackWadFolders", true },
             { "InstallAddedMods", true },
-            { "LaunchOnStartup", false },
             { "IsDarkTheme", true },
             { "PrimaryColor", PrimaryColor.Teal },
             { "SecondaryColor", SecondaryColor.Lime }

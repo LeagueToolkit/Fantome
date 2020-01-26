@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace MaterialDesignUtilities
+namespace Fantome.Utilities.MaterialDesign
 {
     public abstract class ModifierBase
     {

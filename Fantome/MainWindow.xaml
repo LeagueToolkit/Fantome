@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:ControlzEx="clr-namespace:ControlzEx;assembly=MaterialDesignThemes.Wpf"
-        xmlns:Utilities="clr-namespace:MaterialDesignUtilities;assembly=MaterialDesignUtilities"
+        xmlns:MaterialDesignUtilities="clr-namespace:Fantome.Utilities.MaterialDesign"
         xmlns:UserControls="clr-namespace:Fantome.UserControls"
         xmlns:local="clr-namespace:Fantome"
         mc:Ignorable="d"
@@ -26,15 +26,15 @@
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="MaterialDesignTransparentDialog" TargetType="ControlzEx:PopupEx" BasedOn="{StaticResource MaterialDesignDialogHostPopup}">
                 <Setter Property="AllowsTransparency" Value="True" />
-                <Setter Property="Utilities:TreeHelpers.Modifiers">
+                <Setter Property="MaterialDesignUtilities:TreeHelpers.Modifiers">
                     <Setter.Value>
-                        <Utilities:ModifierCollection>
-                            <Utilities:Modifier TemplatePartName="PART_PopupContentElement" Property="{x:Static Control.BackgroundProperty}">
-                                <Utilities:Modifier.Value>
+                        <MaterialDesignUtilities:ModifierCollection>
+                            <MaterialDesignUtilities:Modifier TemplatePartName="PART_PopupContentElement" Property="{x:Static Control.BackgroundProperty}">
+                                <MaterialDesignUtilities:Modifier.Value>
                                     <SolidColorBrush Color="Transparent" />
-                                </Utilities:Modifier.Value>
-                            </Utilities:Modifier>
-                        </Utilities:ModifierCollection>
+                                </MaterialDesignUtilities:Modifier.Value>
+                            </MaterialDesignUtilities:Modifier>
+                        </MaterialDesignUtilities:ModifierCollection>
                     </Setter.Value>
                 </Setter>
             </Style>
@@ -74,7 +74,7 @@
     <MaterialDesign:DialogHost x:Name="MessageDialog" Identifier="MessageDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}">
         <!--DO NOT ATTEMPT TO SET THIS STYLE WITH CODE. IT WILL CRASH FANTOME-->
         <!--PopupStyle="{StaticResource MaterialDesignTransparentDialog}"-->
-        <MaterialDesign:DialogHost Name="OperationDialog" Identifier="OperationDialog" PopupStyle="{StaticResource MaterialDesignTransparentDialog}">
+        <MaterialDesign:DialogHost Name="OperationDialog" Identifier="OperationDialog">
             <MaterialDesign:DialogHost x:Name="RootDialog" Identifier="RootDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" Loaded="OnRootDialogLoad">
                 <Grid x:Name="MainGrid">
                     <Grid.RowDefinitions>

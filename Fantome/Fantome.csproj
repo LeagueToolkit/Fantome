@@ -150,6 +150,10 @@
     </Compile>
     <Compile Include="Utilities\Config.cs" />
     <Compile Include="Utilities\DialogHelper.cs" />
+    <Compile Include="Utilities\MaterialDesign\Modifier.cs" />
+    <Compile Include="Utilities\MaterialDesign\ModifierBase.cs" />
+    <Compile Include="Utilities\MaterialDesign\ModifierCollection.cs" />
+    <Compile Include="Utilities\MaterialDesign\TreeHelpers.cs" />
     <Compile Include="Utilities\Pathing.cs" />
     <Compile Include="Utilities\ThemeHelper.cs" />
     <Page Include="UserControls\Dialogs\AssetCollisionDialog.xaml">
@@ -254,12 +258,6 @@
     <Content Include="LoLCustomSharp.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MaterialDesignUtilities\MaterialDesignUtilities.csproj">
-      <Project>{74df32f3-6257-46b1-8593-a915b778e4be}</Project>
-      <Name>MaterialDesignUtilities</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="MVVM\Converters\" />

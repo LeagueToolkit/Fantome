@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace MaterialDesignUtilities
+namespace Fantome.Utilities.MaterialDesign
 {
     public class Modifier : ModifierBase
     {
