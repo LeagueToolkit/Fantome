@@ -238,7 +238,7 @@ namespace Fantome
             {
                 if (process.MainModule.ModuleName == "Fantome.exe")
                 {
-                    if (MessageBox.Show("There is alrady a running instance of Fantome.\nPlease check your tray.", "", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    if (MessageBox.Show("There is already a running instance of Fantome.\nPlease check your tray.", "", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
                         Application.Current.Shutdown();
                     }
