@@ -1,29 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29318.209
+VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fantome", "Fantome\Fantome.csproj", "{7C561C6A-C924-4000-8B6E-026C5B50B6B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fantome", "Fantome\Fantome.csproj", "{CBE51029-2E6B-4FF1-BF87-5B53AE77C434}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7C561C6A-C924-4000-8B6E-026C5B50B6B0}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{7C561C6A-C924-4000-8B6E-026C5B50B6B0}.Debug|x64.ActiveCfg = Debug|x64
-		{7C561C6A-C924-4000-8B6E-026C5B50B6B0}.Debug|x64.Build.0 = Debug|x64
-		{7C561C6A-C924-4000-8B6E-026C5B50B6B0}.Release|Any CPU.ActiveCfg = Release|x64
-		{7C561C6A-C924-4000-8B6E-026C5B50B6B0}.Release|x64.ActiveCfg = Release|x64
-		{7C561C6A-C924-4000-8B6E-026C5B50B6B0}.Release|x64.Build.0 = Release|x64
+		{CBE51029-2E6B-4FF1-BF87-5B53AE77C434}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBE51029-2E6B-4FF1-BF87-5B53AE77C434}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBE51029-2E6B-4FF1-BF87-5B53AE77C434}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBE51029-2E6B-4FF1-BF87-5B53AE77C434}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {DEF6F5EC-06F5-43C6-A423-85C14E8CF5C3}
+		SolutionGuid = {6DF1F266-1FFD-484A-A70B-3567568AF2D7}
 	EndGlobalSection
 EndGlobal

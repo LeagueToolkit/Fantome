@@ -81,7 +81,7 @@ namespace Fantome.MVVM.ViewModels
         private string _rawLocation;
         private string _name;
         private string _author;
-        private string _version;
+        private string _version = "1.0";
         private BitmapImage _image;
         private ModListViewModel _modList;
 

@@ -154,7 +154,7 @@ namespace Fantome
             Log.Information("Initializing Tray Icon");
 
             string[] arguments = Environment.GetCommandLineArgs();
-            Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Fantome;component/Resources/fantome.ico")).Stream;
+            Stream iconStream = File.OpenRead("Resources/fantome.ico");
             this._notifyIcon = new NotifyIcon()
             {
                 Visible = false,

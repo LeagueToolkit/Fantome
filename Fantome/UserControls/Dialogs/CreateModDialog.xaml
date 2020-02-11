@@ -66,9 +66,7 @@
                     <TextBox Grid.Column="1" Grid.Row="2" Margin="0 0 0 5" x:Name="VersionTextBox" MaterialDesign:HintAssist.Hint="Version" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
                         <TextBox.Text>
                             <Binding Path="Version" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <ValidationRules:VersionValidationRule ValidatesOnTargetUpdated="True"/>
-                                </Binding.ValidationRules>
+
                             </Binding>
                         </TextBox.Text>
                     </TextBox>
