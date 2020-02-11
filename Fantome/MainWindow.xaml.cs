@@ -155,10 +155,18 @@ namespace Fantome
 
             string[] arguments = Environment.GetCommandLineArgs();
             Stream iconStream = File.OpenRead("Resources/fantome.ico");
+
+            ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
+            contextMenuStrip.Items.Add(new ToolStripMenuItem("Close", null, delegate (object sender, EventArgs args)
+            {
+                Application.Current.Shutdown();
+            }));
+
             this._notifyIcon = new NotifyIcon()
             {
                 Visible = false,
-                Icon = new System.Drawing.Icon(iconStream)
+                Icon = new System.Drawing.Icon(iconStream),
+                ContextMenuStrip = contextMenuStrip
             };
 
             this._notifyIcon.DoubleClick += delegate (object sender, EventArgs args)
