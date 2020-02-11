@@ -163,8 +163,10 @@ namespace Fantome
 
             this._notifyIcon.DoubleClick += delegate (object sender, EventArgs args)
             {
+                this.Topmost = true;
                 Show();
                 this.WindowState = WindowState.Normal;
+                this.Topmost = false;
             };
 
             if (arguments.Length > 1)
@@ -181,12 +183,15 @@ namespace Fantome
         }
         private void CheckWindowsVersion()
         {
-            OperatingSystem operatingSystem = Environment.OSVersion;
-            if (operatingSystem.Version.Major != 10)
+            //First we check if Fantome is running in Wine and if it isn't then we can check windows version
+            if (!WineDetector.IsRunningInWine())
             {
-                if (MessageBox.Show("You need to be running Windows 10 in order to use Fantome", "", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                OperatingSystem operatingSystem = Environment.OSVersion;
+                if (operatingSystem.Version.Major != 10)
                 {
-                    Application.Current.Shutdown();
+                    MessageBox.Show("You need to be running Windows 10 in order to properly use Fantome\n"
+                        + @"By clicking the ""OK"" button you acknowledge that Fantome may not work correctly on your Windows version",
+                        "", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -257,17 +262,24 @@ namespace Fantome
         }
         private async void CheckForUpdate()
         {
-            GitHubClient gitClient = new GitHubClient(new ProductHeaderValue("Fantome"));
-
-            IReadOnlyList<Release> releases = await gitClient.Repository.Release.GetAll("LoL-Fantome", "Fantome");
-            Release newestRelease = releases[0];
-            Version newestVersion = new Version(newestRelease.TagName);
-
-            if (newestVersion > Assembly.GetExecutingAssembly().GetName().Version)
+            try
             {
-                this.IsUpdateAvailable = true;
+                GitHubClient gitClient = new GitHubClient(new ProductHeaderValue("Fantome"));
 
-                await DialogHelper.ShowMessageDialog("A new version of Fantome is available." + '\n' + @"Click the ""Update"" button to download it.");
+                IReadOnlyList<Release> releases = await gitClient.Repository.Release.GetAll("LoL-Fantome", "Fantome");
+                Release newestRelease = releases[0];
+                Version newestVersion = new Version(newestRelease.TagName);
+
+                if (newestVersion > Assembly.GetExecutingAssembly().GetName().Version)
+                {
+                    this.IsUpdateAvailable = true;
+
+                    await DialogHelper.ShowMessageDialog("A new version of Fantome is available." + '\n' + @"Click the ""Update"" button to download it.");
+                }
+            }
+            catch (Exception)
+            {
+                Log.Information("Unable to check for updates");
             }
         }
 
