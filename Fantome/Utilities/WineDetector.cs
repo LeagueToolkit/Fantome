@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Fantome.Utilities
 {
@@ -11,13 +9,13 @@ namespace Fantome.Utilities
         private static extern IntPtr GetModuleHandle(string lpModuleName);
 
         [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
-        static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+        private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
         public static bool IsRunningInWine()
         {
             IntPtr ntdllHandle = GetModuleHandle("ntdll.dll");
 
-            if(ntdllHandle != IntPtr.Zero)
+            if (ntdllHandle != IntPtr.Zero)
             {
                 IntPtr wineVersion = GetProcAddress(ntdllHandle, "wine_get_version");
 
