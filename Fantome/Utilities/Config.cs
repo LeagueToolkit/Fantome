@@ -41,8 +41,14 @@ namespace Fantome.Utilities
             {
                 return (T)Enum.Parse(typeof(T), _config[key].ToString());
             }
-
-            return (T)Convert.ChangeType(_config[key], typeof(T));
+            else if (typeof(T).BaseType == typeof(Array))
+            {
+                return (_config[key] as JArray).ToObject<T>();
+            }
+            else
+            {
+                return (T)Convert.ChangeType(_config[key], typeof(T));
+            }
         }
         public static T GetDefault<T>(string key)
         {

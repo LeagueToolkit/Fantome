@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 
 namespace Fantome.MVVM.ViewModels
 {
-    public class ModListItemViewModel : INotifyPropertyChanged
+    public class ModListItemViewModel : PropertyNotifier
     {
         public bool IsInstalled
         {
@@ -35,8 +35,6 @@ namespace Fantome.MVVM.ViewModels
         private BitmapImage _image;
         private ModManager _modManager;
         private ModListViewModel _modList;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public ModListItemViewModel(ModFile mod, ModManager modManager, ModListViewModel modList)
         {
@@ -119,11 +117,6 @@ namespace Fantome.MVVM.ViewModels
         {
             this._modList.RemoveMod(this);
             this._modManager.RemoveMod(this.Mod);
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

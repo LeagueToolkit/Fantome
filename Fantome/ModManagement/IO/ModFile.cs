@@ -59,7 +59,7 @@ namespace Fantome.ModManagement.IO
         private ModInfo _info;
         private Image _image;
         private Dictionary<string, WADFile> _wadFiles;
-        private ModManager _modManager;
+        private readonly ModManager _modManager;
 
         public ModFile(ModManager modManager, string fileLocation)
         {

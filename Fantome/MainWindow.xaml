@@ -72,9 +72,7 @@
     </Window.Resources>
 
     <MaterialDesign:DialogHost x:Name="MessageDialog" Identifier="MessageDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}">
-        <!--DO NOT ATTEMPT TO SET THIS STYLE WITH CODE. IT WILL CRASH FANTOME-->
-        <!--PopupStyle="{StaticResource MaterialDesignTransparentDialog}"-->
-        <MaterialDesign:DialogHost Name="OperationDialog" Identifier="OperationDialog">
+        <MaterialDesign:DialogHost Name="OperationDialog" Identifier="OperationDialog" PopupStyle="{StaticResource MaterialDesignTransparentDialog}">
             <MaterialDesign:DialogHost x:Name="RootDialog" Identifier="RootDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" Loaded="OnRootDialogLoad">
                 <Grid x:Name="MainGrid">
                     <Grid.RowDefinitions>

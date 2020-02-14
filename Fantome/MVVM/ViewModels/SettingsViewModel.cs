@@ -17,7 +17,7 @@ using System.Reflection;
 
 namespace Fantome.MVVM.ViewModels
 {
-    public class SettingsViewModel : INotifyPropertyChanged
+    public class SettingsViewModel : PropertyNotifier
     {
         public string LeagueLocation
         {
@@ -98,8 +98,7 @@ namespace Fantome.MVVM.ViewModels
         private SecondaryColor _selectedSecondaryColor;
 
         private bool _needsRestart;
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        private bool _forceNewIndex;
 
         public SettingsViewModel()
         {
@@ -119,6 +118,7 @@ namespace Fantome.MVVM.ViewModels
                 if (this._leagueLocation != Config.Get<string>("LeagueLocation"))
                 {
                     this._needsRestart = true;
+                    this._forceNewIndex = true;
                     Config.Set("LeagueLocation", this._leagueLocation);
                 }
 
@@ -131,12 +131,20 @@ namespace Fantome.MVVM.ViewModels
 
                 if (this._needsRestart)
                 {
-                    Process.Start(Application.ResourceAssembly.Location);
+                    string arguments = string.Empty;
+
+                    if(this._forceNewIndex)
+                    {
+                        arguments += "-forceNewIndex ";
+                    }
+
+                    Process.Start(Application.ResourceAssembly.Location, arguments);
                     Application.Current.Shutdown();
                 }
             }
             else
             {
+                //Reset to theme that is set with settings.json
                 ThemeHelper.LoadTheme();
             }
         }
@@ -152,11 +160,6 @@ namespace Fantome.MVVM.ViewModels
         private Color GetSecondaryColor()
         {
             return ThemeHelper.ConvertSecondaryColor(this._selectedSecondaryColor);
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

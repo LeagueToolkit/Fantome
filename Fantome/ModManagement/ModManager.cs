@@ -33,7 +33,6 @@ namespace Fantome.ModManagement
         {
             this.ModList = modList;
         }
-
         public ModManager(string leagueFolder)
         {
             AssignLeague(leagueFolder);
@@ -43,7 +42,7 @@ namespace Fantome.ModManagement
         {
             this.LeagueFolder = leagueFolder;
 
-            ProcessDatabase();
+            ProcessModDatabase();
             ProcessLeagueFileIndex();
         }
 
@@ -87,7 +86,7 @@ namespace Fantome.ModManagement
                 Log.Information("Created new Game Index from: " + this.LeagueFolder);
             }
         }
-        public void ProcessDatabase()
+        public void ProcessModDatabase()
         {
             if (File.Exists(DATABASE_FILE))
             {
@@ -129,6 +128,8 @@ namespace Fantome.ModManagement
         {
             Log.Information("Installing Mod: {0}", mod.GetID());
 
+            this.Index.StartEdit();
+
             //Update the Index with our new mod and also check for asset collisions
             UpdateIndex(mod);
 
@@ -141,7 +142,6 @@ namespace Fantome.ModManagement
         }
         private void UpdateIndex(ModFile mod)
         {
-            this.Index.StartEdit();
             this.Index.AddMod(mod.GetID(), mod.WadFiles.Keys.ToList());
 
             foreach (KeyValuePair<string, WADFile> modWadFile in mod.WadFiles)

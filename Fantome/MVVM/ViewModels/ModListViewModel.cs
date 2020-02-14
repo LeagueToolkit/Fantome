@@ -13,7 +13,7 @@ using Serilog;
 
 namespace Fantome.MVVM.ViewModels
 {
-    public class ModListViewModel : INotifyPropertyChanged
+    public class ModListViewModel : PropertyNotifier
     {
         public ObservableCollection<ModListItemViewModel> Items
         {
@@ -27,8 +27,6 @@ namespace Fantome.MVVM.ViewModels
 
         private ObservableCollection<ModListItemViewModel> _items = new ObservableCollection<ModListItemViewModel>();
         private ModManager _modManager;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public ModListViewModel() { }
 
@@ -48,7 +46,7 @@ namespace Fantome.MVVM.ViewModels
         {
             if (this.Items.Any(x => x.Mod == mod))
             {
-                DialogHelper.ShowMessageDialog("A Mod with the same ID has already been added");
+                await DialogHelper.ShowMessageDialog("A Mod with the same ID has already been added");
                 Log.Information("Cannot load Mod: {0} because it is already present in the databse", mod.GetID());
             }
             else
@@ -56,7 +54,7 @@ namespace Fantome.MVVM.ViewModels
                 string validationError = mod.Validate(this._modManager);
                 if (!string.IsNullOrEmpty(validationError))
                 {
-                    DialogHelper.ShowMessageDialog(validationError);
+                    await DialogHelper.ShowMessageDialog(validationError);
                 }
                 else
                 {
@@ -73,11 +71,6 @@ namespace Fantome.MVVM.ViewModels
         public void RemoveMod(ModListItemViewModel mod)
         {
             this.Items.Remove(mod);
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

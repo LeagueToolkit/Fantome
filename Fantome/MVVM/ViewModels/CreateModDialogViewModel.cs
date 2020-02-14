@@ -18,7 +18,7 @@ using SImage = System.Drawing.Image;
 
 namespace Fantome.MVVM.ViewModels
 {
-    public class CreateModDialogViewModel : INotifyPropertyChanged
+    public class CreateModDialogViewModel : PropertyNotifier
     {
         public string WadLocation
         {
@@ -85,8 +85,6 @@ namespace Fantome.MVVM.ViewModels
         private BitmapImage _image;
         private ModListViewModel _modList;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public CreateModDialogViewModel(ModListViewModel modList, ModManager modManager)
         {
             this.ModManager = modManager;
@@ -107,11 +105,6 @@ namespace Fantome.MVVM.ViewModels
                 ModFile mod = new ModFile(this.ModManager, this._wadLocation, this._rawLocation, info, image);
                 await this._modList.AddMod(mod, false);
             }
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

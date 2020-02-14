@@ -9,7 +9,7 @@ using Microsoft.Win32;
 
 namespace Fantome.MVVM.ViewModels
 {
-    public class LeagueLocationDialogViewModel : INotifyPropertyChanged
+    public class LeagueLocationDialogViewModel : PropertyNotifier
     {
         public string LeagueLocation 
         {
@@ -34,16 +34,9 @@ namespace Fantome.MVVM.ViewModels
         private string _leagueLocation;
         private bool _isLeagueSelected;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public LeagueLocationDialogViewModel()
         {
 
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

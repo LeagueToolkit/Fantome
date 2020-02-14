@@ -4,9 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Fantome.UserControls.Dialogs"
              xmlns:ValidationRules="clr-namespace:Fantome.MVVM.ValidationRules"
+             xmlns:system="http://schemas.microsoft.com/winfx/2009/xaml"
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              TextElement.FontWeight="Regular"
              TextElement.FontSize="13"
@@ -26,7 +26,6 @@
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-            <ValidationRules:VersionValidationRule x:Key="VersionValidationRule"/>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -58,15 +57,36 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
+                    
                     <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="0" Margin="0, 0, 5, -7" Kind="RenameBox" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Grid.Row="0" Margin="0 0 0 5" x:Name="NameTextBox" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
+                    <TextBox Grid.Column="1" Grid.Row="0" Margin="0 0 0 5" x:Name="NameTextBox" MaterialDesign:HintAssist.Hint="Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
+                        <TextBox.Text>
+                            <Binding Path="Name" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <ValidationRules:ModNameValidationRule ValidatesOnTargetUpdated="True"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+
                     <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="1" Margin="0, 0, 5, -7" Kind="PersonBox" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Grid.Row="1" Margin="0 0 0 5" x:Name="AuthorTextBox" Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="Author" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" Margin="0 0 0 5" x:Name="AuthorTextBox" MaterialDesign:HintAssist.Hint="Author" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
+                        <TextBox.Text>
+                            <Binding Path="Author" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <ValidationRules:ModAuthorValidationRule ValidatesOnTargetUpdated="True"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+
                     <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="2" Margin="0, 0, 5, -7" Kind="TagOutline" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <TextBox Grid.Column="1" Grid.Row="2" Margin="0 0 0 5" x:Name="VersionTextBox" MaterialDesign:HintAssist.Hint="Version" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
                         <TextBox.Text>
                             <Binding Path="Version" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
-
+                                <Binding.ValidationRules>
+                                    <ValidationRules:ModVersionValidationRule ValidatesOnTargetUpdated="True"/>
+                                </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>
                     </TextBox>

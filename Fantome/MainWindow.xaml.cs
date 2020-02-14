@@ -91,7 +91,7 @@ namespace Fantome
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
             //Initial checks to see if we can run Fantome
-            CheckWindowsVersion();
+            CheckEnvironment();
             CheckForExistingProcess();
             CheckForPathUnicodeCharacters();
 
@@ -154,21 +154,23 @@ namespace Fantome
             Log.Information("Initializing Tray Icon");
 
             string[] arguments = Environment.GetCommandLineArgs();
-            Stream iconStream = File.OpenRead("Resources/fantome.ico");
-
             ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
+
+            //Add Close button
             contextMenuStrip.Items.Add(new ToolStripMenuItem("Close", null, delegate (object sender, EventArgs args)
             {
                 Application.Current.Shutdown();
             }));
 
+            //Create Icon 
             this._notifyIcon = new NotifyIcon()
             {
                 Visible = false,
-                Icon = new System.Drawing.Icon(iconStream),
+                Icon = new System.Drawing.Icon(File.OpenRead("Resources/fantome.ico")),
                 ContextMenuStrip = contextMenuStrip
             };
 
+            //Add DoubleClick event handler
             this._notifyIcon.DoubleClick += delegate (object sender, EventArgs args)
             {
                 this.Topmost = true;
@@ -177,19 +179,14 @@ namespace Fantome
                 this.Topmost = false;
             };
 
-            if (arguments.Length > 1)
+            //If we are starting with -tray flag then we minimize window to tray
+            if (arguments.Length > 1 && arguments.Any(x => x == "-tray"))
             {
-                Log.Information(arguments[1]);
-
-                //If we are starting with -tray flag then we minimize window to tray
-                if (arguments.Any(x => x == "-tray"))
-                {
-                    this.WindowState = WindowState.Minimized;
-                    OnStateChanged(new EventArgs());
-                }
+                this.WindowState = WindowState.Minimized;
+                OnStateChanged(new EventArgs());
             }
         }
-        private void CheckWindowsVersion()
+        private void CheckEnvironment()
         {
             //First we check if Fantome is running in Wine and if it isn't then we can check windows version
             if (!WineDetector.IsRunningInWine())
@@ -212,7 +209,7 @@ namespace Fantome
                     List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder.Replace(@"\Game", ""))).ToList();
                     foreach (string value in toRemove)
                     {
-                        Log.Information("Removing Admin privialige from: " + value);
+                        Log.Information("Removing Admin privilige from: " + value);
                         key.DeleteValue(value);
                     }
                 }
@@ -225,7 +222,7 @@ namespace Fantome
                     List<string> toRemove = key.GetValueNames().Where(x => x.StartsWith(this._modManager.LeagueFolder.Replace(@"\Game", ""))).ToList();
                     foreach (string value in toRemove)
                     {
-                        Log.Information("Removing Admin privialige from: " + value);
+                        Log.Information("Removing Admin privilige from: " + value);
                         key.DeleteValue(value);
                     }
                 }
@@ -374,6 +371,10 @@ namespace Fantome
                 {
                     leagueLocation = dialog.ViewModel.LeagueLocation;
                 }
+            }
+            bool ValidateLeagueLocation(string leagueLocation)
+            {
+                return File.Exists(string.Format(@"{0}\League of Legends.exe", leagueLocation));
             }
         }
 
