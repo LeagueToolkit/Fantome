@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.ViewModels;
-using Fantome.UserControls.Dialogs;
+using Fantome.MVVM.ModelViews.Dialogs;
 using MaterialDesignThemes.Wpf;
 
 namespace Fantome.Utilities

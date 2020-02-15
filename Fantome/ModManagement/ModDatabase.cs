@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using Fantome.ModManagement.IO;
+﻿using Fantome.ModManagement.IO;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
 
 
 namespace Fantome.ModManagement
@@ -20,7 +20,7 @@ namespace Fantome.ModManagement
         public ModDatabase(ModManager modManager)
         {
             this._modManager = modManager;
-            SyncFileDictionary();
+            SyncWithModFolder();
         }
 
         public void AddMod(ModFile mod, bool isInstalled)
@@ -47,19 +47,22 @@ namespace Fantome.ModManagement
         {
             return this._modFiles[id];
         }
-        public bool IsInstalled(ModFile mod)
-        {
-            string id = mod.GetID();
 
-            if (this.Mods.ContainsKey(id))
+        public bool IsInstalled(string modID)
+        {
+            if (this.Mods.ContainsKey(modID))
             {
-                return this.Mods[id];
+                return this.Mods[modID];
             }
 
             return false;
         }
+        public bool ContainsMod(string modID)
+        {
+            return this.Mods.ContainsKey(modID);
+        }
 
-        public void SyncFileDictionary()
+        public void SyncWithModFolder()
         {
             List<string> modsToRemove = new List<string>();
 
@@ -88,6 +91,7 @@ namespace Fantome.ModManagement
 
             Write();
         }
+
         public void SetModManager(ModManager modManager)
         {
             this._modManager = modManager;
@@ -101,7 +105,7 @@ namespace Fantome.ModManagement
         {
             ModDatabase database = JsonConvert.DeserializeObject<ModDatabase>(json);
             database.SetModManager(modManager);
-            database.SyncFileDictionary();
+            database.SyncWithModFolder();
 
             return database;
         }

@@ -7,6 +7,13 @@
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <Authors>Crauzer</Authors>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\fantome.ico</ApplicationIcon>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <ItemGroup>
@@ -52,6 +59,12 @@
 
   <ItemGroup>
     <None Update="LoLCustomSharp.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="System.Drawing.Common.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="System.Windows.Forms.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

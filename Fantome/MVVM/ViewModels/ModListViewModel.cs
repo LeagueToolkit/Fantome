@@ -30,16 +30,29 @@ namespace Fantome.MVVM.ViewModels
 
         public ModListViewModel() { }
 
-        public void Sync(ModManager modManager)
+        public void SyncWithModManager()
         {
-            this._modManager = modManager;
+            //Remove non-existant mods
+            List<ModListItemViewModel> toRemove = new List<ModListItemViewModel>();
+            foreach (ModListItemViewModel modItem in this.Items)
+            {
+                if (!this._modManager.Database.ContainsMod(modItem.Mod.GetID()))
+                {
+                    toRemove.Add(modItem);
+                }
+            }
+            foreach (ModListItemViewModel modItem in toRemove)
+            {
+                RemoveMod(modItem);
+            }
 
+
+            //Check for new mods
             foreach (KeyValuePair<string, bool> modEntry in this._modManager.Database.Mods)
             {
                 this.Items.Add(new ModListItemViewModel(this._modManager.Database.GetMod(modEntry.Key), this._modManager, this));
                 this.Items.Last().IsInstalled = modEntry.Value;
             }
-
         }
 
         public async Task AddMod(ModFile mod, bool install)
@@ -71,6 +84,11 @@ namespace Fantome.MVVM.ViewModels
         public void RemoveMod(ModListItemViewModel mod)
         {
             this.Items.Remove(mod);
+        }
+    
+        public void SetModManager(ModManager modManager)
+        {
+            this._modManager = modManager;
         }
     }
 }

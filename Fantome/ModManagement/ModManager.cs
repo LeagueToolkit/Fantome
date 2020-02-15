@@ -10,10 +10,11 @@ using Fantome.Libraries.League.Helpers.Cryptography;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.ViewModels;
-using Fantome.UserControls.Dialogs;
+using Fantome.MVVM.ModelViews.Dialogs;
 using Fantome.Utilities;
 using MaterialDesignThemes.Wpf;
 using Serilog;
+using Fantome.ModManagement.WAD;
 
 namespace Fantome.ModManagement
 {
@@ -33,10 +34,6 @@ namespace Fantome.ModManagement
         {
             this.ModList = modList;
         }
-        public ModManager(string leagueFolder)
-        {
-            AssignLeague(leagueFolder);
-        }
 
         public void AssignLeague(string leagueFolder)
         {
@@ -44,41 +41,17 @@ namespace Fantome.ModManagement
 
             ProcessModDatabase();
             ProcessLeagueFileIndex();
+            CheckIndexVersion();
         }
 
-        public void ProcessLeagueFileIndex()
+        private void ProcessLeagueFileIndex()
         {
             if (File.Exists(INDEX_FILE))
             {
-                LeagueFileIndex currentIndex = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
-                Version leagueVersion = GetLeagueVersion();
-                if (currentIndex.Version != leagueVersion)
-                {
-                    Log.Information("Index is out of date, creating new Index");
-                    Log.Information("Current Index Version: {0}", currentIndex.Version.ToString());
-                    Log.Information("League Version: {0}", leagueVersion.ToString());
+                this.Index = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
+                Log.Information("Loaded File Index from: " + INDEX_FILE);
 
-                    //Create new Index and copy Mod Data from old one
-                    this.Index = new LeagueFileIndex(this.LeagueFolder);
-                    currentIndex.CopyModData(this.Index);
-                    Log.Information("Copied old Mod Index Data to new Index");
-
-                    //We need to reinstall mods
-                    foreach (KeyValuePair<string, bool> mod in this.Database.Mods)
-                    {
-                        if (mod.Value)
-                        {
-                            InstallMod(this.Database.GetMod(mod.Key));
-                        }
-                    }
-
-                    Log.Information("Created new Index");
-                }
-                else
-                {
-                    this.Index = currentIndex;
-                    Log.Information("Loaded File Index from: " + INDEX_FILE);
-                }
+                CheckIndexVersion(); 
             }
             else
             {
@@ -86,7 +59,7 @@ namespace Fantome.ModManagement
                 Log.Information("Created new Game Index from: " + this.LeagueFolder);
             }
         }
-        public void ProcessModDatabase()
+        private void ProcessModDatabase()
         {
             if (File.Exists(DATABASE_FILE))
             {
@@ -98,6 +71,55 @@ namespace Fantome.ModManagement
                 this.Database = new ModDatabase(this);
                 Log.Information("Created new Mod Database");
             }
+        }
+
+        private void CheckIndexVersion()
+        {
+            Version leagueVersion = GetLeagueVersion();
+            if (this.Index.Version != leagueVersion)
+            {
+                Log.Information("Index is out of date");
+                Log.Information("Current Index Version: {0}", this.Index.Version.ToString());
+                Log.Information("League Version: {0}", leagueVersion.ToString());
+
+                ForceReset(false);
+            }
+        }
+
+        public void ForceReset(bool deleteMods)
+        {
+            Log.Information("Doing Force Reset");
+            Log.Information("DELETE_MODS = " + deleteMods);
+
+            //Delete everything in overlay folder
+            foreach(string directory in Directory.EnumerateDirectories(OVERLAY_FOLDER))
+            {
+                Directory.Delete(directory, true);
+            }
+
+            if(deleteMods)
+            {
+                List<string> modsToDelete = this.Database.Mods.Keys.ToList();
+                foreach (string modToDelete in modsToDelete)
+                {
+                    this.Database.RemoveMod(modToDelete);
+                }
+
+                foreach(string file in Directory.EnumerateFiles(MOD_FOLDER))
+                {
+                    File.Delete(file);
+                }
+            }
+            else
+            {
+                foreach(KeyValuePair<string, bool> databaseMod in this.Database.Mods)
+                {
+                    this.Database.ChangeModState(databaseMod.Key, false);
+                }
+            }
+
+            this.Index = new LeagueFileIndex(this.LeagueFolder);
+            this.ModList.SyncWithModManager();
         }
 
         public async void AddMod(ModFile mod, bool install = false)
@@ -114,7 +136,7 @@ namespace Fantome.ModManagement
         {
             string modId = mod.GetID();
 
-            if (this.Database.IsInstalled(mod))
+            if (this.Database.IsInstalled(mod.GetID()))
             {
                 UninstallMod(mod);
             }
@@ -197,7 +219,7 @@ namespace Fantome.ModManagement
 
                     WADFile baseWad = new WADFile(gameModWadPath);
                     bool returnedModdedWad = false;
-                    using (WADFile mergedWad = WADMerger.Merge(baseWad, modWadFile.Value, out returnedModdedWad))
+                    using (WADFile mergedWad = WadMerger.Merge(baseWad, modWadFile.Value, out returnedModdedWad))
                     {
                         mergedWad.Write(overlayModWadPath);
                     }
@@ -215,7 +237,7 @@ namespace Fantome.ModManagement
                 {
                     File.Move(overlayModWadPath, overlayModWadPath + ".temp");
 
-                    using (WADFile mergedWad = WADMerger.Merge(new WADFile(overlayModWadPath + ".temp"), modWadFile.Value))
+                    using (WADFile mergedWad = WadMerger.Merge(new WADFile(overlayModWadPath + ".temp"), modWadFile.Value))
                     {
                         mergedWad.Write(overlayModWadPath);
                     }
@@ -273,7 +295,7 @@ namespace Fantome.ModManagement
                     string overlayWadPath = string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadFile.Key);
                     WADFile originalWad = new WADFile(gameWadPath);
 
-                    using (WADFile mergedWad = WADMerger.Merge(originalWad, wadFile.Value))
+                    using (WADFile mergedWad = WadMerger.Merge(originalWad, wadFile.Value))
                     {
                         mergedWad.Write(overlayWadPath + ".temp");
                     }

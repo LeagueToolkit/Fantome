@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using Fantome.UserControls.Dialogs;
+using Fantome.MVVM.ModelViews.Dialogs;
 using Fantome.ModManagement;
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.Commands;

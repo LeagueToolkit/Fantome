@@ -2,7 +2,7 @@
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.Commands;
 using Fantome.MVVM.ViewModels;
-using Fantome.UserControls.Dialogs;
+using Fantome.MVVM.ModelViews.Dialogs;
 using Fantome.Utilities;
 using LoLCustomSharp;
 using MaterialDesignThemes.Wpf;
@@ -347,14 +347,16 @@ namespace Fantome
         private async void OnRootDialogLoad(object sender, EventArgs e)
         {
             string leagueLocation = Config.Get<string>("LeagueLocation");
-            if (string.IsNullOrEmpty(leagueLocation))
+            if (string.IsNullOrEmpty(leagueLocation) || !LeagueLocationValidator.Validate(leagueLocation))
             {
                 await GetLeagueLocation();
                 Config.Set("LeagueLocation", leagueLocation);
             }
 
             this._modManager.AssignLeague(leagueLocation);
-            this.ModList.Sync(this._modManager);
+
+            this.ModList.SetModManager(this._modManager);
+            this.ModList.SyncWithModManager();
 
             RemoveExecutableAdminPrivilages();
 
@@ -371,10 +373,6 @@ namespace Fantome
                 {
                     leagueLocation = dialog.ViewModel.LeagueLocation;
                 }
-            }
-            bool ValidateLeagueLocation(string leagueLocation)
-            {
-                return File.Exists(string.Format(@"{0}\League of Legends.exe", leagueLocation));
             }
         }
 

@@ -6,7 +6,7 @@
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:ControlzEx="clr-namespace:ControlzEx;assembly=MaterialDesignThemes.Wpf"
         xmlns:MaterialDesignUtilities="clr-namespace:Fantome.Utilities.MaterialDesign"
-        xmlns:UserControls="clr-namespace:Fantome.UserControls"
+        xmlns:ModelViews="clr-namespace:Fantome.MVVM.ModelViews"
         xmlns:local="clr-namespace:Fantome"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -51,7 +51,7 @@
                         <Setter Property="ItemTemplate">
                             <Setter.Value>
                                 <DataTemplate>
-                                    <UserControls:ModCard Margin="0 0 0 6"/>
+                                    <ModelViews:ModCard Margin="0 0 0 6"/>
                                 </DataTemplate>
                             </Setter.Value>
                         </Setter>
@@ -60,7 +60,7 @@
                         <Setter Property="ItemTemplate">
                             <Setter.Value>
                                 <DataTemplate>
-                                    <UserControls:ModListRow/>
+                                    <ModelViews:ModListRow/>
                                 </DataTemplate>
                             </Setter.Value>
                         </Setter>
@@ -82,7 +82,7 @@
                     <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Mode="PrimaryDark">
                         <Grid>
                             <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Image Source="pack://application:,,/Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
+                                <Image Source="Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
                                     <Image.Effect>
                                         <DropShadowEffect/>
                                     </Image.Effect>

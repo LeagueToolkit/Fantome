@@ -58,13 +58,13 @@ namespace Fantome.MVVM.ViewModels
 
         public async Task Install(bool forceInstall = false)
         {
-            if ((this.IsInstalled && !this._modManager.Database.IsInstalled(this.Mod)) || forceInstall)
+            if ((this.IsInstalled && !this._modManager.Database.IsInstalled(this.Mod.GetID())) || forceInstall)
             {
                 //Validate Mod before installation
                 string validationError = this.Mod.Validate(this._modManager);
                 if (!string.IsNullOrEmpty(validationError))
                 {
-                    DialogHelper.ShowMessageDialog(validationError);
+                    await DialogHelper.ShowMessageDialog(validationError);
                     this.IsInstalled = false;
                 }
                 else
@@ -104,7 +104,7 @@ namespace Fantome.MVVM.ViewModels
         }
         public async Task Uninstall(bool forceUninstall = false)
         {
-            if ((!this.IsInstalled && this._modManager.Database.IsInstalled(this.Mod)) || forceUninstall)
+            if ((!this.IsInstalled && this._modManager.Database.IsInstalled(this.Mod.GetID())) || forceUninstall)
             {
                 await DialogHelper.ShowUninstallModDialog(this.Mod, this._modManager);
                 this.IsInstalled = false;
