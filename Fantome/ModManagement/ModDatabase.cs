@@ -1,5 +1,7 @@
 ﻿using Fantome.ModManagement.IO;
 using Newtonsoft.Json;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -11,17 +13,6 @@ namespace Fantome.ModManagement
         public Dictionary<string, bool> Mods { get; set; } = new Dictionary<string, bool>();
 
         private Dictionary<string, ModFile> _modFiles = new Dictionary<string, ModFile>();
-        private ModManager _modManager;
-
-        public ModDatabase()
-        {
-
-        }
-        public ModDatabase(ModManager modManager)
-        {
-            this._modManager = modManager;
-            SyncWithModFolder();
-        }
 
         public void AddMod(ModFile mod, bool isInstalled)
         {
@@ -48,6 +39,31 @@ namespace Fantome.ModManagement
             return this._modFiles[id];
         }
 
+        public void MountMods()
+        {
+            foreach (var mod in this.Mods)
+            {
+                string modPath = Path.Combine(ModManager.MOD_FOLDER, mod.Key + ".zip");
+                if(File.Exists(modPath))
+                {
+                    try
+                    {
+                        this._modFiles.Add(mod.Key, new ModFile(modPath));
+                        Log.Information("Mounted Mod: {0}", modPath);
+                    }
+                    catch(Exception excepton)
+                    {
+                        Log.Warning("Failed to mount Mod: {0}", modPath);
+                        Log.Warning("REASON: {0}", excepton);
+                    }
+                }
+                else
+                {
+                    Log.Warning("Mod does not exist: {0}", modPath );
+                }
+            }
+        }
+
         public bool IsInstalled(string modID)
         {
             if (this.Mods.ContainsKey(modID))
@@ -62,52 +78,13 @@ namespace Fantome.ModManagement
             return this.Mods.ContainsKey(modID);
         }
 
-        public void SyncWithModFolder()
-        {
-            List<string> modsToRemove = new List<string>();
-
-            foreach (KeyValuePair<string, bool> mod in this.Mods)
-            {
-                //Remove mods which are not present in the Mods folder anymore
-                string modPath = string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, mod.Key);
-                if (!File.Exists(modPath))
-                {
-                    modsToRemove.Add(mod.Key);
-                }
-
-                this._modFiles.Add(mod.Key, new ModFile(this._modManager, modPath));
-            }
-
-            //Scan Mod folder for mods which were potentially added by the user
-            foreach (string modFilePath in Directory.EnumerateFiles(ModManager.MOD_FOLDER))
-            {
-                string modFileName = Path.GetFileNameWithoutExtension(modFilePath);
-
-                if (!this.Mods.ContainsKey(modFileName))
-                {
-                    AddMod(new ModFile(this._modManager, modFilePath), false);
-                }
-            }
-
-            Write();
-        }
-
-        public void SetModManager(ModManager modManager)
-        {
-            this._modManager = modManager;
-        }
-
         public string Serialize()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
-        public static ModDatabase Deserialize(ModManager modManager, string json)
+        public static ModDatabase Deserialize(string json)
         {
-            ModDatabase database = JsonConvert.DeserializeObject<ModDatabase>(json);
-            database.SetModManager(modManager);
-            database.SyncWithModFolder();
-
-            return database;
+            return JsonConvert.DeserializeObject<ModDatabase>(json);
         }
         public void Write(string fileLocation = ModManager.DATABASE_FILE)
         {

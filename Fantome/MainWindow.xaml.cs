@@ -26,6 +26,7 @@ using DataFormats = System.Windows.DataFormats;
 using MessageBox = System.Windows.MessageBox;
 using System.Reflection;
 using System.Windows.Threading;
+using Fantome.MVVM.ViewModels.CreateMod;
 
 namespace Fantome
 {
@@ -123,14 +124,14 @@ namespace Fantome
         private void InitializeModManager()
         {
             Log.Information("Initializing Mod Manager");
-            this._modManager = new ModManager(this.ModList);
+            this._modManager = new ModManager();
         }
         private void StartPatcher()
         {
             Log.Information("Starting League Patcher");
             string overlayDirectory = (Directory.GetCurrentDirectory() + @"\" + ModManager.OVERLAY_FOLDER + @"\").Replace('\\', '/');
             this._patcher = new OverlayPatcher();
-            this._patcher.Start(overlayDirectory);
+            this._patcher.Start(overlayDirectory, OnPatcherMessage, OnPatcherError);
         }
         private void CreateWorkFolders()
         {
@@ -143,7 +144,7 @@ namespace Fantome
         {
             Log.Information("Binding View Models");
             this.DataContext = this;
-            this.ModsListBox.DataContext = new ModListViewModel();
+            this.ModsListBox.DataContext = new ModListViewModel(this._modManager);
 
             DialogHelper.MessageDialog = this.MessageDialog;
             DialogHelper.OperationDialog = this.OperationDialog;
@@ -275,7 +276,7 @@ namespace Fantome
                 Release newestRelease = releases[0];
                 Version newestVersion = new Version(newestRelease.TagName);
 
-                if (newestVersion > Assembly.GetExecutingAssembly().GetName().Version)
+                if (!newestRelease.Prerelease && newestVersion > Assembly.GetExecutingAssembly().GetName().Version)
                 {
                     this.IsUpdateAvailable = true;
 
@@ -295,7 +296,7 @@ namespace Fantome
                 Multiselect = false
             };
 
-            dialog.Filters.Add(new CommonFileDialogFilter("ZIP Files", ".zip"));
+            dialog.Filters.Add(new CommonFileDialogFilter("ZIP Files", "zip"));
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
@@ -306,7 +307,7 @@ namespace Fantome
         {
             string modPath = "";
 
-            using (ModFile originalMod = new ModFile(this._modManager, modLocation))
+            using (ModFile originalMod = new ModFile(modLocation))
             {
                 modPath = string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, originalMod.GetID());
             }
@@ -320,7 +321,7 @@ namespace Fantome
 
             Log.Information("Loading Mod: {0}", modPath);
             bool install = Config.Get<bool>("InstallAddedMods");
-            ModFile mod = new ModFile(this._modManager, modPath);
+            ModFile mod = new ModFile(modPath);
             await this.ModList.AddMod(mod, install);
         }
 
@@ -336,13 +337,12 @@ namespace Fantome
         }
         private async void RunCreateModDialog(object o)
         {
-            CreateModDialog dialog = new CreateModDialog
+            ModFile createdMod = await DialogHelper.ShowCreateModDialog(this._modManager.Index);
+
+            if(createdMod != null)
             {
-                DataContext = new CreateModDialogViewModel(this.ModList, this._modManager)
-            };
-
-
-            object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as CreateModDialogViewModel).ClosingEventHandler);
+                await this.ModList.AddMod(createdMod, false);
+            }
         }
         private async void OnRootDialogLoad(object sender, EventArgs e)
         {
@@ -354,8 +354,6 @@ namespace Fantome
             }
 
             this._modManager.AssignLeague(leagueLocation);
-
-            this.ModList.SetModManager(this._modManager);
             this.ModList.SyncWithModManager();
 
             RemoveExecutableAdminPrivilages();
@@ -378,11 +376,11 @@ namespace Fantome
 
         private void OpenGithub(object o)
         {
-            Process.Start("https://github.com/LoL-Fantome/Fantome");
+            Process.Start("cmd", "/C start https://github.com/LoL-Fantome/Fantome");
         }
         private void OpenGithubReleases(object o)
         {
-            Process.Start("https://github.com/LoL-Fantome/Fantome/releases");
+            Process.Start("cmd", "/C start https://github.com/LoL-Fantome/Fantome/releases");
         }
 
         protected override void OnStateChanged(EventArgs e)
@@ -414,6 +412,16 @@ namespace Fantome
                 }
             }
         }
+
+        private void OnPatcherError(Exception exception)
+        {
+            Log.Error("PATCHER: {0}", exception);
+        }
+        private void OnPatcherMessage(string message)
+        {
+            Log.Information("PATCHER: {0}", message);
+        }
+
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {

@@ -8,6 +8,7 @@ using Fantome.ModManagement.IO;
 using Fantome.MVVM.ViewModels;
 using Fantome.MVVM.ModelViews.Dialogs;
 using MaterialDesignThemes.Wpf;
+using Fantome.MVVM.ViewModels.CreateMod;
 
 namespace Fantome.Utilities
 {
@@ -38,9 +39,9 @@ namespace Fantome.Utilities
             await DialogHost.Show(dialog, "MessageDialog");
         }
 
-        public static async Task<object> ShowGenerateWadFilesDialog(ModFile mod)
+        public static async Task<object> ShowGenerateWadFilesDialog(ModFile mod, LeagueFileIndex index)
         {
-            GeneratingWadFilesDialog dialog = new GeneratingWadFilesDialog(mod);
+            GeneratingWadFilesDialog dialog = new GeneratingWadFilesDialog(mod, index);
 
             return await DialogHost.Show(dialog, "OperationDialog", dialog.StartGeneration, null);
         }
@@ -63,6 +64,22 @@ namespace Fantome.Utilities
             };
 
             return await DialogHost.Show(dialog, "OperationDialog", dialog.StartUninstallation, null);
+        }
+
+        public static async Task<ModFile> ShowCreateModDialog(LeagueFileIndex index)
+        {
+            CreateModDialogViewModel dialogModel = new CreateModDialogViewModel(index);
+            CreateModDialog dialog = new CreateModDialog(index, dialogModel);
+
+            object result = await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as CreateModDialogViewModel).ClosingEventHandler);
+            if ((bool)result)
+            {
+                return dialogModel.GetCreatedMod();
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

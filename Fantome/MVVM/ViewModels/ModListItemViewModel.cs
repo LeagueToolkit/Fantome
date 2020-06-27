@@ -61,7 +61,7 @@ namespace Fantome.MVVM.ViewModels
             if ((this.IsInstalled && !this._modManager.Database.IsInstalled(this.Mod.GetID())) || forceInstall)
             {
                 //Validate Mod before installation
-                string validationError = this.Mod.Validate(this._modManager);
+                string validationError = this.Mod.Validate(this._modManager.Index);
                 if (!string.IsNullOrEmpty(validationError))
                 {
                     await DialogHelper.ShowMessageDialog(validationError);
@@ -70,10 +70,10 @@ namespace Fantome.MVVM.ViewModels
                 else
                 {
                     //Generate WAD files for the Mod
-                    await DialogHelper.ShowGenerateWadFilesDialog(this.Mod);
+                    await DialogHelper.ShowGenerateWadFilesDialog(this.Mod, this._modManager.Index);
 
                     //Now we need to check for asset collisions
-                    List<string> collisions = this._modManager.Index.CheckForAssetCollisions(this.Mod.WadFiles);
+                    List<string> collisions = this._modManager.Index.CheckForAssetCollisions(this.Mod.GetWadFiles(this._modManager.Index));
                     if (collisions.Count != 0)
                     {
                         object uninstallCollisions = await DialogHelper.ShowAssetConflictDialog(this.Mod, collisions);

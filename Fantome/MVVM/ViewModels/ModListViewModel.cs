@@ -28,7 +28,10 @@ namespace Fantome.MVVM.ViewModels
         private ObservableCollection<ModListItemViewModel> _items = new ObservableCollection<ModListItemViewModel>();
         private ModManager _modManager;
 
-        public ModListViewModel() { }
+        public ModListViewModel(ModManager modManager)
+        {
+            this._modManager = modManager;
+        }
 
         public void SyncWithModManager()
         {
@@ -64,7 +67,7 @@ namespace Fantome.MVVM.ViewModels
             }
             else
             {
-                string validationError = mod.Validate(this._modManager);
+                string validationError = mod.Validate(this._modManager.Index);
                 if (!string.IsNullOrEmpty(validationError))
                 {
                     await DialogHelper.ShowMessageDialog(validationError);
@@ -84,11 +87,6 @@ namespace Fantome.MVVM.ViewModels
         public void RemoveMod(ModListItemViewModel mod)
         {
             this.Items.Remove(mod);
-        }
-    
-        public void SetModManager(ModManager modManager)
-        {
-            this._modManager = modManager;
         }
     }
 }

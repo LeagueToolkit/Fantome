@@ -1,4 +1,5 @@
-﻿using Fantome.ModManagement.IO;
+﻿using Fantome.ModManagement;
+using Fantome.ModManagement.IO;
 using Fantome.Utilities;
 using System;
 using System.Collections.Generic;
@@ -26,11 +27,13 @@ namespace Fantome.MVVM.ModelViews.Dialogs
         public string GeneratingString { get; }
 
         private ModFile _mod;
+        private LeagueFileIndex _index;
 
-        public GeneratingWadFilesDialog(ModFile mod)
+        public GeneratingWadFilesDialog(ModFile mod, LeagueFileIndex index)
         {
             this.DataContext = this;
             this._mod = mod;
+            this._index = index;
 
             this.GeneratingString = string.Format("Generating WAD files for {0}...", mod.GetID());
 
@@ -54,7 +57,7 @@ namespace Fantome.MVVM.ModelViews.Dialogs
 
         private void GenerateWadFiles(object sender, DoWorkEventArgs e)
         {
-            this._mod.GenerateWadFiles();
+            this._mod.GenerateWadFiles(this._index);
         }
     }
 }

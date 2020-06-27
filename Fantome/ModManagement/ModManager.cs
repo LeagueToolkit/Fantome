@@ -28,12 +28,6 @@ namespace Fantome.ModManagement
         public LeagueFileIndex Index { get; private set; }
         public string LeagueFolder { get; private set; }
         public ModDatabase Database { get; private set; }
-        public ModListViewModel ModList { get; private set; }
-
-        public ModManager(ModListViewModel modList)
-        {
-            this.ModList = modList;
-        }
 
         public void AssignLeague(string leagueFolder)
         {
@@ -63,14 +57,22 @@ namespace Fantome.ModManagement
         {
             if (File.Exists(DATABASE_FILE))
             {
-                this.Database = ModDatabase.Deserialize(this, File.ReadAllText(DATABASE_FILE));
+                this.Database = ModDatabase.Deserialize(File.ReadAllText(DATABASE_FILE));
+
+                SyncWithModFolder();
+
                 Log.Information("Loaded Mod Database: " + DATABASE_FILE);
             }
             else
             {
-                this.Database = new ModDatabase(this);
+                this.Database = new ModDatabase();
+
+                SyncWithModFolder();
+
                 Log.Information("Created new Mod Database");
             }
+
+            this.Database.MountMods();
         }
 
         private void CheckIndexVersion()
@@ -112,25 +114,25 @@ namespace Fantome.ModManagement
             }
             else
             {
-                foreach(KeyValuePair<string, bool> databaseMod in this.Database.Mods)
+                foreach (string databaseMod in this.Database.Mods.Keys.ToList())
                 {
-                    this.Database.ChangeModState(databaseMod.Key, false);
+                    this.Database.ChangeModState(databaseMod, false);
                 }
             }
 
             this.Index = new LeagueFileIndex(this.LeagueFolder);
-            this.ModList.SyncWithModManager();
         }
 
         public async void AddMod(ModFile mod, bool install = false)
         {
             Log.Information("Adding Mod: {0} to Mod Manager", mod.GetID());
-            this.Database.AddMod(mod, install);
 
             if (install)
             {
                 await DialogHelper.ShowInstallModDialog(mod, this);
             }
+
+            this.Database.AddMod(mod, install);
         }
         public void RemoveMod(ModFile mod)
         {
@@ -164,9 +166,10 @@ namespace Fantome.ModManagement
         }
         private void UpdateIndex(ModFile mod)
         {
-            this.Index.AddMod(mod.GetID(), mod.WadFiles.Keys.ToList());
+            var modWadFiles = mod.GetWadFiles(this.Index);
+            this.Index.AddMod(mod.GetID(), modWadFiles.Keys.ToList());
 
-            foreach (KeyValuePair<string, WADFile> modWadFile in mod.WadFiles)
+            foreach (KeyValuePair<string, WADFile> modWadFile in modWadFiles)
             {
                 foreach (WADEntry entry in modWadFile.Value.Entries)
                 {
@@ -192,14 +195,14 @@ namespace Fantome.ModManagement
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
-                Parallel.ForEach(mod.WadFiles, parallelOptions, (modWadFile) =>
+                Parallel.ForEach(mod.GetWadFiles(this.Index), parallelOptions, (modWadFile) =>
                 {
                     writeWadFileDelegate.Invoke(modWadFile);
                 });
             }
             else
             {
-                foreach(KeyValuePair<string, WADFile> modWadFile in mod.WadFiles)
+                foreach(KeyValuePair<string, WADFile> modWadFile in mod.GetWadFiles(this.Index))
                 {
                     writeWadFileDelegate.Invoke(modWadFile);
                 }
@@ -321,6 +324,30 @@ namespace Fantome.ModManagement
             else
             {
                 this.Database.AddMod(mod, true);
+            }
+        }
+
+        public void SyncWithModFolder()
+        {
+            foreach (KeyValuePair<string, bool> mod in this.Database.Mods)
+            {
+                //Remove mods which are not present in the Mods folder anymore
+                string modPath = string.Format(@"{0}\{1}.zip", MOD_FOLDER, mod.Key);
+                if (!File.Exists(modPath))
+                {
+                    this.Database.RemoveMod(mod.Key);
+                }
+            }
+
+            //Scan Mod folder for mods which were potentially added by the user
+            foreach (string modFilePath in Directory.EnumerateFiles(MOD_FOLDER))
+            {
+                string modFileName = Path.GetFileNameWithoutExtension(modFilePath);
+
+                if (!this.Database.ContainsMod(modFileName))
+                {
+                    AddMod(new ModFile(modFilePath), false);
+                }
             }
         }
 

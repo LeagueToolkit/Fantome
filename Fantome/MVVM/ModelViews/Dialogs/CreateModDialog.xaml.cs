@@ -21,6 +21,8 @@ using System.IO;
 using System.Drawing.Imaging;
 using System.Collections.ObjectModel;
 using Fantome.Utilities;
+using Fantome.ModManagement;
+using Fantome.MVVM.ViewModels.CreateMod;
 
 namespace Fantome.MVVM.ModelViews.Dialogs
 {
@@ -32,11 +34,16 @@ namespace Fantome.MVVM.ModelViews.Dialogs
         public CreateModDialogViewModel ViewModel { get => this.DataContext as CreateModDialogViewModel; }
         public ObservableCollection<ValidationError> ValidationErrors { get; private set; } = new ObservableCollection<ValidationError>();
 
-        public CreateModDialog()
+        private LeagueFileIndex _index;
+
+        public CreateModDialog(LeagueFileIndex index, CreateModDialogViewModel model)
         {
+            this._index = index;
+
             InitializeComponent();
 
             this.CreateButton.DataContext = this;
+            this.DataContext = model;
         }
 
         private void AddImage(object sender, RoutedEventArgs e)
@@ -47,7 +54,7 @@ namespace Fantome.MVVM.ModelViews.Dialogs
                 Title = "Select an image for your mod"
             };
 
-            dialog.Filters.Add(new CommonFileDialogFilter("PNG Files", ".png"));
+            dialog.Filters.Add(new CommonFileDialogFilter("PNG Files", "png"));
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
@@ -118,7 +125,7 @@ namespace Fantome.MVVM.ModelViews.Dialogs
             {
                 char separator = Pathing.GetPathSeparator(directory);
                 string directoryName = directory.Substring(directory.LastIndexOf(separator) + 1);
-                if (string.IsNullOrEmpty(this.ViewModel.ModManager.Index.FindWADPath(directoryName)))
+                if (string.IsNullOrEmpty(this._index.FindWADPath(directoryName)))
                 {
                     return false;
                 }

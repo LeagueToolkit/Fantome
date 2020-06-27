@@ -5,22 +5,30 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:Fantome.MVVM.ModelViews.Dialogs"
+             xmlns:ViewModels="clr-namespace:Fantome.MVVM.ViewModels.CreateMod"
              xmlns:ValidationRules="clr-namespace:Fantome.MVVM.ValidationRules"
+             xmlns:Converters="clr-namespace:Fantome.MVVM.Converters"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              TextElement.FontWeight="Regular"
              TextElement.FontSize="13"
              TextOptions.TextFormattingMode="Ideal" 
              TextOptions.TextRenderingMode="Auto"
-             Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{MaterialDesign:MaterialDesignFont}" 
              mc:Ignorable="d" 
-             Height="450" Width="600" Validation.Error="OnValidationError">
+             Height="550" Width="750" Validation.Error="OnValidationError">
     <UserControl.Resources>
         <ResourceDictionary>
+            <Converters:IsHigherThanConverter x:Key="IsHigherThanConverter"/>
             <Style x:Key="CreateButtonValidation" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
                 <Setter Property="IsEnabled" Value="False"/>
                 <Style.Triggers>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding ValidationErrors.Count}" Value="0"/>
+                            <Condition Binding="{Binding HasContent, Converter={StaticResource IsHigherThanConverter}, ConverterParameter=0}" Value="True"/>
+                        </MultiDataTrigger.Conditions>
+                    </MultiDataTrigger>
                     <DataTrigger Binding="{Binding ValidationErrors.Count}" Value="0">
                         <Setter Property="IsEnabled" Value="True"/>
                     </DataTrigger>
@@ -32,68 +40,81 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="16">
+    <Grid Margin="16,0,16,16">
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Grid Margin="10" Grid.Row="0">
+        <Grid Margin="10,0,10,0" Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="AddImageButton" Panel.ZIndex="1" Grid.Column="0" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" ToolTip="Select Image" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="35" Width="35" Margin="0,0,20,10" Click="AddImage">
+            <Button x:Name="AddImageButton" Panel.ZIndex="1" Grid.Column="0" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" ToolTip="Select Image" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="35" Width="35" Margin="0,0,40,60" Click="AddImage">
                 <MaterialDesign:PackIcon Kind="ImageAdd" Height="24" Width="24" />
             </Button>
-            <MaterialDesign:Card Grid.Column="0" Margin="0 0 10 0" UniformCornerRadius="15" MaterialDesign:ShadowAssist.ShadowDepth="Depth4">
-                <Image x:Name="MainImage" Source="{Binding Image, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" Stretch="Fill"/>
-            </MaterialDesign:Card>
-            <MaterialDesign:ColorZone Grid.Column="1" VerticalAlignment="Stretch" Mode="Dark" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" CornerRadius="15">
-                <Grid Grid.Column="1" Margin="5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    
-                    <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="0" Margin="0, 0, 5, -7" Kind="RenameBox" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Grid.Row="0" Margin="0 0 0 5" x:Name="NameTextBox" MaterialDesign:HintAssist.Hint="Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
-                        <TextBox.Text>
-                            <Binding Path="Name" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <ValidationRules:ModNameValidationRule ValidatesOnTargetUpdated="True"/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>
+            <Grid Grid.Column="0">
+                <MaterialDesign:Card Grid.Column="0" Margin="0 0 10 0" UniformCornerRadius="15" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Width="304" Height="171">
+                    <Image x:Name="MainImage" Source="{Binding Image, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" Stretch="Fill"/>
+                </MaterialDesign:Card>
+                <Label Content="16:9" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="30,0,0,20"/>
+            </Grid>
+            <MaterialDesign:ColorZone Grid.Column="1" VerticalAlignment="Stretch" Mode="Dark" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" CornerRadius="15" Margin="0,23,0,23">
+                <StackPanel Orientation="Vertical" Margin="15,0,15,0">
+                    <Grid Margin="5,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="0" Margin="0,0,5,10" Kind="RenameBox" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="20" Height="20"/>
+                        <TextBox Grid.Column="1" Margin="0,0,0,5" x:Name="NameTextBox" FontSize="17"
+                             MaterialDesign:HintAssist.Hint="Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <TextBox.Text>
+                                <Binding Path="Name" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <ValidationRules:ModNameValidationRule ValidatesOnTargetUpdated="True"/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
 
-                    <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="1" Margin="0, 0, 5, -7" Kind="PersonBox" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Grid.Row="1" Margin="0 0 0 5" x:Name="AuthorTextBox" MaterialDesign:HintAssist.Hint="Author" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
-                        <TextBox.Text>
-                            <Binding Path="Author" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <ValidationRules:ModAuthorValidationRule ValidatesOnTargetUpdated="True"/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>
+                    </Grid>
+                    <Grid Margin="5,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="1" Margin="0,0,5,10" Kind="PersonBox" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="20" Height="20"/>
+                        <TextBox Grid.Column="1" Margin="0,0,0,5" x:Name="AuthorTextBox" FontSize="17"
+                             MaterialDesign:HintAssist.Hint="Author" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
+                            <TextBox.Text>
+                                <Binding Path="Author" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <ValidationRules:ModAuthorValidationRule ValidatesOnTargetUpdated="True"/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
 
-                    <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="2" Margin="0, 0, 5, -7" Kind="TagOutline" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Grid.Row="2" Margin="0 0 0 5" x:Name="VersionTextBox" MaterialDesign:HintAssist.Hint="Version" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
-                        <TextBox.Text>
-                            <Binding Path="Version" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <ValidationRules:ModVersionValidationRule ValidatesOnTargetUpdated="True"/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>
-                </Grid>
+                    </Grid>
+                    <Grid Margin="5,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="2" Margin="0,0,5,10" Kind="TagOutline" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="20" Height="20"/>
+                        <TextBox Grid.Column="1" Margin="0,0,0,5" x:Name="VersionTextBox" FontSize="17"
+                             MaterialDesign:HintAssist.Hint="Version" Style="{StaticResource MaterialDesignFloatingHintTextBox}">
+                            <TextBox.Text>
+                                <Binding Path="Version" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <ValidationRules:ModVersionValidationRule ValidatesOnTargetUpdated="True"/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
+                    </Grid>
+                </StackPanel>
             </MaterialDesign:ColorZone>
         </Grid>
         <Grid Margin="10" Grid.Row="1">
@@ -101,25 +122,68 @@
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Margin="0,0,0,15">
-                <MaterialDesign:ColorZone MaterialDesign:ShadowAssist.ShadowDepth="Depth4" CornerRadius="16" VerticalAlignment="Center" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-                    <Grid VerticalAlignment="Center" Margin="15">
+            <Grid Grid.Row="0">
+                <MaterialDesign:ColorZone MaterialDesign:ShadowAssist.ShadowDepth="Depth4" CornerRadius="16" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                    <Grid VerticalAlignment="Stretch" Margin="15" HorizontalAlignment="Stretch">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding WadLocation, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="WAD Folder" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,10,10" />
-                        <Button Grid.Row="0" Grid.Column="1" Width="25" Height="25" Content="{MaterialDesign:PackIcon Kind=Folder}" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" Margin="0,0,10,0" Click="SelectWADFolder"/>
-                        <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding RawLocation, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="RAW Folder" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,10,0" />
-                        <Button Grid.Row="1" Grid.Column="1" Width="25" Height="25" Content="{MaterialDesign:PackIcon Kind=Folder}" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" Margin="0,10,10,0" Click="SelectRAWFolder"/>
+
+                        <ListView Grid.Row="0" ItemsSource="{Binding WadItems}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate DataType="{x:Type ViewModels:CreateModWadItemViewModel}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Button Grid.Column="0" ToolTip="Remove" 
+                                                Height="16"
+                                                Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                                                CommandParameter="{Binding Name}"
+                                                Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.RemoveWadFileCommand}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="Close" Width="16" Height="16"/>
+                                        </Button>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,0">
+                                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" Margin="8,0"/>
+                                        </StackPanel>
+                                        <MaterialDesign:PackIcon Name="WadItemItemIcon" Grid.Column="2"/>
+                                        <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="10,0">
+                                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" Margin="8,0"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="4" Text="{Binding Path = Name}"/>
+                                    </Grid>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static ViewModels:CreateModWadItemType.File}">
+                                            <Setter TargetName="WadItemItemIcon" Property="Kind" Value="File"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static ViewModels:CreateModWadItemType.Folder}">
+                                            <Setter TargetName="WadItemItemIcon" Property="Kind" Value="Folder"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                            <Button Grid.Column="2" Width="35" Height="35" Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
+                                ToolTip="Add WAD folders"
+                                Command="{Binding AddWadFoldersCommand}" Margin="0,0,10,0">
+                                <MaterialDesign:PackIcon Kind="Folder" Width="20" Height="20"/>
+                            </Button>
+                            <Button Grid.Column="2" Width="35" Height="35" Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
+                                ToolTip="Add WAD files"
+                                Command="{Binding AddWadFilesCommand}">
+                                <MaterialDesign:PackIcon Kind="File" Width="20" Height="20"/>
+                            </Button>
+                        </StackPanel>
                     </Grid>
                 </MaterialDesign:ColorZone>
             </Grid>
-            <Grid Grid.Row="1"  UseLayoutRounding="False" Margin="0">
+            <Grid Grid.Row="1"  UseLayoutRounding="False" Margin="0,15,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>

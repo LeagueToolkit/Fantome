@@ -43,32 +43,17 @@ namespace Fantome.ModManagement.IO
             }
         }
         public ZipArchive Content { get; private set; }
-        public Dictionary<string, WADFile> WadFiles
-        {
-            get
-            {
-                if (this._wadFiles == null)
-                {
-                    this._wadFiles = GetWadFiles();
-                }
-
-                return this._wadFiles;
-            }
-        }
 
         private ModInfo _info;
         private Image _image;
         private Dictionary<string, WADFile> _wadFiles;
-        private readonly ModManager _modManager;
 
-        public ModFile(ModManager modManager, string fileLocation)
+        public ModFile(string fileLocation)
         {
-            this._modManager = modManager;
             this.Content = new ZipArchive(File.OpenRead(fileLocation));
         }
-        public ModFile(ModManager modManager, string wadLocation, string rawLocation, ModInfo info, Image image)
+        public ModFile(LeagueFileIndex index, IEnumerable<string> wadFilePaths, IEnumerable<string> wadFolderPaths, ModInfo info, Image image)
         {
-            this._modManager = modManager;
             using (FileStream fileStream = new FileStream(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, info.CreateID()), FileMode.Create))
             {
                 using (this.Content = new ZipArchive(fileStream, ZipArchiveMode.Update))
@@ -76,27 +61,25 @@ namespace Fantome.ModManagement.IO
                     this._info = info;
                     this._image = image;
 
-                    if (!string.IsNullOrEmpty(wadLocation))
+                    foreach(string wadFolderPath in wadFolderPaths)
                     {
-                        //Check if we want to pack the WAD folders into WAD files
+                        //Check if we want to pack the WAD folder into a WAD file
                         if (Config.Get<bool>("PackWadFolders"))
                         {
-                            PackWadFolders(wadLocation);
-
-                            foreach (string wadFile in Directory.EnumerateFiles(wadLocation))
-                            {
-                                AddFile(string.Format("WAD\\{0}", Path.GetFileName(wadFile)), File.ReadAllBytes(wadFile));
-                            }
+                            PackWadFolder(wadFolderPath);
                         }
                         else
                         {
-                            AddFolder("WAD", wadLocation);
+                            AddFolder("WAD", wadFolderPath);
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(rawLocation))
+                    foreach(string wadFilePath in wadFilePaths)
                     {
-                        AddFolder("RAW", rawLocation);
+                        string wadFileName = Path.GetFileName(wadFilePath);
+                        string wadPath = index.FindWADPath(wadFileName);
+
+                        AddFile($@"WAD\{wadFileName}", File.ReadAllBytes(wadFilePath));
                     }
 
                     AddFile(@"META\info.json", Encoding.ASCII.GetBytes(info.Serialize()));
@@ -131,20 +114,20 @@ namespace Fantome.ModManagement.IO
                 entryStream.Write(data, 0, data.Length);
             }
         }
-        private void PackWadFolders(string wadLocation)
+        private void PackWadFolder(string wadFolderLocation)
         {
-            //Loop through each WAD folder
-            foreach (string wadFolder in Directory.EnumerateDirectories(wadLocation))
+            string[] wadFolderFiles = Directory.GetFiles(wadFolderLocation, "*", SearchOption.AllDirectories);
+            if (wadFolderFiles.Length > 0)
             {
-                char separator = Pathing.GetPathSeparator(wadFolder);
-                string wadName = wadFolder.Split(separator).Last();
+                char separator = Pathing.GetPathSeparator(wadFolderLocation);
+                string wadName = wadFolderLocation.Split(separator).Last();
 
                 using (WADFile wad = new WADFile(3, 0))
                 {
                     //Add each file to the WAD
-                    foreach (string wadFolderFile in Directory.EnumerateFiles(wadFolder, "*", SearchOption.AllDirectories))
+                    foreach (string wadFolderFile in Directory.EnumerateFiles(wadFolderLocation, "*", SearchOption.AllDirectories))
                     {
-                        string path = wadFolderFile.Replace(wadFolder + separator, "").Replace('\\', '/');
+                        string path = wadFolderFile.Replace(wadFolderLocation + separator, "").Replace('\\', '/');
                         ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
                         string extension = Path.GetExtension(wadFolderFile);
 
@@ -174,7 +157,7 @@ namespace Fantome.ModManagement.IO
             return this.Content.Entries.Where(x => Regex.IsMatch(x.FullName, regexPattern));
         }
 
-        public string Validate(ModManager modManager)
+        public string Validate(LeagueFileIndex index)
         {
             string validationError = "";
 
@@ -237,7 +220,7 @@ namespace Fantome.ModManagement.IO
                     {
                         //See if the WAD file exists in the game
                         string wadName = entry.FullName.Split(Pathing.GetPathSeparator(entry.FullName))[1];
-                        if (string.IsNullOrEmpty(modManager.Index.FindWADPath(wadName)))
+                        if (string.IsNullOrEmpty(index.FindWADPath(wadName)))
                         {
                             isInvalid = true;
                             validationError += entry.FullName + '\n';
@@ -268,9 +251,9 @@ namespace Fantome.ModManagement.IO
                 return string.Empty;
             }
         }
-        public void GenerateWadFiles()
+        public void GenerateWadFiles(LeagueFileIndex index)
         {
-            this._wadFiles = GetWadFiles();
+            this._wadFiles = GetWadFiles(index);
         }
 
         public string GetID()
@@ -293,20 +276,26 @@ namespace Fantome.ModManagement.IO
         }
         private Image GetPackageImage()
         {
-            try
+            MemoryStream memoryStream = new MemoryStream();
+            ZipArchiveEntry entry = GetEntry(@"META\image.png");
+            if (entry != null)
             {
-                MemoryStream memoryStream = new MemoryStream();
-                GetEntry(@"META\image.png").Open().CopyTo(memoryStream);
+                entry.Open().CopyTo(memoryStream);
 
                 return Image.FromStream(memoryStream);
             }
-            catch (NullReferenceException)
+            else
             {
                 return null;
             }
         }
-        private Dictionary<string, WADFile> GetWadFiles()
+        public Dictionary<string, WADFile> GetWadFiles(LeagueFileIndex index)
         {
+            if (this._wadFiles != null)
+            {
+                return this._wadFiles;
+            }
+            
             Dictionary<string, WADFile> modWadFiles = new Dictionary<string, WADFile>();
 
             //Collect WAD files in WAD folder
@@ -318,6 +307,8 @@ namespace Fantome.ModManagement.IO
             //Collect files from the RAW folder
             CollectRAWFiles();
 
+            this._wadFiles = modWadFiles;
+
             return modWadFiles;
 
             void CollectWADFiles()
@@ -325,7 +316,7 @@ namespace Fantome.ModManagement.IO
                 foreach (ZipArchiveEntry zipEntry in GetEntries(@"WAD[\\/][\w.]+.wad.client(?![\\/])"))
                 {
                     char ps = Pathing.GetPathSeparator(zipEntry.FullName);
-                    string wadPath = this._modManager.Index.FindWADPath(zipEntry.FullName.Split(ps)[1]);
+                    string wadPath = index.FindWADPath(zipEntry.FullName.Split(ps)[1]);
 
                     zipEntry.ExtractToFile("wadtemp", true);
                     modWadFiles.Add(wadPath, new WADFile(new MemoryStream(File.ReadAllBytes("wadtemp"))));
@@ -336,9 +327,9 @@ namespace Fantome.ModManagement.IO
                     foreach (WADEntry entry in modWadFiles[wadPath].Entries)
                     {
                         //Check if the entry is present in the game files or if it's new
-                        if (this._modManager.Index.Game.ContainsKey(entry.XXHash))
+                        if (index.Game.ContainsKey(entry.XXHash))
                         {
-                            foreach (string additionalWadPath in this._modManager.Index.Game[entry.XXHash].Where(x => x != wadPath))
+                            foreach (string additionalWadPath in index.Game[entry.XXHash].Where(x => x != wadPath))
                             {
                                 if (!modWadFiles.ContainsKey(additionalWadPath))
                                 {
@@ -366,7 +357,7 @@ namespace Fantome.ModManagement.IO
                 {
                     char ps = Pathing.GetPathSeparator(zipEntry.FullName);
                     string wadName = zipEntry.FullName.Split(ps)[1];
-                    string wadPath = this._modManager.Index.FindWADPath(wadName);
+                    string wadPath = index.FindWADPath(wadName);
                     string path = zipEntry.FullName.Replace(string.Format("WAD{0}{1}{0}", ps, wadName), "").Replace('\\', '/');
                     ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
@@ -396,9 +387,9 @@ namespace Fantome.ModManagement.IO
                     foreach (WADEntry entry in modWadFiles[wadPath].Entries)
                     {
                         //Check if the entry is present in the game files or if it's new
-                        if (this._modManager.Index.Game.ContainsKey(entry.XXHash))
+                        if (index.Game.ContainsKey(entry.XXHash))
                         {
-                            foreach (string additionalWadPath in this._modManager.Index.Game[entry.XXHash].Where(x => x != wadPath))
+                            foreach (string additionalWadPath in index.Game[entry.XXHash].Where(x => x != wadPath))
                             {
                                 if (!modWadFiles.ContainsKey(additionalWadPath))
                                 {
@@ -421,9 +412,9 @@ namespace Fantome.ModManagement.IO
                     List<string> fileWadFiles = new List<string>();
 
                     //Check if file exists, if not, we discard it
-                    if (this._modManager.Index.Game.ContainsKey(hash))
+                    if (index.Game.ContainsKey(hash))
                     {
-                        fileWadFiles = this._modManager.Index.Game[hash];
+                        fileWadFiles = index.Game[hash];
                         foreach (string wadFilePath in fileWadFiles)
                         {
                             if (!modWadFiles.ContainsKey(wadFilePath))
@@ -475,11 +466,11 @@ namespace Fantome.ModManagement.IO
         }
         public static bool operator ==(ModFile mod1, ModFile mod2)
         {
-            return mod1.Info == mod2.Info;
+            return mod1?.Info == mod2?.Info;
         }
         public static bool operator !=(ModFile mod1, ModFile mod2)
         {
-            return mod1.Info != mod2.Info;
+            return mod1?.Info != mod2?.Info;
         }
     }
 }
