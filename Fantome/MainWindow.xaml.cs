@@ -111,12 +111,11 @@ namespace Fantome
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             string message = "A Fatal Error has occurred, Fantome will now terminate.\n";
-            message += "Please delete the FILE_INDEX.json, MOD_DATABSE.json files and Overlay folder if the error happened during Installation or Uninstallation\n";
+            message += "Please delete the FILE_INDEX.json, MOD_DATABSE.json files and Overlay folder if the error happened during Installation or Uninstallation.\n\n";
+            message += ((Exception) e.ExceptionObject).GetType() + ": ";
             message += ((Exception)e.ExceptionObject).Message + '\n';
-            message += ((Exception)e.ExceptionObject).Source + '\n';
-            message += ((Exception)e.ExceptionObject).StackTrace;
 
-            Log.Fatal(message);
+            Log.Fatal(((Exception)e.ExceptionObject).ToString());
             MessageBox.Show(message, "Fantome - Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
