@@ -1,5 +1,7 @@
 ![Fantome](https://github.com/LoL-Fantome/Fantome/blob/master/Images/fantomebanner.png)
 
+![](https://tokei.rs/b1/github/lol-fantome/fantome)
+
 ## Requirements
 * **8 GB RAM or more** is recommended due to some mod installations having high RAM usage (Map skins, DATA mods...)
 * **Windows 10** is required for the backgroud League patcher to work. If you don't have Windows 10 you won't be able to use any mods
