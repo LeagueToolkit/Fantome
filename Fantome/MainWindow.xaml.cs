@@ -18,7 +18,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
 using Octokit;
 using Application = System.Windows.Application;
@@ -27,11 +26,10 @@ using MessageBox = System.Windows.MessageBox;
 using System.Reflection;
 using System.Windows.Threading;
 using Fantome.MVVM.ViewModels.CreateMod;
+using System.Windows.Forms;
 
 namespace Fantome
 {
-#warning Don't forget to add PopupStyle to OperationDialog in MainWindow.xaml before creating a release
-
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public const string LOGS_FOLDER = "Logs";

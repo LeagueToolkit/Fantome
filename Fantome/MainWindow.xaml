@@ -68,7 +68,7 @@
                     <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Mode="PrimaryDark">
                         <Grid>
                             <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Image Source="Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
+                                <Image Source="Resources/fantome_logo.png" Stretch="Fill" Width="65" Height="65">
                                     <Image.Effect>
                                         <DropShadowEffect/>
                                     </Image.Effect>

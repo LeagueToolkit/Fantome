@@ -6,20 +6,19 @@
     <UseWPF>true</UseWPF>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <Authors>Crauzer</Authors>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>Resources\fantome.ico</ApplicationIcon>
     <FileVersion>1.1.0.0</FileVersion>
     <Platforms>x64</Platforms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\fantome.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <WarningsAsErrors />
+    <SelfContained>false</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SatelliteResourceLanguages> en </SatelliteResourceLanguages>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Resources\fantome.ico" />
-    <None Remove="Resources\fantome.png" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Fantome.Libraries.League" Version="1.2.2" />
@@ -36,33 +35,19 @@
     <Reference Include="LoLCustomSharp">
       <HintPath>LoLCustomSharp.dll</HintPath>
     </Reference>
-    <Reference Include="System.Drawing.Common">
-      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.1\System.Drawing.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms">
-      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.1\System.Windows.Forms.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\fantome.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\fantome.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Update="Resources\fantome.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\fantome_logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="LoLCustomSharp.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="System.Drawing.Common.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="System.Windows.Forms.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="Xcopy $(OutDir)Resources $(OutDir)publish\Resources /E /I /Y" />
+  </Target>
 
 </Project>
