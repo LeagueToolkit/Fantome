@@ -27,6 +27,7 @@ using System.Reflection;
 using System.Windows.Threading;
 using Fantome.MVVM.ViewModels.CreateMod;
 using System.Windows.Forms;
+using Fantome.Properties;
 
 namespace Fantome
 {
@@ -165,7 +166,7 @@ namespace Fantome
             this._notifyIcon = new NotifyIcon()
             {
                 Visible = false,
-                Icon = new System.Drawing.Icon(File.OpenRead("Resources/fantome.ico")),
+                Icon = Properties.Resources.icon,
                 ContextMenuStrip = contextMenuStrip
             };
 

@@ -15,6 +15,7 @@
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
         Title="Fantome" Height="720" Width="1280" Closing="OnClosing"
+        Icon="Resources/icon.ico"
         AllowDrop="True" Drop="OnDrop">
     <Window.Resources>
         <ResourceDictionary>
