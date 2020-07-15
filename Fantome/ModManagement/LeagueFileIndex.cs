@@ -259,7 +259,7 @@ namespace Fantome.ModManagement
             {
                 foreach (string wadFile in file.Value)
                 {
-                    if (wadFile.Contains(wadName))
+                    if (wadFile.Contains(wadName, StringComparison.OrdinalIgnoreCase))
                     {
                         return wadFile;
                     }
