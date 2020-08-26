@@ -42,24 +42,31 @@ namespace Fantome.ModManagement
 
             foreach (string wadFile in Directory.GetFiles(wadRootPath, "*.wad.client", SearchOption.AllDirectories))
             {
-                using (WADFile wad = new WADFile(wadFile))
+                try
                 {
-                    List<ulong> fileHashes = new List<ulong>();
-                    foreach (WADEntry entry in wad.Entries)
+                    using (WADFile wad = new WADFile(wadFile))
                     {
-                        fileHashes.Add(entry.XXHash);
-
-                        string gameWadPath = wadFile.Replace(leagueFolder + Pathing.GetPathSeparator(leagueFolder), "");
-
-                        if (this._gameIndex.ContainsKey(entry.XXHash))
+                        List<ulong> fileHashes = new List<ulong>();
+                        foreach (WADEntry entry in wad.Entries)
                         {
-                            this._gameIndex[entry.XXHash].Add(gameWadPath);
-                        }
-                        else
-                        {
-                            this._gameIndex.Add(entry.XXHash, new List<string>() { gameWadPath });
+                            fileHashes.Add(entry.XXHash);
+
+                            string gameWadPath = wadFile.Replace(leagueFolder + Pathing.GetPathSeparator(leagueFolder), "");
+
+                            if (this._gameIndex.ContainsKey(entry.XXHash))
+                            {
+                                this._gameIndex[entry.XXHash].Add(gameWadPath);
+                            }
+                            else
+                            {
+                                this._gameIndex.Add(entry.XXHash, new List<string>() { gameWadPath });
+                            }
                         }
                     }
+                }
+                catch(Exception exception)
+                {
+                    throw new Exception("Failed to index WAD file: " + wadFile, exception);
                 }
             }
 

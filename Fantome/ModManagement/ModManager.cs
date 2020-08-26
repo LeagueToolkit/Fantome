@@ -34,13 +34,13 @@ namespace Fantome.ModManagement
             this.LeagueFolder = leagueFolder;
 
             ProcessModDatabase();
-            ProcessLeagueFileIndex();
+            LoadLeagueFileIndex(true);
             CheckIndexVersion();
         }
 
-        private void ProcessLeagueFileIndex()
+        private async void LoadLeagueFileIndex(bool loadExisting)
         {
-            if (File.Exists(INDEX_FILE))
+            if (File.Exists(INDEX_FILE) && loadExisting)
             {
                 this.Index = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
                 Log.Information("Loaded File Index from: " + INDEX_FILE);
@@ -49,8 +49,17 @@ namespace Fantome.ModManagement
             }
             else
             {
-                this.Index = new LeagueFileIndex(this.LeagueFolder);
-                Log.Information("Created new Game Index from: " + this.LeagueFolder);
+                try
+                {
+                    this.Index = new LeagueFileIndex(this.LeagueFolder);
+                    Log.Information("Created new Game Index from: " + this.LeagueFolder);
+                }
+                catch(Exception exception)
+                {
+                    await DialogHelper.ShowMessageDialog("Failed to create League File Index\n" + exception);
+                    Log.Error("Failed to create League File Index");
+                    Log.Error(exception.ToString());
+                }
             }
         }
         private void ProcessModDatabase()
@@ -120,7 +129,7 @@ namespace Fantome.ModManagement
                 }
             }
 
-            this.Index = new LeagueFileIndex(this.LeagueFolder);
+            LoadLeagueFileIndex(false);
         }
 
         public async void AddMod(ModFile mod, bool install = false)
