@@ -21,11 +21,11 @@ namespace Fantome.ModManagement
         [JsonIgnore] public Dictionary<ulong, string> EntryModMap => this._entryModMap;
         [JsonIgnore] public Dictionary<string, List<string>> WadModMap => this._wadModMap;
 
-        [JsonProperty] private Dictionary<ulong, List<string>> _gameIndex { get; set; } = new Dictionary<ulong, List<string>>();
-        [JsonProperty] private Dictionary<ulong, List<string>> _modIndex { get; set; } = new Dictionary<ulong, List<string>>();
-        [JsonProperty] private Dictionary<string, List<ulong>> _modEntryMap { get; set; } = new Dictionary<string, List<ulong>>();
-        [JsonProperty] private Dictionary<ulong, string> _entryModMap { get; set; } = new Dictionary<ulong, string>();
-        [JsonProperty] private Dictionary<string, List<string>> _wadModMap { get; set; } = new Dictionary<string, List<string>>();
+        [JsonProperty] private Dictionary<ulong, List<string>> _gameIndex = new Dictionary<ulong, List<string>>();
+        [JsonProperty] private Dictionary<ulong, List<string>> _modIndex = new Dictionary<ulong, List<string>>();
+        [JsonProperty] private Dictionary<string, List<ulong>> _modEntryMap = new Dictionary<string, List<ulong>>();
+        [JsonProperty] private Dictionary<ulong, string> _entryModMap = new Dictionary<ulong, string>();
+        [JsonProperty] private Dictionary<string, List<string>> _wadModMap = new Dictionary<string, List<string>>();
 
         private Dictionary<ulong, List<string>> _newModIndex = new Dictionary<ulong, List<string>>();
         private Dictionary<string, List<ulong>> _newModEntryMap = new Dictionary<string, List<ulong>>();
@@ -40,7 +40,7 @@ namespace Fantome.ModManagement
             string wadRootPath = Path.Combine(leagueFolder, @"DATA\FINAL");
             this.Version = new Version(FileVersionInfo.GetVersionInfo(Path.Combine(leagueFolder, "League of Legends.exe")).FileVersion);
 
-            foreach (string wadFile in Directory.GetFiles(wadRootPath, "*", SearchOption.AllDirectories).Where(x => x.Contains(".wad")))
+            foreach (string wadFile in Directory.GetFiles(wadRootPath, "*.wad.client", SearchOption.AllDirectories))
             {
                 using (WADFile wad = new WADFile(wadFile))
                 {
@@ -259,7 +259,7 @@ namespace Fantome.ModManagement
             {
                 foreach (string wadFile in file.Value)
                 {
-                    if (wadFile.Contains(wadName))
+                    if (wadFile.Contains(wadName, StringComparison.OrdinalIgnoreCase))
                     {
                         return wadFile;
                     }

@@ -10,10 +10,11 @@ using Fantome.Libraries.League.Helpers.Cryptography;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.ModManagement.IO;
 using Fantome.MVVM.ViewModels;
-using Fantome.UserControls.Dialogs;
+using Fantome.MVVM.ModelViews.Dialogs;
 using Fantome.Utilities;
 using MaterialDesignThemes.Wpf;
 using Serilog;
+using Fantome.ModManagement.WAD;
 
 namespace Fantome.ModManagement
 {
@@ -27,59 +28,24 @@ namespace Fantome.ModManagement
         public LeagueFileIndex Index { get; private set; }
         public string LeagueFolder { get; private set; }
         public ModDatabase Database { get; private set; }
-        public ModListViewModel ModList { get; private set; }
-
-        public ModManager(ModListViewModel modList)
-        {
-            this.ModList = modList;
-        }
-
-        public ModManager(string leagueFolder)
-        {
-            AssignLeague(leagueFolder);
-        }
 
         public void AssignLeague(string leagueFolder)
         {
             this.LeagueFolder = leagueFolder;
 
-            ProcessDatabase();
+            ProcessModDatabase();
             ProcessLeagueFileIndex();
+            CheckIndexVersion();
         }
 
-        public void ProcessLeagueFileIndex()
+        private void ProcessLeagueFileIndex()
         {
             if (File.Exists(INDEX_FILE))
             {
-                LeagueFileIndex currentIndex = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
-                Version leagueVersion = GetLeagueVersion();
-                if (currentIndex.Version != leagueVersion)
-                {
-                    Log.Information("Index is out of date, creating new Index");
-                    Log.Information("Current Index Version: {0}", currentIndex.Version.ToString());
-                    Log.Information("League Version: {0}", leagueVersion.ToString());
+                this.Index = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
+                Log.Information("Loaded File Index from: " + INDEX_FILE);
 
-                    //Create new Index and copy Mod Data from old one
-                    this.Index = new LeagueFileIndex(this.LeagueFolder);
-                    currentIndex.CopyModData(this.Index);
-                    Log.Information("Copied old Mod Index Data to new Index");
-
-                    //We need to reinstall mods
-                    foreach (KeyValuePair<string, bool> mod in this.Database.Mods)
-                    {
-                        if (mod.Value)
-                        {
-                            InstallMod(this.Database.GetMod(mod.Key));
-                        }
-                    }
-
-                    Log.Information("Created new Index");
-                }
-                else
-                {
-                    this.Index = currentIndex;
-                    Log.Information("Loaded File Index from: " + INDEX_FILE);
-                }
+                CheckIndexVersion(); 
             }
             else
             {
@@ -87,35 +53,92 @@ namespace Fantome.ModManagement
                 Log.Information("Created new Game Index from: " + this.LeagueFolder);
             }
         }
-        public void ProcessDatabase()
+        private void ProcessModDatabase()
         {
             if (File.Exists(DATABASE_FILE))
             {
-                this.Database = ModDatabase.Deserialize(this, File.ReadAllText(DATABASE_FILE));
+                this.Database = ModDatabase.Deserialize(File.ReadAllText(DATABASE_FILE));
+
+                SyncWithModFolder();
+
                 Log.Information("Loaded Mod Database: " + DATABASE_FILE);
             }
             else
             {
-                this.Database = new ModDatabase(this);
+                this.Database = new ModDatabase();
+
+                SyncWithModFolder();
+
                 Log.Information("Created new Mod Database");
             }
+
+            this.Database.MountMods();
+        }
+
+        private void CheckIndexVersion()
+        {
+            Version leagueVersion = GetLeagueVersion();
+            if (this.Index.Version != leagueVersion)
+            {
+                Log.Information("Index is out of date");
+                Log.Information("Current Index Version: {0}", this.Index.Version.ToString());
+                Log.Information("League Version: {0}", leagueVersion.ToString());
+
+                ForceReset(false);
+            }
+        }
+
+        public void ForceReset(bool deleteMods)
+        {
+            Log.Information("Doing Force Reset");
+            Log.Information("DELETE_MODS = " + deleteMods);
+
+            //Delete everything in overlay folder
+            foreach(string directory in Directory.EnumerateDirectories(OVERLAY_FOLDER))
+            {
+                Directory.Delete(directory, true);
+            }
+
+            if(deleteMods)
+            {
+                List<string> modsToDelete = this.Database.Mods.Keys.ToList();
+                foreach (string modToDelete in modsToDelete)
+                {
+                    this.Database.RemoveMod(modToDelete);
+                }
+
+                foreach(string file in Directory.EnumerateFiles(MOD_FOLDER))
+                {
+                    File.Delete(file);
+                }
+            }
+            else
+            {
+                foreach (string databaseMod in this.Database.Mods.Keys.ToList())
+                {
+                    this.Database.ChangeModState(databaseMod, false);
+                }
+            }
+
+            this.Index = new LeagueFileIndex(this.LeagueFolder);
         }
 
         public async void AddMod(ModFile mod, bool install = false)
         {
             Log.Information("Adding Mod: {0} to Mod Manager", mod.GetID());
-            this.Database.AddMod(mod, install);
 
             if (install)
             {
                 await DialogHelper.ShowInstallModDialog(mod, this);
             }
+
+            this.Database.AddMod(mod, install);
         }
         public void RemoveMod(ModFile mod)
         {
             string modId = mod.GetID();
 
-            if (this.Database.IsInstalled(mod))
+            if (this.Database.IsInstalled(mod.GetID()))
             {
                 UninstallMod(mod);
             }
@@ -129,6 +152,8 @@ namespace Fantome.ModManagement
         {
             Log.Information("Installing Mod: {0}", mod.GetID());
 
+            this.Index.StartEdit();
+
             //Update the Index with our new mod and also check for asset collisions
             UpdateIndex(mod);
 
@@ -141,10 +166,10 @@ namespace Fantome.ModManagement
         }
         private void UpdateIndex(ModFile mod)
         {
-            this.Index.StartEdit();
-            this.Index.AddMod(mod.GetID(), mod.WadFiles.Keys.ToList());
+            var modWadFiles = mod.GetWadFiles(this.Index);
+            this.Index.AddMod(mod.GetID(), modWadFiles.Keys.ToList());
 
-            foreach (KeyValuePair<string, WADFile> modWadFile in mod.WadFiles)
+            foreach (KeyValuePair<string, WADFile> modWadFile in modWadFiles)
             {
                 foreach (WADEntry entry in modWadFile.Value.Entries)
                 {
@@ -170,14 +195,14 @@ namespace Fantome.ModManagement
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
-                Parallel.ForEach(mod.WadFiles, parallelOptions, (modWadFile) =>
+                Parallel.ForEach(mod.GetWadFiles(this.Index), parallelOptions, (modWadFile) =>
                 {
                     writeWadFileDelegate.Invoke(modWadFile);
                 });
             }
             else
             {
-                foreach(KeyValuePair<string, WADFile> modWadFile in mod.WadFiles)
+                foreach(KeyValuePair<string, WADFile> modWadFile in mod.GetWadFiles(this.Index))
                 {
                     writeWadFileDelegate.Invoke(modWadFile);
                 }
@@ -197,7 +222,7 @@ namespace Fantome.ModManagement
 
                     WADFile baseWad = new WADFile(gameModWadPath);
                     bool returnedModdedWad = false;
-                    using (WADFile mergedWad = WADMerger.Merge(baseWad, modWadFile.Value, out returnedModdedWad))
+                    using (WADFile mergedWad = WadMerger.Merge(baseWad, modWadFile.Value, out returnedModdedWad))
                     {
                         mergedWad.Write(overlayModWadPath);
                     }
@@ -215,7 +240,7 @@ namespace Fantome.ModManagement
                 {
                     File.Move(overlayModWadPath, overlayModWadPath + ".temp");
 
-                    using (WADFile mergedWad = WADMerger.Merge(new WADFile(overlayModWadPath + ".temp"), modWadFile.Value))
+                    using (WADFile mergedWad = WadMerger.Merge(new WADFile(overlayModWadPath + ".temp"), modWadFile.Value))
                     {
                         mergedWad.Write(overlayModWadPath);
                     }
@@ -273,7 +298,7 @@ namespace Fantome.ModManagement
                     string overlayWadPath = string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadFile.Key);
                     WADFile originalWad = new WADFile(gameWadPath);
 
-                    using (WADFile mergedWad = WADMerger.Merge(originalWad, wadFile.Value))
+                    using (WADFile mergedWad = WadMerger.Merge(originalWad, wadFile.Value))
                     {
                         mergedWad.Write(overlayWadPath + ".temp");
                     }
@@ -299,6 +324,30 @@ namespace Fantome.ModManagement
             else
             {
                 this.Database.AddMod(mod, true);
+            }
+        }
+
+        public void SyncWithModFolder()
+        {
+            foreach (KeyValuePair<string, bool> mod in this.Database.Mods)
+            {
+                //Remove mods which are not present in the Mods folder anymore
+                string modPath = string.Format(@"{0}\{1}.zip", MOD_FOLDER, mod.Key);
+                if (!File.Exists(modPath))
+                {
+                    this.Database.RemoveMod(mod.Key);
+                }
+            }
+
+            //Scan Mod folder for mods which were potentially added by the user
+            foreach (string modFilePath in Directory.EnumerateFiles(MOD_FOLDER))
+            {
+                string modFileName = Path.GetFileNameWithoutExtension(modFilePath);
+
+                if (!this.Database.ContainsMod(modFileName))
+                {
+                    AddMod(new ModFile(modFilePath), false);
+                }
             }
         }
 

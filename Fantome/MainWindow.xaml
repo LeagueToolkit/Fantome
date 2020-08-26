@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:ControlzEx="clr-namespace:ControlzEx;assembly=MaterialDesignThemes.Wpf"
-        xmlns:Utilities="clr-namespace:MaterialDesignUtilities;assembly=MaterialDesignUtilities"
-        xmlns:UserControls="clr-namespace:Fantome.UserControls"
+        xmlns:MaterialDesignUtilities="clr-namespace:Fantome.Utilities.MaterialDesign"
+        xmlns:ModelViews="clr-namespace:Fantome.MVVM.ModelViews"
         xmlns:local="clr-namespace:Fantome"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -15,6 +15,7 @@
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
         Title="Fantome" Height="720" Width="1280" Closing="OnClosing"
+        Icon="Resources/icon.ico"
         AllowDrop="True" Drop="OnDrop">
     <Window.Resources>
         <ResourceDictionary>
@@ -24,20 +25,6 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.Teal.Named.Primary.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DialogHost.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="MaterialDesignTransparentDialog" TargetType="ControlzEx:PopupEx" BasedOn="{StaticResource MaterialDesignDialogHostPopup}">
-                <Setter Property="AllowsTransparency" Value="True" />
-                <Setter Property="Utilities:TreeHelpers.Modifiers">
-                    <Setter.Value>
-                        <Utilities:ModifierCollection>
-                            <Utilities:Modifier TemplatePartName="PART_PopupContentElement" Property="{x:Static Control.BackgroundProperty}">
-                                <Utilities:Modifier.Value>
-                                    <SolidColorBrush Color="Transparent" />
-                                </Utilities:Modifier.Value>
-                            </Utilities:Modifier>
-                        </Utilities:ModifierCollection>
-                    </Setter.Value>
-                </Setter>
-            </Style>
             <Style x:Key="ModListStyle" TargetType="ListBox" BasedOn="{StaticResource MaterialDesignListBox}">
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding ElementName=ModListTypeCardRadio, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Value="True">
@@ -51,7 +38,7 @@
                         <Setter Property="ItemTemplate">
                             <Setter.Value>
                                 <DataTemplate>
-                                    <UserControls:ModCard Margin="0 0 0 6"/>
+                                    <ModelViews:ModCard Margin="0 0 0 6"/>
                                 </DataTemplate>
                             </Setter.Value>
                         </Setter>
@@ -60,7 +47,7 @@
                         <Setter Property="ItemTemplate">
                             <Setter.Value>
                                 <DataTemplate>
-                                    <UserControls:ModListRow/>
+                                    <ModelViews:ModListRow/>
                                 </DataTemplate>
                             </Setter.Value>
                         </Setter>
@@ -72,8 +59,6 @@
     </Window.Resources>
 
     <MaterialDesign:DialogHost x:Name="MessageDialog" Identifier="MessageDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}">
-        <!--DO NOT ATTEMPT TO SET THIS STYLE WITH CODE. IT WILL CRASH FANTOME-->
-        <!--PopupStyle="{StaticResource MaterialDesignTransparentDialog}"-->
         <MaterialDesign:DialogHost Name="OperationDialog" Identifier="OperationDialog" PopupStyle="{StaticResource MaterialDesignTransparentDialog}">
             <MaterialDesign:DialogHost x:Name="RootDialog" Identifier="RootDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" Loaded="OnRootDialogLoad">
                 <Grid x:Name="MainGrid">
@@ -84,7 +69,7 @@
                     <MaterialDesign:ColorZone Grid.Row="0" Padding="8" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" Mode="PrimaryDark">
                         <Grid>
                             <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Image Source="pack://application:,,/Resources/fantome.png" Stretch="Fill" Width="65" Height="65">
+                                <Image Source="Resources/fantome_logo.png" Stretch="Fill" Width="65" Height="65">
                                     <Image.Effect>
                                         <DropShadowEffect/>
                                     </Image.Effect>
@@ -116,18 +101,21 @@
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" x:Name="GithubButton" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding OpenGithubCommand}">
-                                        <MaterialDesign:PackIcon Kind="GithubCircle" Width="35" Height="35"/>
+                                        <MaterialDesign:PackIcon Kind="Github" Width="35" Height="35"/>
                                     </Button>
                                     <Button Grid.Column="1" Content="UPDATE" Visibility="{Binding IsUpdateAvailable, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleanToVisibilityConverter}}"
                                             Style="{StaticResource MaterialDesignFlatDarkBgButton}" FontSize="22" Command="{Binding OpenGithubReleasesCommand}"/>
                                 </Grid>
-                                
+
                             </DockPanel>
                         </Grid>
                     </MaterialDesign:ColorZone>
                     <Grid Grid.Row="1" Margin="15">
                         <ListView x:Name="ModsListBox" Style="{StaticResource ModListStyle}" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Stretch"/>
-                        <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="1" Margin="0,0,20,20">
+                        <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" 
+                                                 MaterialDesign:ShadowAssist.ShadowDepth="Depth4" 
+                                                 HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                                                 Grid.Column="1" Margin="0,0,20,20" PopupMode="Click">
                             <StackPanel>
                                 <Button x:Name="ButtonAddMod" ToolTip="Add Mod" Click="OnAddMod">
                                     <MaterialDesign:PackIcon Kind="CreditCardAdd"/>

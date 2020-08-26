@@ -1,0 +1,63 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Fantome.MVVM.ModelViews"
+             xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{MaterialDesign:MaterialDesignFont}"
+             x:Class="Fantome.MVVM.ModelViews.ModCard"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <Style TargetType="local:ModCard">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsChecked, ElementName=IsInstalledToggle}" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryAccentBrush}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ToggleButton" x:Key="InstallToggleButton" BasedOn="{StaticResource MaterialDesignActionAccentToggleButton}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsChecked, ElementName=IsInstalledToggle}" Value="False">
+                    <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <MaterialDesign:Card x:Name="Card" Width="240" HorizontalAlignment="Center">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="135"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Image Width="240" Height="135" Source="{Binding Image}" Stretch="UniformToFill"/>
+            <ToggleButton x:Name="IsInstalledToggle" IsChecked="{Binding IsInstalled}" Style="{StaticResource InstallToggleButton}" Panel.ZIndex="1" Grid.Row="0" Margin="0,0,3,52" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="35" Width="35" Grid.RowSpan="2" Checked="IsInstalledToggle_Checked" Unchecked="IsInstalledToggle_Unchecked">
+                <MaterialDesign:PackIcon Kind="Close"/>
+            </ToggleButton>
+            <Button x:Name="RemoveModButton" Content="{MaterialDesign:PackIcon Kind=Close}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource MaterialDesignRaisedAccentButton}" MaterialDesign:ButtonAssist.CornerRadius="0 0 5 0" Height="30" Width="30" Margin="0" Padding="0" Click="RemoveModButton_Click"/>
+            <Separator Grid.Row="1" Style="{StaticResource MaterialDesignDarkSeparator}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 0 0 0"/>
+            <MaterialDesign:ColorZone Panel.ZIndex="0" Grid.Row="1" Mode="Standard" MaterialDesign:ShadowAssist.ShadowDepth="Depth4" MaterialDesign:ShadowAssist.ShadowEdges="Top" VerticalAlignment="Stretch">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="{Binding Name}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
+                    <TextBlock Grid.Row="1" Text="{Binding Author}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16"/>
+                    <StackPanel Orientation="Vertical" Grid.Row="2">
+                        <Separator Style="{StaticResource MaterialDesignLightSeparator}" Height="1"/>
+                        <TextBlock Text="{Binding Version}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </MaterialDesign:ColorZone>
+        </Grid>
+    </MaterialDesign:Card>
+</UserControl>

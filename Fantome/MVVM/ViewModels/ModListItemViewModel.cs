@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 
 namespace Fantome.MVVM.ViewModels
 {
-    public class ModListItemViewModel : INotifyPropertyChanged
+    public class ModListItemViewModel : PropertyNotifier
     {
         public bool IsInstalled
         {
@@ -35,8 +35,6 @@ namespace Fantome.MVVM.ViewModels
         private BitmapImage _image;
         private ModManager _modManager;
         private ModListViewModel _modList;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public ModListItemViewModel(ModFile mod, ModManager modManager, ModListViewModel modList)
         {
@@ -60,22 +58,22 @@ namespace Fantome.MVVM.ViewModels
 
         public async Task Install(bool forceInstall = false)
         {
-            if ((this.IsInstalled && !this._modManager.Database.IsInstalled(this.Mod)) || forceInstall)
+            if ((this.IsInstalled && !this._modManager.Database.IsInstalled(this.Mod.GetID())) || forceInstall)
             {
                 //Validate Mod before installation
-                string validationError = this.Mod.Validate(this._modManager);
+                string validationError = this.Mod.Validate(this._modManager.Index);
                 if (!string.IsNullOrEmpty(validationError))
                 {
-                    DialogHelper.ShowMessageDialog(validationError);
+                    await DialogHelper.ShowMessageDialog(validationError);
                     this.IsInstalled = false;
                 }
                 else
                 {
                     //Generate WAD files for the Mod
-                    await DialogHelper.ShowGenerateWadFilesDialog(this.Mod);
+                    await DialogHelper.ShowGenerateWadFilesDialog(this.Mod, this._modManager.Index);
 
                     //Now we need to check for asset collisions
-                    List<string> collisions = this._modManager.Index.CheckForAssetCollisions(this.Mod.WadFiles);
+                    List<string> collisions = this._modManager.Index.CheckForAssetCollisions(this.Mod.GetWadFiles(this._modManager.Index));
                     if (collisions.Count != 0)
                     {
                         object uninstallCollisions = await DialogHelper.ShowAssetConflictDialog(this.Mod, collisions);
@@ -106,7 +104,7 @@ namespace Fantome.MVVM.ViewModels
         }
         public async Task Uninstall(bool forceUninstall = false)
         {
-            if ((!this.IsInstalled && this._modManager.Database.IsInstalled(this.Mod)) || forceUninstall)
+            if ((!this.IsInstalled && this._modManager.Database.IsInstalled(this.Mod.GetID())) || forceUninstall)
             {
                 await DialogHelper.ShowUninstallModDialog(this.Mod, this._modManager);
                 this.IsInstalled = false;
@@ -119,11 +117,6 @@ namespace Fantome.MVVM.ViewModels
         {
             this._modList.RemoveMod(this);
             this._modManager.RemoveMod(this.Mod);
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

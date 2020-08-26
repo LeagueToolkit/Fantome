@@ -13,7 +13,7 @@ using Serilog;
 
 namespace Fantome.MVVM.ViewModels
 {
-    public class ModListViewModel : INotifyPropertyChanged
+    public class ModListViewModel : PropertyNotifier
     {
         public ObservableCollection<ModListItemViewModel> Items
         {
@@ -28,35 +28,49 @@ namespace Fantome.MVVM.ViewModels
         private ObservableCollection<ModListItemViewModel> _items = new ObservableCollection<ModListItemViewModel>();
         private ModManager _modManager;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public ModListViewModel() { }
-
-        public void Sync(ModManager modManager)
+        public ModListViewModel(ModManager modManager)
         {
             this._modManager = modManager;
+        }
 
+        public void SyncWithModManager()
+        {
+            //Remove non-existant mods
+            List<ModListItemViewModel> toRemove = new List<ModListItemViewModel>();
+            foreach (ModListItemViewModel modItem in this.Items)
+            {
+                if (!this._modManager.Database.ContainsMod(modItem.Mod.GetID()))
+                {
+                    toRemove.Add(modItem);
+                }
+            }
+            foreach (ModListItemViewModel modItem in toRemove)
+            {
+                RemoveMod(modItem);
+            }
+
+
+            //Check for new mods
             foreach (KeyValuePair<string, bool> modEntry in this._modManager.Database.Mods)
             {
                 this.Items.Add(new ModListItemViewModel(this._modManager.Database.GetMod(modEntry.Key), this._modManager, this));
                 this.Items.Last().IsInstalled = modEntry.Value;
             }
-
         }
 
         public async Task AddMod(ModFile mod, bool install)
         {
             if (this.Items.Any(x => x.Mod == mod))
             {
-                DialogHelper.ShowMessageDialog("A Mod with the same ID has already been added");
+                await DialogHelper.ShowMessageDialog("A Mod with the same ID has already been added");
                 Log.Information("Cannot load Mod: {0} because it is already present in the databse", mod.GetID());
             }
             else
             {
-                string validationError = mod.Validate(this._modManager);
+                string validationError = mod.Validate(this._modManager.Index);
                 if (!string.IsNullOrEmpty(validationError))
                 {
-                    DialogHelper.ShowMessageDialog(validationError);
+                    await DialogHelper.ShowMessageDialog(validationError);
                 }
                 else
                 {
@@ -73,11 +87,6 @@ namespace Fantome.MVVM.ViewModels
         public void RemoveMod(ModListItemViewModel mod)
         {
             this.Items.Remove(mod);
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
