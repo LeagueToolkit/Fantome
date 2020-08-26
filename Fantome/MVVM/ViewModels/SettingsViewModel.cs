@@ -55,6 +55,15 @@ namespace Fantome.MVVM.ViewModels
                 NotifyPropertyChanged();
             }
         }
+        public bool MinimizeToTray
+        {
+            get => this._minimizeToTray;
+            set
+            {
+                this._minimizeToTray = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         public bool IsDarkTheme
         {
@@ -96,6 +105,7 @@ namespace Fantome.MVVM.ViewModels
         private bool _isDarkTheme;
         private PrimaryColor _selectedPrimaryColor;
         private SecondaryColor _selectedSecondaryColor;
+        private bool _minimizeToTray;
 
         private bool _needsRestart;
         private bool _forceNewIndex;
@@ -109,6 +119,7 @@ namespace Fantome.MVVM.ViewModels
             this._isDarkTheme = Config.Get<bool>("IsDarkTheme");
             this._selectedPrimaryColor = Config.Get<PrimaryColor>("PrimaryColor");
             this._selectedSecondaryColor = Config.Get<SecondaryColor>("SecondaryColor");
+            this._minimizeToTray = Config.Get<bool>("MinimizeToTray");
         }
 
         public void OnSaveSettings(object sender, DialogClosingEventArgs eventArgs)
@@ -128,6 +139,7 @@ namespace Fantome.MVVM.ViewModels
                 Config.Set("IsDarkTheme", this._isDarkTheme);
                 Config.Set("PrimaryColor", this._selectedPrimaryColor);
                 Config.Set("SecondaryColor", this._selectedSecondaryColor);
+                Config.Set("MinimizeToTray", this._minimizeToTray);
 
                 if (this._needsRestart)
                 {

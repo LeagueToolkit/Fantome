@@ -81,7 +81,7 @@ namespace Fantome.MVVM.ViewModels.CreateMod
         private string _version = "1.0";
         private BitmapImage _image;
         private ModFile _createdMod;
-        private LeagueFileIndex _index;
+        private LeagueFileIndex _index; 
 
         public ICommand AddWadFilesCommand => new RelayCommand(AddWadFiles);
         public ICommand AddWadFoldersCommand => new RelayCommand(AddWadFolders);

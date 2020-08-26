@@ -189,14 +189,14 @@ namespace Fantome
         {
             //First we check if Fantome is running in Wine and if it isn't then we can check windows version
             if (!WineDetector.IsRunningInWine())
-            {
-                OperatingSystem operatingSystem = Environment.OSVersion;
-                if (operatingSystem.Version.Major != 10)
-                {
-                    MessageBox.Show("You need to be running Windows 10 in order to properly use Fantome\n"
-                        + @"By clicking the ""OK"" button you acknowledge that Fantome may not work correctly on your Windows version",
-                        "", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+            {   // AS OF VERSION 1.1, FANTOME SUPPORTS ALL WINDOWS VERSIONS
+                //OperatingSystem operatingSystem = Environment.OSVersion;
+                //if (operatingSystem.Version.Major != 10)
+                //{
+                //    MessageBox.Show("You need to be running Windows 10 in order to properly use Fantome\n"
+                //        + @"By clicking the ""OK"" button you acknowledge that Fantome may not work correctly on your Windows version",
+                //        "", MessageBoxButton.OK, MessageBoxImage.Error);
+                //}
             }
         }
         private void RemoveExecutableAdminPrivilages()
@@ -272,13 +272,15 @@ namespace Fantome
 
                 IReadOnlyList<Release> releases = await gitClient.Repository.Release.GetAll("LoL-Fantome", "Fantome");
                 Release newestRelease = releases[0];
-                Version newestVersion = new Version(newestRelease.TagName);
 
-                if (!newestRelease.Prerelease && newestVersion > Assembly.GetExecutingAssembly().GetName().Version)
+                if(Version.TryParse(newestRelease.TagName, out Version newestVersion))
                 {
-                    this.IsUpdateAvailable = true;
+                    if (!newestRelease.Prerelease && newestVersion > Assembly.GetExecutingAssembly().GetName().Version)
+                    {
+                        this.IsUpdateAvailable = true;
 
-                    await DialogHelper.ShowMessageDialog("A new version of Fantome is available." + '\n' + @"Click the ""Update"" button to download it.");
+                        await DialogHelper.ShowMessageDialog("A new version of Fantome is available." + '\n' + @"Click the ""Update"" button to download it.");
+                    }
                 }
             }
             catch (Exception)
@@ -385,8 +387,11 @@ namespace Fantome
         {
             if (this.WindowState == WindowState.Minimized)
             {
-                this._notifyIcon.Visible = true;
-                Hide();
+                if(Config.Get<bool>("MinimizeToTray"))
+                {
+                    this._notifyIcon.Visible = true;
+                    Hide();
+                }
             }
             else if (this.WindowState == WindowState.Normal)
             {
@@ -419,7 +424,6 @@ namespace Fantome
         {
             Log.Information("PATCHER: {0}", message);
         }
-
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {

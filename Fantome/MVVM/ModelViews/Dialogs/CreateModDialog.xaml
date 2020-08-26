@@ -16,7 +16,7 @@
              TextOptions.TextRenderingMode="Auto"
              FontFamily="{MaterialDesign:MaterialDesignFont}" 
              mc:Ignorable="d" 
-             Height="550" Width="750" Validation.Error="OnValidationError">
+             Height="550" Width="700" Validation.Error="OnValidationError">
     <UserControl.Resources>
         <ResourceDictionary>
             <Converters:IsHigherThanConverter x:Key="IsHigherThanConverter"/>

@@ -32,6 +32,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
@@ -70,6 +71,7 @@
             <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding ParallelWadInstallation, UpdateSourceTrigger=PropertyChanged}" Content="Parallel WAD Installation" Grid.Row="2" Margin="0,35,0,0"/>
             <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding PackWadFolders, UpdateSourceTrigger=PropertyChanged}" Content="Pack WAD folders to WAD files on Mod creation" Grid.Row="3" Margin="0,10,0,0"/>
             <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding InstallAddedMods, UpdateSourceTrigger=PropertyChanged}" Content="Install Added Mods" Grid.Row="4" Margin="0,10,0,0"/>
+            <CheckBox Style="{StaticResource MaterialDesignAccentCheckBox}" IsChecked="{Binding MinimizeToTray, UpdateSourceTrigger=PropertyChanged}" Content="Minimize to tray" Grid.Row="5" Margin="0,10,0,0"/>
         </Grid>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>

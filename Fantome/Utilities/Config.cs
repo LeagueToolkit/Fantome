@@ -26,7 +26,8 @@ namespace Fantome.Utilities
             { "InstallAddedMods", true },
             { "IsDarkTheme", true },
             { "PrimaryColor", PrimaryColor.Teal },
-            { "SecondaryColor", SecondaryColor.Lime }
+            { "SecondaryColor", SecondaryColor.Lime },
+            { "MinimizeToTray", true }
         };
         private static Dictionary<string, object> _config = new Dictionary<string, object>();
 
