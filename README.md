@@ -1,6 +1,9 @@
 ![Fantome](https://github.com/LoL-Fantome/Fantome/blob/master/Images/fantomebanner.png)
 
-![](https://tokei.rs/b1/github/lol-fantome/fantome)
+<a href="https://github.com/LoL-Fantome/Fantome/releases">
+  <img src="https://img.shields.io/github/v/release/LoL-Fantome/Fantome?style=for-the-badge">
+  <img src="https://img.shields.io/github/downloads/LoL-Fantome/Fantome/total?style=for-the-badge">
+</a>
 
 ## Requirements
 * **8 GB RAM or more** is recommended due to some mod installations having high RAM usage (Map skins, DATA mods...)
