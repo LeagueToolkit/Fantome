@@ -9,6 +9,7 @@ using Newtonsoft.Json.Converters;
 using Fantome.ModManagement.IO;
 using Serilog;
 using Fantome.Utilities;
+using Fantome.Libraries.League.Helpers.Exceptions;
 
 namespace Fantome.ModManagement
 {
@@ -63,6 +64,11 @@ namespace Fantome.ModManagement
                             }
                         }
                     }
+                }
+                catch(InvalidFileSignatureException)
+                {
+                    // Silent error, this can happen because the Riot patcher is broken
+                    Log.Error("Found a orrupted/invalid game WAD file: " + wadFile);
                 }
                 catch(Exception exception)
                 {

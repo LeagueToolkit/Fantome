@@ -5,8 +5,6 @@ namespace Fantome.MVVM
 {
     public abstract class PropertyNotifier : INotifyPropertyChanged
     {
-        public PropertyNotifier() : base() { }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

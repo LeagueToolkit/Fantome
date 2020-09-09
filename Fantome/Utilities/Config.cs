@@ -19,7 +19,7 @@ namespace Fantome.Utilities
         private static readonly Dictionary<string, object> _defaultConfig = new Dictionary<string, object>
         {
             { "LeagueLocation", "" },
-            { "LoggingPattern", "{Timestamp:dd-MM-yyyy HH:mm:ss.fff} | [{Level}] |  {Message:lj}{NewLine}{Exception}" },
+            { "LoggingPattern", "{Timestamp:dd-MM-yyyy HH:mm:ss.fff} | [{Level}] | {Message:lj}{NewLine}{Exception}" },
             { "ModListType", 0 },
             { "ParallelWadInstallation", false },
             { "PackWadFolders", true },

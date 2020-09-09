@@ -29,7 +29,12 @@ namespace Fantome.ModManagement
         public string LeagueFolder { get; private set; }
         public ModDatabase Database { get; private set; }
 
-        public void AssignLeague(string leagueFolder)
+        public ModManager()
+        {
+            Log.Information("Creating a new ModManager instance");
+        }
+
+        public void Initialize(string leagueFolder)
         {
             this.LeagueFolder = leagueFolder;
 

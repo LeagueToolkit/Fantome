@@ -162,9 +162,9 @@ namespace Fantome.ModManagement.IO
             string validationError = "";
 
             //Check for RAW, WAD and META folders, and collect entries from RAW and WAD
-            IEnumerable<ZipArchiveEntry> wadEntries = GetEntries(@"WAD[\\/].*");
-            IEnumerable<ZipArchiveEntry> rawEntries = GetEntries(@"RAW[\\/].*");
-            IEnumerable<ZipArchiveEntry> metaEntries = GetEntries(@"META[\\/].*");
+            IEnumerable<ZipArchiveEntry> wadEntries = GetEntries(@"^WAD[\\/].*");
+            IEnumerable<ZipArchiveEntry> rawEntries = GetEntries(@"^RAW[\\/].*");
+            IEnumerable<ZipArchiveEntry> metaEntries = GetEntries(@"^META[\\/].*");
 
             validationError = ValidateBaseFolders();
             if (!string.IsNullOrEmpty(validationError))
@@ -313,7 +313,7 @@ namespace Fantome.ModManagement.IO
 
             void CollectWADFiles()
             {
-                foreach (ZipArchiveEntry zipEntry in GetEntries(@"WAD[\\/][\w.]+.wad.client(?![\\/])"))
+                foreach (ZipArchiveEntry zipEntry in GetEntries(@"^WAD[\\/][\w.]+.wad.client(?![\\/])"))
                 {
                     char ps = Pathing.GetPathSeparator(zipEntry.FullName);
                     string wadPath = index.FindWADPath(zipEntry.FullName.Split(ps)[1]);
@@ -353,7 +353,7 @@ namespace Fantome.ModManagement.IO
             {
                 List<string> wadPaths = new List<string>();
 
-                foreach (ZipArchiveEntry zipEntry in GetEntries(@"WAD[\\/][\w.]+.wad.client[\\/].*"))
+                foreach (ZipArchiveEntry zipEntry in GetEntries(@"^WAD[\\/][\w.]+.wad.client[\\/].*"))
                 {
                     char ps = Pathing.GetPathSeparator(zipEntry.FullName);
                     string wadName = zipEntry.FullName.Split(ps)[1];
@@ -404,7 +404,7 @@ namespace Fantome.ModManagement.IO
             }
             void CollectRAWFiles()
             {
-                foreach (ZipArchiveEntry zipEntry in GetEntries(@"RAW[\\/].*"))
+                foreach (ZipArchiveEntry zipEntry in GetEntries(@"^RAW[\\/].*"))
                 {
                     char ps = Pathing.GetPathSeparator(zipEntry.FullName);
                     string path = zipEntry.FullName.Replace(@"RAW" + ps, "").Replace('\\', '/');

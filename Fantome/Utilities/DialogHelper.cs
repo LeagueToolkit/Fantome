@@ -81,5 +81,31 @@ namespace Fantome.Utilities
                 return null;
             }
         }
+
+        public static async Task<object> ShowSettingsDialog()
+        {
+            SettingsDialog dialog = new SettingsDialog
+            {
+                DataContext = new SettingsViewModel()
+            };
+
+            return await DialogHost.Show(dialog, "RootDialog", (dialog.DataContext as SettingsViewModel).OnSaveSettings);
+        }
+
+        public static async Task<string> ShowLeagueLocationSelectionDialog()
+        {
+            LeagueLocationDialog dialog = new LeagueLocationDialog()
+            {
+                DataContext = new LeagueLocationDialogViewModel()
+            };
+
+            object result = await DialogHost.Show(dialog, "RootDialog");
+            if ((bool)result == true)
+            {
+                return dialog.ViewModel.LeagueLocation;
+            }
+
+            return string.Empty;
+        }
     }
 }
