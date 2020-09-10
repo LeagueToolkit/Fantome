@@ -41,6 +41,11 @@ namespace Fantome.ModManagement
             ProcessModDatabase();
             LoadLeagueFileIndex(true);
             CheckIndexVersion();
+
+            if(!VerifyOverlayIntegrity())
+            {
+                ForceReset(false);
+            }
         }
 
         private async void LoadLeagueFileIndex(bool loadExisting)
@@ -363,6 +368,57 @@ namespace Fantome.ModManagement
                     AddMod(new ModFile(modFilePath), false);
                 }
             }
+        }
+
+        public bool VerifyOverlayIntegrity()
+        {
+            Log.Information("Verifying Overlay integrity...");
+
+            List<string> installedModIds = this.Database.Mods.Where(x => x.Value).Select(x => x.Key).ToList();
+            
+            foreach(string installedModId in installedModIds)
+            {
+                using ModFile mod = this.Database.GetMod(installedModId);
+                Dictionary<string, WADFile> modWadFiles = mod.GetWadFiles(this.Index);
+
+                // First verify that index is valid
+                foreach(var modWadFile in modWadFiles)
+                {
+                    if(this.Index.WadModMap.TryGetValue(modWadFile.Key, out List<string> wadModIds))
+                    {
+                        if(!wadModIds.Any(x => x == installedModId))
+                        {
+                            Log.Warning("WAD: {0} is installed but Mod: {1} is not mapped to it in the index", modWadFile.Key, installedModId);
+                            return false; // Mod is installed but one of its WAD files isn't in the index
+                        }
+                    }
+                    else
+                    {
+                        Log.Warning("Mod: {0} is installed but its WAD: {1} is not mapped to it in the index", installedModId, modWadFile.Key);
+                        return false; // WAD is installed but isn't in index
+                    }
+
+                    if(this.Index.ModEntryMap.TryGetValue(installedModId, out List<ulong> modEntries))
+                    {
+                        foreach(WADEntry entry in modWadFile.Value.Entries)
+                        {
+                            if(!modEntries.Any(x => x == entry.XXHash))
+                            {
+                                Log.Warning("Mod: {0} is installed but its WAD Entry: {1} is not mapped to it in the index", installedModId, entry.XXHash);
+                                return false; // An installed WAD Entry is not present in the index
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Log.Warning("Mod: {0} is installed but isn't present in the Mod-Entry index map", installedModId);
+                        return false; // Mod is installed but doesn't have any entries registered
+                    }
+                }
+            }
+
+            Log.Information("Overlay Integrity: Good");
+            return true;
         }
 
         private Version GetLeagueVersion()

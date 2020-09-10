@@ -36,7 +36,14 @@ namespace Fantome.ModManagement
         }
         public ModFile GetMod(string id)
         {
-            return this._modFiles[id];
+            ModFile mod = this._modFiles[id];
+
+            if(!mod.IsOpen)
+            {
+                mod.Reopen();
+            }
+
+            return mod;
         }
 
         public void MountMods()

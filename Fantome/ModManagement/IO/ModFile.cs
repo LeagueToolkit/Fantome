@@ -48,9 +48,14 @@ namespace Fantome.ModManagement.IO
         private Image _image;
         private Dictionary<string, WADFile> _wadFiles;
 
+        public bool IsOpen => !this._isDisposed;
+        private bool _isDisposed;
+        private string _file;
+
         public ModFile(string fileLocation)
         {
             this.Content = new ZipArchive(File.OpenRead(fileLocation));
+            this._file = fileLocation;
         }
         public ModFile(LeagueFileIndex index, IEnumerable<string> wadFilePaths, IEnumerable<string> wadFolderPaths, ModInfo info, Image image)
         {
@@ -289,6 +294,7 @@ namespace Fantome.ModManagement.IO
                 return null;
             }
         }
+
         public Dictionary<string, WADFile> GetWadFiles(LeagueFileIndex index)
         {
             if (this._wadFiles != null)
@@ -433,13 +439,25 @@ namespace Fantome.ModManagement.IO
             }
         }
 
+        public void Reopen()
+        {
+            this.Content = new ZipArchive(File.OpenRead(this._file));
+
+            this._isDisposed = false;
+        }
+
         public void Dispose()
         {
-            this.Content.Dispose();
-            DisposeWADFiles();
+            if(!this._isDisposed)
+            {
+                this.Content.Dispose();
+                DisposeWADFiles();
 
-            //This is very bad but it works :( if someone finds where there is a memory leak happening please let me now
-            GC.Collect();
+                //This is very bad but it works :( if someone finds where there is a memory leak happening please let me now
+                GC.Collect();
+
+                this._isDisposed = true;
+            }
         }
         public void DisposeWADFiles()
         {
@@ -456,8 +474,7 @@ namespace Fantome.ModManagement.IO
         public void DisposeReopen()
         {
             Dispose();
-
-            this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, GetID()));
+            Reopen();
         }
 
         public bool Equals(ModFile other)
