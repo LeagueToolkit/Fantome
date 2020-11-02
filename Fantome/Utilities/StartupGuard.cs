@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Windows;
 
 namespace Fantome.Utilities
@@ -44,6 +47,26 @@ namespace Fantome.Utilities
                 message += "Unicode characters are letters from languages such as Russian, Chinese etc....";
 
                 if (MessageBox.Show(message, "", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                {
+                    Application.Current.Shutdown();
+                }
+            }
+        }
+        public static void CheckEnvironmentPrivilage()
+        {
+            try
+            {
+                // If any of these throw an exception then we cannot continue operating
+                Directory.CreateDirectory("test");
+                Directory.Delete("test");
+
+                File.WriteAllBytes("test", new byte[0]);
+                File.Delete("test");
+            }
+            catch(Exception exception)
+            {
+                string messageFormat = "Fantome does not have the required access rights to work within its folder\n{0}";
+                if (MessageBox.Show(string.Format(messageFormat, exception), "", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Application.Current.Shutdown();
                 }

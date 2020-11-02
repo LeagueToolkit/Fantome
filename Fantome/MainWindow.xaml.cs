@@ -30,10 +30,12 @@ namespace Fantome
 
         public MainWindow()
         {
+            // Hook global exception handler
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
             // Initial checks to see if we can run Fantome
             StartupGuard.CheckEnvironment();
+            StartupGuard.CheckEnvironmentPrivilage();
             StartupGuard.CheckForExistingProcess();
             StartupGuard.CheckForPathUnicodeCharacters();
 
