@@ -10,6 +10,7 @@ using Fantome.ModManagement.IO;
 using Serilog;
 using Fantome.Utilities;
 using Fantome.Libraries.League.Helpers.Exceptions;
+using System.Windows;
 
 namespace Fantome.ModManagement
 {
@@ -40,6 +41,7 @@ namespace Fantome.ModManagement
         {
             string wadRootPath = Path.Combine(leagueFolder, @"DATA\FINAL");
             this.Version = new Version(FileVersionInfo.GetVersionInfo(Path.Combine(leagueFolder, "League of Legends.exe")).FileVersion);
+            
 
             foreach (string wadFile in Directory.GetFiles(wadRootPath, "*.wad.client", SearchOption.AllDirectories))
             {
@@ -77,6 +79,19 @@ namespace Fantome.ModManagement
             }
 
             Write();
+            //Temporary fix to load files
+            Application.Current.Shutdown();
+            Process process = null;
+            try
+            {
+                process = Process.GetProcessById(35076);
+                process.WaitForExit(1000);
+            }
+            catch (ArgumentException exit)
+            {
+                //ArgumentException to indicate that the process doesn't exist?
+            }
+            Process.Start("Fantome.exe", "");
         }
 
         public void StartEdit()
