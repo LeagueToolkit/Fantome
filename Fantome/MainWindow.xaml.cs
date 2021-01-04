@@ -131,7 +131,7 @@ namespace Fantome
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 for (int i = 0; i < files.Length; i++)
                 {
-                    if (Path.GetExtension(files[i]) == ".zip")
+                    if (Path.GetExtension(files[i]) == ".zip" || Path.GetExtension(files[i]) == ".fantome")
                     {
                         await this.ViewModel.AddMod(files[i]);
                     }

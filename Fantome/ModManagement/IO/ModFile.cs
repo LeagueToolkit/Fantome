@@ -59,7 +59,7 @@ namespace Fantome.ModManagement.IO
         }
         public ModFile(LeagueFileIndex index, IEnumerable<string> wadFilePaths, IEnumerable<string> wadFolderPaths, ModInfo info, Image image)
         {
-            using (FileStream fileStream = new FileStream(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, info.CreateID()), FileMode.Create))
+            using (FileStream fileStream = new FileStream(string.Format(@"{0}\{1}.fantome", ModManager.MOD_FOLDER, info.CreateID()), FileMode.Create))
             {
                 using (this.Content = new ZipArchive(fileStream, ZipArchiveMode.Update))
                 {
@@ -100,7 +100,7 @@ namespace Fantome.ModManagement.IO
                 }
             }
 
-            this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, this.GetID()));
+            this.Content = ZipFile.OpenRead(string.Format(@"{0}\{1}.fantome", ModManager.MOD_FOLDER, this.GetID()));
         }
 
         public void AddFolder(string path, string folderLocation)

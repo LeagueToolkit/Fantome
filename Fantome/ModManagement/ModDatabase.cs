@@ -50,7 +50,7 @@ namespace Fantome.ModManagement
         {
             foreach (var mod in this.Mods)
             {
-                string modPath = Path.Combine(ModManager.MOD_FOLDER, mod.Key + ".zip");
+                string modPath = Path.Combine(ModManager.MOD_FOLDER, mod.Key + ".fantome");
                 if(File.Exists(modPath))
                 {
                     try

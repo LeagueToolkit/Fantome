@@ -164,7 +164,7 @@ namespace Fantome.ModManagement
 
             mod.Content.Dispose();
             this.Database.RemoveMod(modId);
-            File.Delete(string.Format(@"{0}\{1}.zip", MOD_FOLDER, modId));
+            File.Delete(string.Format(@"{0}\{1}.fantome", MOD_FOLDER, modId));
         }
 
         public void InstallMod(ModFile mod)
@@ -351,7 +351,7 @@ namespace Fantome.ModManagement
             foreach (KeyValuePair<string, bool> mod in this.Database.Mods)
             {
                 //Remove mods which are not present in the Mods folder anymore
-                string modPath = string.Format(@"{0}\{1}.zip", MOD_FOLDER, mod.Key);
+                string modPath = string.Format(@"{0}\{1}.fantome", MOD_FOLDER, mod.Key);
                 if (!File.Exists(modPath))
                 {
                     this.Database.RemoveMod(mod.Key);

@@ -151,7 +151,7 @@ namespace Fantome.MVVM.ViewModels
                 Multiselect = false
             };
 
-            dialog.Filters.Add(new CommonFileDialogFilter("ZIP Files", "*.zip"));
+            dialog.Filters.Add(new CommonFileDialogFilter("Fantome mod Files", "*.fantome;*.zip"));
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
@@ -166,7 +166,7 @@ namespace Fantome.MVVM.ViewModels
             {
                 using (ModFile originalMod = new ModFile(modOriginalPath))
                 {
-                    modPath = string.Format(@"{0}\{1}.zip", ModManager.MOD_FOLDER, originalMod.GetID());
+                    modPath = string.Format(@"{0}\{1}.fantome", ModManager.MOD_FOLDER, originalMod.GetID());
                 }
             }
             catch (Exception exception)
