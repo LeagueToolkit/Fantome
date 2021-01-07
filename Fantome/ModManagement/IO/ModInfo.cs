@@ -8,10 +8,10 @@ namespace Fantome.ModManagement.IO
     {
         public string Name { get; private set; }
         public string Author { get; private set; }
-        public Version Version { get; private set; }
+        public string Version { get; private set; }
         public string Description { get; private set; }
 
-        public ModInfo(string name, string author, Version version, string description)
+        public ModInfo(string name, string author, string version, string description)
         {
             this.Name = name;
             this.Author = author;
@@ -21,7 +21,7 @@ namespace Fantome.ModManagement.IO
 
         public string CreateID()
         {
-            return string.Format("{0} - {1} (by {2})", this.Name, this.Version.ToString(), this.Author);
+            return string.Format("{0} - {1} (by {2})", this.Name, this.Version, this.Author);
         }
 
         public string Serialize()

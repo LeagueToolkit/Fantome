@@ -55,7 +55,7 @@ namespace Fantome.ModManagement
                 this.Index = LeagueFileIndex.Deserialize(File.ReadAllText(INDEX_FILE));
                 Log.Information("Loaded File Index from: " + INDEX_FILE);
 
-                CheckIndexVersion(); 
+                CheckIndexVersion();
             }
             else
             {
@@ -274,7 +274,11 @@ namespace Fantome.ModManagement
         public void UninstallMod(ModFile mod)
         {
             Log.Information("Uninstalling Mod: " + mod.GetID());
-            List<ulong> modFiles = new List<ulong>(this.Index.ModEntryMap[mod.GetID()]);
+            List<ulong> modFiles = new List<ulong>();
+            if (this.Index.ModEntryMap.TryGetValue(mod.GetID(), out List<ulong> _modFiles))
+            {
+                modFiles = new List<ulong>(_modFiles);
+            }
             Dictionary<string, WADFile> wadFiles = new Dictionary<string, WADFile>();
 
             this.Index.StartEdit();
@@ -304,7 +308,7 @@ namespace Fantome.ModManagement
             foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
             {
                 //If the WAD isn't being used by any other mod or is empty we can delete it
-                if (!this.Index.WadModMap[wadFile.Key].Any(x => x != mod.GetID()) ||
+                if (this.Index.WadModMap[wadFile.Key].All(x => x == mod.GetID()) ||
                     wadFile.Value.Entries.Count == 0)
                 {
                     wadFile.Value.Dispose();
@@ -375,7 +379,7 @@ namespace Fantome.ModManagement
             Log.Information("Verifying Overlay integrity...");
 
             List<string> installedModIds = this.Database.Mods.Where(x => x.Value).Select(x => x.Key).ToList();
-            
+
             foreach(string installedModId in installedModIds)
             {
                 using ModFile mod = this.Database.GetMod(installedModId);

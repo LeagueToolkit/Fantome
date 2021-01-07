@@ -125,7 +125,7 @@ namespace Fantome.MVVM.ViewModels
                 System.Windows.Application.Current.Shutdown();
             }));
 
-            //Create Icon 
+            //Create Icon
             this.TrayIcon = new NotifyIcon()
             {
                 Visible = false,
@@ -171,10 +171,10 @@ namespace Fantome.MVVM.ViewModels
             }
             catch (Exception exception)
             {
-                Log.Error($"Failed to copy mod from: {modOriginalPath} to {modPath}\n{exception}");
-                await DialogHelper.ShowMessageDialog($"Failed to copy mod from: {modOriginalPath} to {modPath}\n{exception.Message}");
+                Log.Error($"Failed to read mod file: \"{modOriginalPath}\"\n{exception}");
+                await DialogHelper.ShowMessageDialog($"Failed to read mod file: \"{modOriginalPath}\"\n\n{exception.Message}");
+                return;
             }
-
 
             //If mod is not in Mods folder then we copy it
             if (!File.Exists(modPath))
@@ -185,7 +185,7 @@ namespace Fantome.MVVM.ViewModels
                 catch (Exception exception)
                 {
                     Log.Error($"Failed to copy mod from: {modOriginalPath} to {modPath}\n{exception}");
-                    await DialogHelper.ShowMessageDialog($"Failed to copy mod from: {modOriginalPath} to {modPath}\n{exception.Message}");
+                    await DialogHelper.ShowMessageDialog($"Failed to copy mod from: {modOriginalPath} to {modPath}\n\n{exception.Message}");
                 }
             }
 

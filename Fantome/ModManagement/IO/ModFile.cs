@@ -167,9 +167,9 @@ namespace Fantome.ModManagement.IO
             string validationError = "";
 
             //Check for RAW, WAD and META folders, and collect entries from RAW and WAD
-            IEnumerable<ZipArchiveEntry> wadEntries = GetEntries(@"^WAD[\\/].*");
-            IEnumerable<ZipArchiveEntry> rawEntries = GetEntries(@"^RAW[\\/].*");
-            IEnumerable<ZipArchiveEntry> metaEntries = GetEntries(@"^META[\\/].*");
+            ZipArchiveEntry[] wadEntries = GetEntries(@"^WAD[\\/].+").ToArray();
+            ZipArchiveEntry[] rawEntries = GetEntries(@"^RAW[\\/].+").ToArray();
+            ZipArchiveEntry[] metaEntries = GetEntries(@"^META[\\/].*").ToArray();
 
             validationError = ValidateBaseFolders();
             if (!string.IsNullOrEmpty(validationError))
@@ -187,13 +187,13 @@ namespace Fantome.ModManagement.IO
 
             string ValidateBaseFolders()
             {
-                if (wadEntries.Count() == 0 && rawEntries.Count() == 0)
+                if (wadEntries.Length == 0 && rawEntries.Length == 0)
                 {
-                    return string.Format("{0} does not contain neither a WAD folder nor a RAW folder", GetID());
+                    return string.Format("{0} contains no files in either WAD or RAW folder", GetID());
                 }
 
                 //Check if META folder exists
-                if (metaEntries.Count() != 0)
+                if (metaEntries.Length != 0)
                 {
                     //If it does then we check if it contains info.json
                     if (!metaEntries.Any(x => x.Name == "info.json"))
@@ -267,17 +267,17 @@ namespace Fantome.ModManagement.IO
         }
         private ModInfo GetPackageInfo()
         {
-            try
+            ZipArchiveEntry entry = GetEntry(@"META\info.json");
+            ModInfo currentModInfo = null;
+            if (entry != null)
             {
                 MemoryStream memoryStream = new MemoryStream();
-                GetEntry(@"META\info.json").Open().CopyTo(memoryStream);
+                entry.Open().CopyTo(memoryStream);
 
-                return JsonConvert.DeserializeObject<ModInfo>(Encoding.ASCII.GetString(memoryStream.ToArray()));
+                currentModInfo = JsonConvert.DeserializeObject<ModInfo>(Encoding.ASCII.GetString(memoryStream.ToArray()));
             }
-            catch (NullReferenceException)
-            {
-                return new ModInfo("NULL", "", new Version(0, 0, 0, 0), "");
-            }
+
+            return currentModInfo ?? new ModInfo(Path.GetFileNameWithoutExtension(this._file),  "unknown", "0.0", "");
         }
         private Image GetPackageImage()
         {
@@ -289,10 +289,8 @@ namespace Fantome.ModManagement.IO
 
                 return Image.FromStream(memoryStream);
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public Dictionary<string, WADFile> GetWadFiles(LeagueFileIndex index)
@@ -301,7 +299,7 @@ namespace Fantome.ModManagement.IO
             {
                 return this._wadFiles;
             }
-            
+
             Dictionary<string, WADFile> modWadFiles = new Dictionary<string, WADFile>();
 
             //Collect WAD files in WAD folder
@@ -319,7 +317,7 @@ namespace Fantome.ModManagement.IO
 
             void CollectWADFiles()
             {
-                foreach (ZipArchiveEntry zipEntry in GetEntries(@"^WAD[\\/][\w.]+.wad.client(?![\\/])"))
+                foreach (ZipArchiveEntry zipEntry in GetEntries(@"^WAD[\\/][\w.]+.wad.client$"))
                 {
                     char ps = Pathing.GetPathSeparator(zipEntry.FullName);
                     string wadPath = index.FindWADPath(zipEntry.FullName.Split(ps)[1]);
@@ -415,12 +413,11 @@ namespace Fantome.ModManagement.IO
                     char ps = Pathing.GetPathSeparator(zipEntry.FullName);
                     string path = zipEntry.FullName.Replace(@"RAW" + ps, "").Replace('\\', '/');
                     ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
-                    List<string> fileWadFiles = new List<string>();
 
                     //Check if file exists, if not, we discard it
                     if (index.Game.ContainsKey(hash))
                     {
-                        fileWadFiles = index.Game[hash];
+                        List<string> fileWadFiles = index.Game[hash];
                         foreach (string wadFilePath in fileWadFiles)
                         {
                             if (!modWadFiles.ContainsKey(wadFilePath))

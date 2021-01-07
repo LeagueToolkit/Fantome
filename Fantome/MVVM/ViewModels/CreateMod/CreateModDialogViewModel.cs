@@ -81,7 +81,7 @@ namespace Fantome.MVVM.ViewModels.CreateMod
         private string _version = "1.0";
         private BitmapImage _image;
         private ModFile _createdMod;
-        private LeagueFileIndex _index; 
+        private LeagueFileIndex _index;
 
         public ICommand AddWadFilesCommand => new RelayCommand(AddWadFiles);
         public ICommand AddWadFoldersCommand => new RelayCommand(AddWadFolders);
@@ -222,7 +222,7 @@ namespace Fantome.MVVM.ViewModels.CreateMod
                     .Where(x => x.Type == CreateModWadItemType.Folder)
                     .Select(x => x.Path);
 
-                ModInfo info = new ModInfo(this._name, this._author, new Version(this._version), "");
+                ModInfo info = new ModInfo(this._name, this._author, this._version, "");
                 SImage image = this._image == null ? null : SImage.FromStream(this._image.StreamSource);
                 ModFile mod = new ModFile(this._index, wadFiles, wadFolders, info, image);
 
