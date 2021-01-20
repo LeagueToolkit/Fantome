@@ -56,7 +56,7 @@ namespace Fantome
             message += ((Exception)e.ExceptionObject).GetType() + ": ";
             message += ((Exception)e.ExceptionObject).Message + '\n';
 
-            Log.Fatal(((Exception)e.ExceptionObject).ToString());
+            Log.Fatal((Exception)e.ExceptionObject, "");
             MessageBox.Show(message, "Fantome - Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 

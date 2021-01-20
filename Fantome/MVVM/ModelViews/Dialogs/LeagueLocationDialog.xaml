@@ -32,7 +32,7 @@
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Text="{Binding LeagueLocation, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="League of Legends Game folder" MaterialDesign:HintAssist.HelperText="Select the folder which contains League of Legends.exe"/>
+                <TextBox Grid.Column="0" IsReadOnly="True" Text="{Binding LeagueLocation, UpdateSourceTrigger=PropertyChanged}" MaterialDesign:HintAssist.Hint="League of Legends Game folder" MaterialDesign:HintAssist.HelperText="Select the folder which contains League of Legends.exe"/>
                 <Button Grid.Column="1" x:Name="SelectLeagueLocationButton" Grid.Row="1" Width="25" Height="25" Content="{MaterialDesign:PackIcon Kind=Folder}" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Click="SelectLeagueLocationButton_Click" Padding="1" Margin="20,0,0,0"/>
             </Grid>
         </StackPanel>

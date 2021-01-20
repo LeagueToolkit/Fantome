@@ -49,7 +49,7 @@ namespace Fantome.MVVM.ViewModels
         {
             Log.Information("Syncing with Mod Manager");
 
-            //Remove non-existant mods
+            //Remove non-existent mods
             List<ModListItemViewModel> toRemove = new List<ModListItemViewModel>();
             foreach (ModListItemViewModel modItem in this.Items)
             {
@@ -76,7 +76,7 @@ namespace Fantome.MVVM.ViewModels
             if (this.Items.Any(x => x.Mod == mod))
             {
                 await DialogHelper.ShowMessageDialog("A Mod with the same ID has already been added");
-                Log.Information("Cannot load Mod: {0} because it is already present in the databse", mod.GetID());
+                Log.Information("Cannot load Mod: {0} because it is already present in the database", mod.GetID());
             }
             else
             {
