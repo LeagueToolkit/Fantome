@@ -121,7 +121,7 @@ namespace Fantome
         }
         private void OnClosing(object sender, CancelEventArgs e)
         {
-            this.ViewModel.TrayIcon.Dispose();
+            this.ViewModel?.TrayIcon.Dispose();
         }
         private async void OnDrop(object sender, System.Windows.DragEventArgs e)
         {
