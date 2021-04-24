@@ -4,13 +4,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>1.1.5.1</AssemblyVersion>
+    <Version>1.1.6</Version>
     <Authors>Crauzer</Authors>
-    <FileVersion>1.1.5.1</FileVersion>
     <Platforms>x64</Platforms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
-    <Version>1.1.5.1</Version>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LoL-Fantome/Fantome</PackageProjectUrl>
     <RepositoryUrl>https://github.com/LoL-Fantome/Fantome</RepositoryUrl>

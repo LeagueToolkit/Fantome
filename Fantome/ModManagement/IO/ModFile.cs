@@ -84,17 +84,17 @@ namespace Fantome.ModManagement.IO
                         string wadFileName = Path.GetFileName(wadFilePath);
                         string wadPath = index.FindWADPath(wadFileName);
 
-                        AddFile($@"WAD\{wadFileName}", File.ReadAllBytes(wadFilePath));
+                        AddFile($"WAD/{wadFileName}", File.ReadAllBytes(wadFilePath));
                     }
 
-                    AddFile(@"META\info.json", Encoding.ASCII.GetBytes(info.Serialize()));
+                    AddFile("META/info.json", Encoding.ASCII.GetBytes(info.Serialize()));
 
                     if (image != null)
                     {
                         using (MemoryStream imageStream = new MemoryStream())
                         {
                             image.Save(imageStream, ImageFormat.Png);
-                            AddFile(@"META\image.png", imageStream.ToArray());
+                            AddFile("META/image.png", imageStream.ToArray());
                         }
                     }
                 }
@@ -140,7 +140,7 @@ namespace Fantome.ModManagement.IO
                     }
 
                     //After WAD creation is finished we can write the WAD to the ZIP
-                    ZipArchiveEntry archiveEntry = this.Content.CreateEntry(string.Format(@"WAD\{0}", wadName));
+                    ZipArchiveEntry archiveEntry = this.Content.CreateEntry(string.Format("WAD/{0}", wadName));
                     wad.Write(archiveEntry.Open());
                 }
             }
@@ -267,7 +267,7 @@ namespace Fantome.ModManagement.IO
         }
         private ModInfo GetPackageInfo()
         {
-            ZipArchiveEntry entry = GetEntry(@"META\info.json");
+            ZipArchiveEntry entry = GetEntry("META/info.json");
             ModInfo currentModInfo = null;
             if (entry != null)
             {
@@ -282,7 +282,7 @@ namespace Fantome.ModManagement.IO
         private Image GetPackageImage()
         {
             MemoryStream memoryStream = new MemoryStream();
-            ZipArchiveEntry entry = GetEntry(@"META\image.png");
+            ZipArchiveEntry entry = GetEntry("META/image.png");
             if (entry != null)
             {
                 entry.Open().CopyTo(memoryStream);

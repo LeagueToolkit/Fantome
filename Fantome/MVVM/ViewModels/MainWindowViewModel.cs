@@ -190,9 +190,12 @@ namespace Fantome.MVVM.ViewModels
                     File.Copy(modOriginalPath, modPath, true);
                     using ZipArchive modZip = ZipFile.Open(modPath, ZipArchiveMode.Update);
                     ZipArchiveEntry infoJsonEntry = modZip.GetEntry(@"META\info.json") ?? modZip.GetEntry("META/info.json");
-                    await using StreamWriter writer = new StreamWriter(infoJsonEntry.Open());
-                    writer.BaseStream.SetLength(0);
-                    writer.Write(currentModInfo);
+                    if (infoJsonEntry != null)
+                    {
+                        await using StreamWriter writer = new StreamWriter(infoJsonEntry.Open());
+                        writer.BaseStream.SetLength(0);
+                        writer.Write(currentModInfo);
+                    }
                 }
                 catch (Exception exception)
                 {

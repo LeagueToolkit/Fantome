@@ -26,14 +26,8 @@ namespace Fantome.ModManagement.WAD
                 }
                 else if (!entry.SHA.SequenceEqual(baseEntry.SHA))
                 {
-                    if (entry.Type == EntryType.Uncompressed)
-                    {
-                        wadBase.Entries.Single(x => x.XXHash == entry.XXHash).EditData(entry.GetContent(false));
-                    }
-                    else if (entry.Type == EntryType.ZStandardCompressed || entry.Type == EntryType.Compressed)
-                    {
-                        wadBase.Entries.Single(x => x.XXHash == entry.XXHash).EditData(entry.GetContent(false), entry.UncompressedSize);
-                    }
+                    wadBase.RemoveEntry(entry.XXHash);
+                    wadBase.AddEntry(entry.XXHash, entry.GetContent(true), true);
                 }
             }
 
