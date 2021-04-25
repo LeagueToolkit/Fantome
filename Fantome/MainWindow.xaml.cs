@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using DataFormats = System.Windows.DataFormats;
 using MessageBox = System.Windows.MessageBox;
@@ -60,10 +61,10 @@ namespace Fantome
             MessageBox.Show(message, "Fantome - Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        private void InitializeMainViewModel()
+        private async Task InitializeMainViewModel()
         {
             this.ViewModel = new MainWindowViewModel();
-            this.ViewModel.Initialize();
+            await this.ViewModel.Initialize();
         }
         private void BindTrayIconEvents()
         {
@@ -94,7 +95,7 @@ namespace Fantome
 
         private async void OnRootDialogLoad(object sender, EventArgs e)
         {
-            InitializeMainViewModel();
+            await InitializeMainViewModel();
             BindTrayIconEvents();
 
             this.DataContext = this.ViewModel;

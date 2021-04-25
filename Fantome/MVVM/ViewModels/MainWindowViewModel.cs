@@ -93,7 +93,7 @@ namespace Fantome.MVVM.ViewModels
         }
 
         // ---------- INITIALIZATION ----------- \\
-        public async void Initialize()
+        public async Task Initialize()
         {
             Log.Information("Initializing MainWindowViewModel");
 
