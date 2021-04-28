@@ -1,4 +1,4 @@
-﻿using Fantome.Libraries.League.IO.WAD;
+﻿using LeagueToolkit.IO.WadFile;
 using System;
 using System.Linq;
 
@@ -6,58 +6,31 @@ namespace Fantome.ModManagement.WAD
 {
     public static class WadMerger
     {
-        public static WADFile Merge(WADFile wadBase, WADFile wadMerge)
+        public static WadBuilder Merge(WadBuilder wadBase, WadBuilder wadToMerge)
         {
+            WadBuilder wadBuilder = new WadBuilder();
+
             //First add new files and then modify changed ones
-            foreach (WADEntry entry in wadMerge.Entries)
+            foreach (var entryToMerge in wadToMerge.Entries)
             {
-                WADEntry baseEntry = wadBase.Entries.FirstOrDefault(x => x.XXHash == entry.XXHash);
-
-                if (baseEntry == null)
+                // Add new entry
+                if (wadBase.Entries.TryGetValue(entryToMerge.Key, out WadEntryBuilder baseEntry) is false)
                 {
-                    if (entry.Type == EntryType.Uncompressed)
-                    {
-                        wadBase.AddEntry(entry.XXHash, entry.GetContent(false), false);
-                    }
-                    else if (entry.Type == EntryType.ZStandardCompressed || entry.Type == EntryType.Compressed)
-                    {
-                        wadBase.AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, entry.Type);
-                    }
+                    wadBuilder.WithEntry(entryToMerge.Value);
                 }
-                else if (!entry.SHA.SequenceEqual(baseEntry.SHA))
+                // Modify existing entry
+                else if (!entryToMerge.Value.Sha256Checksum.SequenceEqual(baseEntry.Sha256Checksum))
                 {
-                    wadBase.RemoveEntry(entry.XXHash);
-                    wadBase.AddEntry(entry.XXHash, entry.GetContent(true), true);
+                    wadBuilder.WithEntry(entryToMerge.Value);
+                }
+                // Copy over entry
+                else
+                {
+                    wadBuilder.WithEntry(baseEntry);
                 }
             }
 
-            return wadBase;
-        }
-
-        public static WADFile Merge(WADFile wadBase, WADFile wadMerge, out bool returnedMerge)
-        {
-            returnedMerge = false;
-
-            //If the Modded WAD mods all entries of the original WAD then it will be returned to prevent memory halting and increase speed
-            bool containsBaseEntries = true;
-            foreach (WADEntry baseEntry in wadBase.Entries)
-            {
-                if (!wadMerge.Entries.Any(x => x.XXHash == baseEntry.XXHash))
-                {
-                    containsBaseEntries = false;
-                    break;
-                }
-            }
-
-            if (containsBaseEntries)
-            {
-                returnedMerge = containsBaseEntries;
-                return wadMerge;
-            }
-            else
-            {
-                return Merge(wadBase, wadMerge);
-            }
+            return wadBuilder;
         }
     }
 }
