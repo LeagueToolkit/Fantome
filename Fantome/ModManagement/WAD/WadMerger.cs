@@ -14,19 +14,19 @@ namespace Fantome.ModManagement.WAD
             foreach (var entryToMerge in wadToMerge.Entries)
             {
                 // Add new entry
-                if (wadBase.Entries.TryGetValue(entryToMerge.Key, out WadEntryBuilder baseEntry) is false)
+                if (wadBase.Entries.ContainsKey(entryToMerge.Key) is false)
                 {
                     wadBuilder.WithEntry(entryToMerge.Value);
                 }
                 // Modify existing entry
-                else if (!entryToMerge.Value.Sha256Checksum.SequenceEqual(baseEntry.Sha256Checksum))
+                else if (!entryToMerge.Value.Sha256Checksum.SequenceEqual(wadBase.Entries[entryToMerge.Key].Sha256Checksum))
                 {
                     wadBuilder.WithEntry(entryToMerge.Value);
                 }
                 // Copy over entry
                 else
                 {
-                    wadBuilder.WithEntry(baseEntry);
+                    wadBuilder.WithEntry(wadBase.Entries[entryToMerge.Key]);
                 }
             }
 
