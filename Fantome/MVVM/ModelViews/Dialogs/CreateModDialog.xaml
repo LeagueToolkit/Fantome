@@ -16,7 +16,7 @@
              TextOptions.TextRenderingMode="Auto"
              FontFamily="{MaterialDesign:MaterialDesignFont}" 
              mc:Ignorable="d" 
-             Height="550" Width="700" Validation.Error="OnValidationError">
+             Height="625" Width="700" Validation.Error="OnValidationError">
     <UserControl.Resources>
         <ResourceDictionary>
             <Converters:IsHigherThanConverter x:Key="IsHigherThanConverter"/>
@@ -50,7 +50,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="AddImageButton" Panel.ZIndex="1" Grid.Column="0" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" ToolTip="Select Image" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="35" Width="35" Margin="0,0,40,60" Click="AddImage">
+            <Button x:Name="AddImageButton" Panel.ZIndex="1" Grid.Column="0" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" ToolTip="Select Image" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="35" Width="35" Margin="0,0,30,80" Click="AddImage">
                 <MaterialDesign:PackIcon Kind="ImageAdd" Height="24" Width="24" />
             </Button>
             <Grid Grid.Column="0">
@@ -113,6 +113,14 @@
                                 </Binding>
                             </TextBox.Text>
                         </TextBox>
+                    </Grid>
+                    <Grid Margin="5,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <MaterialDesign:PackIcon Grid.Column="0" Grid.Row="2" Margin="0,0,5,10" Kind="FileTree" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="20" Height="20"/>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}"/>
                     </Grid>
                 </StackPanel>
             </MaterialDesign:ColorZone>

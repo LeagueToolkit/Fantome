@@ -281,7 +281,7 @@ namespace Fantome.ModManagement.IO
                 currentModInfo = JsonConvert.DeserializeObject<ModInfo>(Encoding.ASCII.GetString(memoryStream.ToArray()));
             }
 
-            return currentModInfo ?? new ModInfo(Path.GetFileNameWithoutExtension(this._file),  "unknown", "0.0", "");
+            return currentModInfo ?? new ModInfo(Path.GetFileNameWithoutExtension(this._file),  "unknown", "0.0", "", ModCategory.Miscellaneous);
         }
         private Image GetPackageImage()
         {

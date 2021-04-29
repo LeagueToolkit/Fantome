@@ -63,6 +63,16 @@ namespace Fantome.MVVM.ViewModels.CreateMod
                 NotifyPropertyChanged();
             }
         }
+        public List<ModCategory> Categories => new (Enum.GetValues(typeof(ModCategory)).Cast<ModCategory>());
+        public ModCategory Category
+        {
+            get => this._category;
+            set
+            {
+                this._category = value;
+                NotifyPropertyChanged();
+            }
+        }
         public BitmapImage Image
         {
             get => this._image;
@@ -79,6 +89,7 @@ namespace Fantome.MVVM.ViewModels.CreateMod
         private string _name;
         private string _author;
         private string _version = "1.0";
+        private ModCategory _category;
         private BitmapImage _image;
         private ModFile _createdMod;
         private LeagueFileIndex _index;
@@ -222,7 +233,7 @@ namespace Fantome.MVVM.ViewModels.CreateMod
                     .Where(x => x.Type == CreateModWadItemType.Folder)
                     .Select(x => x.Path);
 
-                ModInfo info = new ModInfo(this._name, this._author, this._version, "");
+                ModInfo info = new ModInfo(this._name, this._author, this._version, "", this._category);
                 SImage image = this._image == null ? null : SImage.FromStream(this._image.StreamSource);
                 ModFile mod = new ModFile(this._index, wadFiles, wadFolders, info, image);
 

@@ -10,13 +10,15 @@ namespace Fantome.ModManagement.IO
         public string Author { get; private set; }
         public string Version { get; private set; }
         public string Description { get; private set; }
+        public ModCategory Category { get; private set; }
 
-        public ModInfo(string name, string author, string version, string description)
+        public ModInfo(string name, string author, string version, string description, ModCategory category)
         {
             this.Name = name;
             this.Author = author;
             this.Version = version;
             this.Description = description;
+            this.Category = category;
         }
 
         public string CreateID()
@@ -45,5 +47,14 @@ namespace Fantome.ModManagement.IO
         {
             return info1?.CreateID() != info2?.CreateID();
         }
+    }
+
+    public enum ModCategory
+    {
+        Character,
+        HUD,
+        Map,
+        Audio,
+        Miscellaneous
     }
 }

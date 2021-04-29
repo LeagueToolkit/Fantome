@@ -112,7 +112,15 @@
                         </Grid>
                     </MaterialDesign:ColorZone>
                     <Grid Grid.Row="1" Margin="15">
-                        <ListView x:Name="ModsListBox" Style="{StaticResource ModListStyle}" ItemsSource="{Binding ModList.Items}" HorizontalContentAlignment="Stretch"/>
+                        <ListView x:Name="ModsListBox" ItemsSource="{Binding ModList.Categories}" HorizontalContentAlignment="Stretch">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Expander Header="{Binding Category}" IsExpanded="True">
+                                        <ListView Style="{StaticResource ModListStyle}" ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch"/>
+                                    </Expander>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
                         <MaterialDesign:PopupBox x:Name="PopupMain" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}" 
                                                  MaterialDesign:ShadowAssist.ShadowDepth="Depth4" 
                                                  HorizontalAlignment="Right" VerticalAlignment="Bottom" 

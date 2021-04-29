@@ -24,8 +24,18 @@ namespace Fantome.MVVM.ViewModels
                 NotifyPropertyChanged();
             }
         }
+        public ObservableCollection<ModListCategoryViewModel> Categories
+        {
+            get => this._categories;
+            set
+            {
+                this._categories = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         private ObservableCollection<ModListItemViewModel> _items = new ObservableCollection<ModListItemViewModel>();
+        private ObservableCollection<ModListCategoryViewModel> _categories = new();
 
         public ModManager ModManager { get; private set; }
 
@@ -68,6 +78,11 @@ namespace Fantome.MVVM.ViewModels
             {
                 this.Items.Add(new ModListItemViewModel(this.ModManager.Database.GetMod(modEntry.Key), this));
                 this.Items.Last().IsInstalled = modEntry.Value;
+            }
+
+            foreach(ModCategory category in Enum.GetValues(typeof(ModCategory)).Cast<ModCategory>())
+            {
+                this.Categories.Add(new ModListCategoryViewModel(category, new (this.Items.Where(x => x.Mod.Info.Category == category))));
             }
         }
 
