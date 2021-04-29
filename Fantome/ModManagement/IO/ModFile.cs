@@ -133,10 +133,12 @@ namespace Fantome.ModManagement.IO
                     foreach (string wadFolderFile in Directory.EnumerateFiles(wadFolderLocation, "*", SearchOption.AllDirectories))
                     {
                         string path = wadFolderFile.Replace(wadFolderLocation + separator, "").Replace('\\', '/');
-                        ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
+                        string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
+                        bool hasHashedName = fileNameWithoutExtension.Length == 16 && fileNameWithoutExtension.All(c => "AaBbCcDdEeFf0123456789".Contains(c));
+                        ulong hash = hasHashedName ? Convert.ToUInt64(fileNameWithoutExtension, 16) : XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
                         string extension = Path.GetExtension(wadFolderFile);
 
-                        wad.AddEntry(hash, File.ReadAllBytes(wadFolderFile), extension != ".wpk" && extension != ".bnk" ? true : false);
+                        wad.AddEntry(hash, File.ReadAllBytes(wadFolderFile), extension != ".wpk" && extension != ".bnk");
                     }
 
                     //After WAD creation is finished we can write the WAD to the ZIP

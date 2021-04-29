@@ -66,7 +66,7 @@ namespace Fantome.ModManagement
                 }
                 else
                 {
-                    Log.Warning("Mod does not exist: {0}", modPath );
+                    Log.Warning("Mod does not exist: {0}", modPath);
                 }
             }
         }

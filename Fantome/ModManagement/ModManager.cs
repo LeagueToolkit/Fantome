@@ -350,7 +350,7 @@ namespace Fantome.ModManagement
             }
         }
 
-        public void SyncWithModFolder()
+        public async void SyncWithModFolder()
         {
             foreach (KeyValuePair<string, bool> mod in this.Database.Mods)
             {
@@ -365,11 +365,23 @@ namespace Fantome.ModManagement
             //Scan Mod folder for mods which were potentially added by the user
             foreach (string modFilePath in Directory.EnumerateFiles(MOD_FOLDER))
             {
+                // TODO need to support .zip and .fantome everything and should probably NOT be hardcoded everywhere
+                if (Path.GetExtension(modFilePath) != ".zip" && Path.GetExtension(modFilePath) != ".fantome")
+                    continue;
+
                 string modFileName = Path.GetFileNameWithoutExtension(modFilePath);
 
                 if (!this.Database.ContainsMod(modFileName))
                 {
-                    AddMod(new ModFile(modFilePath), false);
+                    try
+                    {
+                        AddMod(new ModFile(modFilePath), false);
+                    }
+                    catch (InvalidDataException e)
+                    {
+                        Log.Error(e, "Failed to load mod \"{ModFilePath}\"", modFilePath);
+                        await DialogHelper.ShowMessageDialog($"Failed to load mod \"{modFilePath}\", consider removing it.");
+                    }
                 }
             }
         }
