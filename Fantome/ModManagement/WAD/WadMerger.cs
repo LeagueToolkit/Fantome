@@ -10,7 +10,7 @@ namespace Fantome.ModManagement.WAD
         {
             WadBuilder wadBuilder = new WadBuilder();
 
-            //First add new files and then modify changed ones
+            // First add new files and then modify changed ones
             foreach (var entryToMerge in wadToMerge.Entries)
             {
                 // Add new entry
@@ -23,11 +23,12 @@ namespace Fantome.ModManagement.WAD
                 {
                     wadBuilder.WithEntry(entryToMerge.Value);
                 }
-                // Copy over entry
-                else
-                {
-                    wadBuilder.WithEntry(wadBase.Entries[entryToMerge.Key]);
-                }
+            }
+
+            // Copy over the rest
+            foreach (var entry in wadBase.Entries.Where(x => wadToMerge.Entries.ContainsKey(x.Key) is false))
+            {
+                wadBuilder.WithEntry(entry.Value);
             }
 
             return wadBuilder;
