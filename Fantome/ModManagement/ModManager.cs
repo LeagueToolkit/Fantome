@@ -1,20 +1,14 @@
-﻿using System;
+﻿using Fantome.ModManagement.IO;
+using Fantome.ModManagement.WAD;
+using Fantome.Utilities;
+using LeagueToolkit.IO.WadFile;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Fantome.Libraries.League.Helpers.Cryptography;
-using Fantome.Libraries.League.IO.WAD;
-using Fantome.ModManagement.IO;
-using Fantome.MVVM.ViewModels;
-using Fantome.MVVM.ModelViews.Dialogs;
-using Fantome.Utilities;
-using MaterialDesignThemes.Wpf;
-using Serilog;
-using Fantome.ModManagement.WAD;
 
 namespace Fantome.ModManagement
 {
@@ -188,24 +182,24 @@ namespace Fantome.ModManagement
             var modWadFiles = mod.GetWadFiles(this.Index);
             this.Index.AddMod(mod.GetID(), modWadFiles.Keys.ToList());
 
-            foreach (KeyValuePair<string, WADFile> modWadFile in modWadFiles)
+            foreach (KeyValuePair<string, WadBuilder> modWadFile in modWadFiles)
             {
-                foreach (WADEntry entry in modWadFile.Value.Entries)
+                foreach (var entry in modWadFile.Value.Entries)
                 {
-                    if (this.Index.Game.ContainsKey(entry.XXHash))
+                    if (this.Index.Game.ContainsKey(entry.Key))
                     {
-                        this.Index.AddModFile(entry.XXHash, mod.GetID(), this.Index.Game[entry.XXHash]);
+                        this.Index.AddModFile(entry.Key, mod.GetID(), this.Index.Game[entry.Key]);
                     }
                     else
                     {
-                        this.Index.AddModFile(entry.XXHash, mod.GetID(), new List<string>() { modWadFile.Key });
+                        this.Index.AddModFile(entry.Key, mod.GetID(), new List<string>() { modWadFile.Key });
                     }
                 }
             }
         }
         private void WriteModWADFiles(ModFile mod)
         {
-            Action<KeyValuePair<string, WADFile>> writeWadFileDelegate = new Action<KeyValuePair<string, WADFile>>(WriteWadFile);
+            Action<KeyValuePair<string, WadBuilder>> writeWadFileDelegate = new (WriteWadFile);
 
             if (Config.Get<bool>("ParallelWadInstallation"))
             {
@@ -221,13 +215,20 @@ namespace Fantome.ModManagement
             }
             else
             {
-                foreach(KeyValuePair<string, WADFile> modWadFile in mod.GetWadFiles(this.Index))
+                var modWadFiles = mod.GetWadFiles(this.Index);
+
+                foreach (var modWadFile in modWadFiles)
                 {
                     writeWadFileDelegate.Invoke(modWadFile);
                 }
+            
+                foreach(var modWadFile in modWadFiles)
+                {
+                    modWadFile.Value.Dispose();
+                }
             }
 
-            void WriteWadFile(KeyValuePair<string, WADFile> modWadFile)
+            void WriteWadFile(KeyValuePair<string, WadBuilder> modWadFile)
             {
                 string wadPath = this.Index.FindWADPath(modWadFile.Key);
                 string overlayModWadPath = string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadPath);
@@ -239,34 +240,24 @@ namespace Fantome.ModManagement
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(overlayModWadPath));
 
-                    WADFile baseWad = new WADFile(gameModWadPath);
-                    bool returnedModdedWad = false;
-                    using (WADFile mergedWad = WadMerger.Merge(baseWad, modWadFile.Value, out returnedModdedWad))
+                    using (Wad baseWad = Wad.Mount(gameModWadPath, false))
                     {
-                        mergedWad.Write(overlayModWadPath);
-                    }
-
-                    if (returnedModdedWad)
-                    {
-                        baseWad.Dispose();
-                    }
-                    else
-                    {
-                        modWadFile.Value.Dispose();
+                        WadBuilder mergedWad = WadMerger.Merge(new WadBuilder(baseWad), modWadFile.Value);
+                        mergedWad.Build(overlayModWadPath);
                     }
                 }
                 else
                 {
                     File.Move(overlayModWadPath, overlayModWadPath + ".temp");
 
-                    using (WADFile mergedWad = WadMerger.Merge(new WADFile(overlayModWadPath + ".temp"), modWadFile.Value))
+                    using (Wad mergedWad = Wad.Mount(overlayModWadPath + ".temp", false))
                     {
-                        mergedWad.Write(overlayModWadPath);
+                        WadBuilder mergedWadBuilder = WadMerger.Merge(new WadBuilder(mergedWad), modWadFile.Value);
+                        mergedWadBuilder.Build(overlayModWadPath);
                     }
 
                     //Delete temp wad file
                     File.Delete(overlayModWadPath + ".temp");
-                    modWadFile.Value.Dispose();
                 }
             }
         }
@@ -274,59 +265,55 @@ namespace Fantome.ModManagement
         public void UninstallMod(ModFile mod)
         {
             Log.Information("Uninstalling Mod: " + mod.GetID());
-            List<ulong> modFiles = new List<ulong>();
-            if (this.Index.ModEntryMap.TryGetValue(mod.GetID(), out List<ulong> _modFiles))
+            List<ulong> moddedEntries = new List<ulong>();
+            if (this.Index.ModEntryMap.TryGetValue(mod.GetID(), out List<ulong> _moddedEntries))
             {
-                modFiles = new List<ulong>(_modFiles);
+                moddedEntries = new List<ulong>(_moddedEntries);
             }
-            Dictionary<string, WADFile> wadFiles = new Dictionary<string, WADFile>();
+            Dictionary<string, WadBuilder> moddedWads = new Dictionary<string, WadBuilder>();
 
             this.Index.StartEdit();
 
             //In this loop we remove the installed WAD entries
-            foreach (ulong modFile in modFiles)
+            foreach (ulong moddedEntry in moddedEntries)
             {
-                List<string> modFileWadFiles = this.Index.Mod[modFile];
+                List<string> moddedEntryWadFiles = this.Index.Mod[moddedEntry];
 
                 //Initialize WAD files for entry deletion
-                foreach (string modFileWadFile in modFileWadFiles)
+                foreach (string moddedEntryWadFile in moddedEntryWadFiles)
                 {
-                    if (!wadFiles.ContainsKey(modFileWadFile))
+                    if (!moddedWads.ContainsKey(moddedEntryWadFile))
                     {
-                        wadFiles.Add(modFileWadFile, new WADFile(string.Format(@"{0}\{1}", OVERLAY_FOLDER, modFileWadFile)));
+                        using Wad moddedWad = Wad.Mount(string.Format(@"{0}\{1}", OVERLAY_FOLDER, moddedEntryWadFile), false);
+                        moddedWads.Add(moddedEntryWadFile, new WadBuilder(moddedWad));
                     }
 
-                    WADFile wad = wadFiles[modFileWadFile];
-                    wad.RemoveEntry(modFile);
+                    moddedWads[moddedEntryWadFile].RemoveEntry(moddedEntry);
                 }
 
-                this.Index.RemoveModFile(modFile, mod.GetID());
+                this.Index.RemoveModdedEntry(moddedEntry, mod.GetID());
             }
 
             //Now we need to either delete empty WAD files or fill the ones from which we removed the entries with original files
             //if the modified ones are the same as original then we need to delete those too
-            foreach (KeyValuePair<string, WADFile> wadFile in wadFiles)
+            foreach (KeyValuePair<string, WadBuilder> moddedWad in moddedWads)
             {
                 //If the WAD isn't being used by any other mod or is empty we can delete it
-                if (this.Index.WadModMap[wadFile.Key].All(x => x == mod.GetID()) ||
-                    wadFile.Value.Entries.Count == 0)
+                if (this.Index.WadModMap[moddedWad.Key].All(x => x == mod.GetID()) ||
+                    moddedWad.Value.Entries.Count == 0)
                 {
-                    wadFile.Value.Dispose();
-                    File.Delete(string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadFile.Key));
+                    File.Delete(string.Format(@"{0}\{1}", OVERLAY_FOLDER, moddedWad.Key));
                 }
                 //If it's used by some other mods we need to merge it into the original WAD
                 else
                 {
-                    string gameWadPath = string.Format(@"{0}\{1}", this.LeagueFolder, wadFile.Key);
-                    string overlayWadPath = string.Format(@"{0}\{1}", OVERLAY_FOLDER, wadFile.Key);
-                    WADFile originalWad = new WADFile(gameWadPath);
+                    string gameWadPath = string.Format(@"{0}\{1}", this.LeagueFolder, moddedWad.Key);
+                    string overlayWadPath = string.Format(@"{0}\{1}", OVERLAY_FOLDER, moddedWad.Key);
+                    using Wad originalWad = Wad.Mount(gameWadPath, false);
 
-                    using (WADFile mergedWad = WadMerger.Merge(originalWad, wadFile.Value))
-                    {
-                        mergedWad.Write(overlayWadPath + ".temp");
-                    }
+                    WadBuilder mergedWad = WadMerger.Merge(new WadBuilder(originalWad), moddedWad.Value);
+                    mergedWad.Build(overlayWadPath + ".temp");
 
-                    wadFile.Value.Dispose();
                     File.Delete(overlayWadPath);
                     File.Move(overlayWadPath + ".temp", overlayWadPath);
                 }
@@ -383,7 +370,7 @@ namespace Fantome.ModManagement
             foreach(string installedModId in installedModIds)
             {
                 using ModFile mod = this.Database.GetMod(installedModId);
-                Dictionary<string, WADFile> modWadFiles = mod.GetWadFiles(this.Index);
+                Dictionary<string, WadBuilder> modWadFiles = mod.GetWadFiles(this.Index);
 
                 // First verify that index is valid
                 foreach(var modWadFile in modWadFiles)
@@ -404,11 +391,11 @@ namespace Fantome.ModManagement
 
                     if(this.Index.ModEntryMap.TryGetValue(installedModId, out List<ulong> modEntries))
                     {
-                        foreach(WADEntry entry in modWadFile.Value.Entries)
+                        foreach(var entry in modWadFile.Value.Entries)
                         {
-                            if(!modEntries.Any(x => x == entry.XXHash))
+                            if(!modEntries.Any(x => x == entry.Key))
                             {
-                                Log.Warning("Mod: {0} is installed but its WAD Entry: {1} is not mapped to it in the index", installedModId, entry.XXHash);
+                                Log.Warning("Mod: {0} is installed but its WAD Entry: {1} is not mapped to it in the index", installedModId, entry.Key);
                                 return false; // An installed WAD Entry is not present in the index
                             }
                         }
@@ -418,6 +405,8 @@ namespace Fantome.ModManagement
                         Log.Warning("Mod: {0} is installed but isn't present in the Mod-Entry index map", installedModId);
                         return false; // Mod is installed but doesn't have any entries registered
                     }
+
+                    mod.DisposeReopen();
                 }
             }
 

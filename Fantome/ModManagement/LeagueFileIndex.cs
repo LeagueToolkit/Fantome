@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
-using Fantome.Libraries.League.IO.WAD;
 using Newtonsoft.Json.Converters;
 using Fantome.ModManagement.IO;
 using Serilog;
 using Fantome.Utilities;
-using Fantome.Libraries.League.Helpers.Exceptions;
+using LeagueToolkit.Helpers.Exceptions;
+using LeagueToolkit.IO.WadFile;
 
 namespace Fantome.ModManagement
 {
@@ -45,22 +45,22 @@ namespace Fantome.ModManagement
             {
                 try
                 {
-                    using (WADFile wad = new WADFile(wadFile))
+                    using (Wad wad = Wad.Mount(wadFile, false))
                     {
                         List<ulong> fileHashes = new List<ulong>();
-                        foreach (WADEntry entry in wad.Entries)
+                        foreach (var entry in wad.Entries)
                         {
-                            fileHashes.Add(entry.XXHash);
+                            fileHashes.Add(entry.Key);
 
                             string gameWadPath = wadFile.Replace(leagueFolder + Pathing.GetPathSeparator(leagueFolder), "");
 
-                            if (this._gameIndex.ContainsKey(entry.XXHash))
+                            if (this._gameIndex.ContainsKey(entry.Key))
                             {
-                                this._gameIndex[entry.XXHash].Add(gameWadPath);
+                                this._gameIndex[entry.Key].Add(gameWadPath);
                             }
                             else
                             {
-                                this._gameIndex.Add(entry.XXHash, new List<string>() { gameWadPath });
+                                this._gameIndex.Add(entry.Key, new List<string>() { gameWadPath });
                             }
                         }
                     }
@@ -164,7 +164,7 @@ namespace Fantome.ModManagement
                 }
             }
         }
-        public void RemoveModFile(ulong hash, string modId)
+        public void RemoveModdedEntry(ulong hash, string modId)
         {
             if (this._modIndex.ContainsKey(hash))
             {
@@ -244,18 +244,18 @@ namespace Fantome.ModManagement
             }
         }
 
-        public List<string> CheckForAssetCollisions(Dictionary<string, WADFile> modWadFiles)
+        public List<string> CheckForAssetCollisions(Dictionary<string, WadBuilder> modWadFiles)
         {
             List<string> collidingMods = new List<string>();
 
-            foreach (KeyValuePair<string, WADFile> modWadFile in modWadFiles)
+            foreach (KeyValuePair<string, WadBuilder> modWadFile in modWadFiles)
             {
-                foreach (WADEntry entry in modWadFile.Value.Entries)
+                foreach (var entry in modWadFile.Value.Entries)
                 {
                     //Check whether the entry is already modded, if it is we add the colliding mod to the list
-                    if (this._modIndex.ContainsKey(entry.XXHash))
+                    if (this._modIndex.ContainsKey(entry.Key))
                     {
-                        string collidingMod = this._entryModMap[entry.XXHash];
+                        string collidingMod = this._entryModMap[entry.Key];
                         if (!collidingMods.Contains(collidingMod))
                         {
                             collidingMods.Add(collidingMod);
