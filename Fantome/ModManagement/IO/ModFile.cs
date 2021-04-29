@@ -59,7 +59,9 @@ namespace Fantome.ModManagement.IO
         }
         public ModFile(LeagueFileIndex index, IEnumerable<string> wadFilePaths, IEnumerable<string> wadFolderPaths, ModInfo info, Image image)
         {
-            using (FileStream fileStream = new FileStream(string.Format(@"{0}\{1}.fantome", ModManager.MOD_FOLDER, info.CreateID()), FileMode.Create))
+            this._file = string.Format(@"{0}\{1}.fantome", ModManager.MOD_FOLDER, info.CreateID());
+
+            using (FileStream fileStream = new FileStream(this._file, FileMode.Create))
             {
                 using (this.Content = new ZipArchive(fileStream, ZipArchiveMode.Update))
                 {

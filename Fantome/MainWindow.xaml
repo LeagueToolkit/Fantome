@@ -115,9 +115,11 @@
                         <ListView x:Name="ModsListBox" ItemsSource="{Binding ModList.Categories}" HorizontalContentAlignment="Stretch">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Expander Header="{Binding Category}" IsExpanded="True">
-                                        <ListView Style="{StaticResource ModListStyle}" ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch"/>
-                                    </Expander>
+                                    <MaterialDesign:Card>
+                                        <Expander Header="{Binding Category}" IsExpanded="True">
+                                            <ListView Style="{StaticResource ModListStyle}" ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch"/>
+                                        </Expander>
+                                    </MaterialDesign:Card>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>

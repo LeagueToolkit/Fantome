@@ -104,6 +104,7 @@ namespace Fantome.MVVM.ViewModels
                 {
                     ModListItemViewModel modListItem = new ModListItemViewModel(mod, this);
                     this.Items.Add(modListItem);
+                    this.Categories.First(x => x.Category == mod.Info.Category)?.Items.Add(modListItem);
 
                     if (install)
                     {
@@ -117,6 +118,7 @@ namespace Fantome.MVVM.ViewModels
             this.ModManager.RemoveMod(mod.Mod);
 
             this.Items.Remove(mod);
+            this.Categories.First(x => x.Category == mod.Mod.Info.Category).Items.Remove(mod);
         }
 
         public async Task InstallMod(ModListItemViewModel modItem, bool forceInstall = false)
