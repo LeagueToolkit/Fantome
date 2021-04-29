@@ -11,8 +11,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Fantome.Utilities;
-using Fantome.Libraries.League.IO.WAD;
-using Fantome.Libraries.League.Helpers.Cryptography;
+using LeagueToolkit.Helpers.Cryptography;
+using LeagueToolkit.IO.WadFile;
 
 namespace Fantome.ModManagement.IO
 {
@@ -46,7 +46,7 @@ namespace Fantome.ModManagement.IO
 
         private ModInfo _info;
         private Image _image;
-        private Dictionary<string, WADFile> _wadFiles;
+        private Dictionary<string, WadBuilder> _wadFiles;
 
         public bool IsOpen => !this._isDisposed;
         private bool _isDisposed;
@@ -127,22 +127,26 @@ namespace Fantome.ModManagement.IO
                 char separator = Pathing.GetPathSeparator(wadFolderLocation);
                 string wadName = wadFolderLocation.Split(separator).Last();
 
-                using (WADFile wad = new WADFile(3, 0))
+                WadBuilder wad = new WadBuilder();
+
+                //Add each file to the WAD
+                foreach (string wadFolderFile in Directory.EnumerateFiles(wadFolderLocation, "*", SearchOption.AllDirectories))
                 {
-                    //Add each file to the WAD
-                    foreach (string wadFolderFile in Directory.EnumerateFiles(wadFolderLocation, "*", SearchOption.AllDirectories))
-                    {
-                        string path = wadFolderFile.Replace(wadFolderLocation + separator, "").Replace('\\', '/');
-                        ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
-                        string extension = Path.GetExtension(wadFolderFile);
+                    string path = wadFolderFile.Replace(wadFolderLocation + separator, "").Replace('\\', '/');
+                    ulong hash = XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower()));
 
-                        wad.AddEntry(hash, File.ReadAllBytes(wadFolderFile), extension != ".wpk" && extension != ".bnk" ? true : false);
-                    }
+                    WadEntryBuilder entryBuilder = new();
 
-                    //After WAD creation is finished we can write the WAD to the ZIP
-                    ZipArchiveEntry archiveEntry = this.Content.CreateEntry(string.Format("WAD/{0}", wadName));
-                    wad.Write(archiveEntry.Open());
+                    entryBuilder
+                        .WithPathXXHash(hash)
+                        .WithFileDataStream(File.OpenRead(wadFolderFile));
+
+                    wad.WithEntry(entryBuilder);
                 }
+
+                //After WAD creation is finished we can write the WAD to the ZIP
+                ZipArchiveEntry archiveEntry = this.Content.CreateEntry(string.Format("WAD/{0}", wadName));
+                wad.Build(archiveEntry.Open(), false);
             }
         }
 
@@ -293,14 +297,14 @@ namespace Fantome.ModManagement.IO
             return null;
         }
 
-        public Dictionary<string, WADFile> GetWadFiles(LeagueFileIndex index)
+        public Dictionary<string, WadBuilder> GetWadFiles(LeagueFileIndex index)
         {
             if (this._wadFiles != null)
             {
                 return this._wadFiles;
             }
 
-            Dictionary<string, WADFile> modWadFiles = new Dictionary<string, WADFile>();
+            Dictionary<string, WadBuilder> modWadFiles = new ();
 
             //Collect WAD files in WAD folder
             CollectWADFiles();
@@ -323,31 +327,24 @@ namespace Fantome.ModManagement.IO
                     string wadPath = index.FindWADPath(zipEntry.FullName.Split(ps)[1]);
 
                     zipEntry.ExtractToFile("wadtemp", true);
-                    modWadFiles.Add(wadPath, new WADFile(new MemoryStream(File.ReadAllBytes("wadtemp"))));
+                    modWadFiles.Add(wadPath, new WadBuilder(Wad.Mount(new MemoryStream(File.ReadAllBytes("wadtemp")), false)));
                     File.Delete("wadtemp");
 
                     //We need to check each entry to see if they're shared across any other WAD files
                     //if they are, we need to also modify those WADs
-                    foreach (WADEntry entry in modWadFiles[wadPath].Entries)
+                    foreach (var entry in modWadFiles[wadPath].Entries)
                     {
                         //Check if the entry is present in the game files or if it's new
-                        if (index.Game.ContainsKey(entry.XXHash))
+                        if (index.Game.ContainsKey(entry.Key))
                         {
-                            foreach (string additionalWadPath in index.Game[entry.XXHash].Where(x => x != wadPath))
+                            foreach (string additionalWadPath in index.Game[entry.Key].Where(x => x != wadPath))
                             {
                                 if (!modWadFiles.ContainsKey(additionalWadPath))
                                 {
-                                    modWadFiles.Add(additionalWadPath, new WADFile(3, 0));
+                                    modWadFiles.Add(additionalWadPath, new WadBuilder());
                                 }
 
-                                if (entry.Type == EntryType.Uncompressed)
-                                {
-                                    modWadFiles[additionalWadPath].AddEntry(entry.XXHash, entry.GetContent(false), false);
-                                }
-                                else if (entry.Type == EntryType.Compressed || entry.Type == EntryType.ZStandardCompressed)
-                                {
-                                    modWadFiles[additionalWadPath].AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, entry.Type);
-                                }
+                                modWadFiles[additionalWadPath].WithEntry(entry.Value);
                             }
                         }
                     }
@@ -367,40 +364,41 @@ namespace Fantome.ModManagement.IO
 
                     if (!modWadFiles.ContainsKey(wadPath))
                     {
-                        modWadFiles.Add(wadPath, new WADFile(3, 0));
+                        modWadFiles.Add(wadPath, new WadBuilder());
                         wadPaths.Add(wadPath);
                     }
 
-                    using (MemoryStream memoryStream = new MemoryStream())
-                    {
-                        zipEntry.Open().CopyTo(memoryStream);
-                        if (Path.GetExtension(path) == ".wpk")
-                        {
-                            modWadFiles[wadPath].AddEntry(hash, memoryStream.ToArray(), false);
-                        }
-                        else
-                        {
-                            modWadFiles[wadPath].AddEntry(hash, memoryStream.ToArray(), true);
-                        }
-                    }
+                    WadEntryBuilder entryBuilder = new();
+
+                    entryBuilder
+                        .WithPathXXHash(hash)
+                        .WithGenericDataStream(path, zipEntry.Open());
+
+                    modWadFiles[wadPath].WithEntry(entryBuilder);
                 }
 
                 //Shared Entry Check
                 foreach (string wadPath in wadPaths)
                 {
-                    foreach (WADEntry entry in modWadFiles[wadPath].Entries)
+                    foreach (var entry in modWadFiles[wadPath].Entries)
                     {
                         //Check if the entry is present in the game files or if it's new
-                        if (index.Game.ContainsKey(entry.XXHash))
+                        if (index.Game.ContainsKey(entry.Key))
                         {
-                            foreach (string additionalWadPath in index.Game[entry.XXHash].Where(x => x != wadPath))
+                            foreach (string additionalWadPath in index.Game[entry.Key].Where(x => x != wadPath))
                             {
                                 if (!modWadFiles.ContainsKey(additionalWadPath))
                                 {
-                                    modWadFiles.Add(additionalWadPath, new WADFile(3, 0));
+                                    modWadFiles.Add(additionalWadPath, new WadBuilder());
                                 }
 
-                                modWadFiles[additionalWadPath].AddEntryCompressed(entry.XXHash, entry.GetContent(false), entry.UncompressedSize, EntryType.ZStandardCompressed);
+                                WadEntryBuilder entryBuilder = new ();
+
+                                entryBuilder
+                                    .WithPathXXHash(entry.Key)
+                                    .WithZstdDataStream(entry.Value.DataStream, entry.Value.CompressedSize, entry.Value.UncompressedSize);
+
+                                modWadFiles[additionalWadPath].WithEntry(entryBuilder);
                             }
                         }
                     }
@@ -422,14 +420,16 @@ namespace Fantome.ModManagement.IO
                         {
                             if (!modWadFiles.ContainsKey(wadFilePath))
                             {
-                                modWadFiles.Add(wadFilePath, new WADFile(3, 0));
+                                modWadFiles.Add(wadFilePath, new WadBuilder());
                             }
 
-                            using (MemoryStream memoryStream = new MemoryStream())
-                            {
-                                zipEntry.Open().CopyTo(memoryStream);
-                                modWadFiles[wadFilePath].AddEntry(hash, memoryStream.ToArray(), true);
-                            }
+                            WadEntryBuilder entryBuilder = new();
+
+                            entryBuilder
+                                .WithPathXXHash(hash)
+                                .WithGenericDataStream(path, zipEntry.Open());
+
+                            modWadFiles[wadFilePath].WithEntry(entryBuilder);
                         }
                     }
                 }
@@ -460,9 +460,12 @@ namespace Fantome.ModManagement.IO
         {
             if (this._wadFiles != null)
             {
-                foreach (KeyValuePair<string, WADFile> wad in this._wadFiles)
+                foreach (KeyValuePair<string, WadBuilder> wad in this._wadFiles)
                 {
-                    wad.Value.Dispose();
+                    foreach(var entry in wad.Value.Entries)
+                    {
+                        entry.Value.DataStream.Dispose();
+                    }
                 }
             }
 
