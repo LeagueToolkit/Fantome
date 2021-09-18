@@ -6,6 +6,7 @@ using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
 using MudBlazor.Services;
 using Fantome.Data;
+using Fluxor;
 
 namespace Fantome
 {
@@ -13,7 +14,7 @@ namespace Fantome
     {
         public static MauiApp CreateMauiApp()
         {
-            var builder = MauiApp.CreateBuilder();
+            MauiAppBuilder builder = MauiApp.CreateBuilder();
             builder
                 .RegisterBlazorMauiWebView()
                 .UseMauiApp<App>()
@@ -24,6 +25,7 @@ namespace Fantome
 
             builder.Services.AddBlazorWebView();
             builder.Services.AddMudServices();
+            builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(MauiProgram).Assembly));
             builder.Services.AddSingleton<WeatherForecastService>();
 
             return builder.Build();
