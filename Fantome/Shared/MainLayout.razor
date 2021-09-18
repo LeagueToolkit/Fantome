@@ -13,7 +13,7 @@
     </MudAppBar>
     <MudDrawer @bind-Open="_isNavDrawerOpen" Elevation="1">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">Fantome</MudText>
+            <MudText Color="Color.Primary" Typo="Typo.h6">Fantome</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
@@ -27,6 +27,7 @@
     {
         Palette = new Palette()
         {
+            Primary = "#1ddb9c",
             Black = "#27272f",
             Background = "#32333d", 
             BackgroundGrey = "#27272f",
