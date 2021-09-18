@@ -7,6 +7,7 @@ using Microsoft.Maui.Hosting;
 using MudBlazor.Services;
 using Fantome.Data;
 using Fluxor;
+using Fantome.Utilities;
 
 namespace Fantome
 {
@@ -28,7 +29,15 @@ namespace Fantome
             builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(MauiProgram).Assembly));
             builder.Services.AddSingleton<WeatherForecastService>();
 
+            InitializationRoutine();
+
             return builder.Build();
+        }
+
+        private static void InitializationRoutine()
+        {
+            Config.Load();
+            Logging.Initialize();
         }
     }
 }
