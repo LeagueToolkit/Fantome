@@ -57,7 +57,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Fluxor" Version="4.1.0" />
+	  <PackageReference Include="Fluxor.Blazor.Web" Version="4.1.0" />
 	  <PackageReference Include="MudBlazor" Version="5.1.4" />
 	</ItemGroup>
 
