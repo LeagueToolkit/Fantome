@@ -1,21 +1,19 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider Theme="currentTheme" />
-
+<MudThemeProvider Theme="theme" />
 
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
     <MudAppBar Elevation="0">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => ToggleNavDrawer())" />
         <MudAppBarSpacer />
-        <MudIconButton Icon="@Icons.Custom.Brands.MudBlazor" Color="Color.Inherit" Link="https://mudblazor.com/" Target="_blank" />
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/Garderoben/MudBlazor" Target="_blank" />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/LoL-Fantome/Fantome" Target="_blank" />
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
+    <MudDrawer @bind-Open="_isNavDrawerOpen" Elevation="1">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">Mudblazor Template</MudText>
+            <MudText Typo="Typo.h6">Fantome</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
@@ -25,9 +23,7 @@
 </MudLayout>
 
 @code {
-    MudTheme currentTheme = new MudTheme();
-
-    MudTheme darkTheme = new MudTheme()
+    MudTheme theme = new MudTheme()
     {
         Palette = new Palette()
         {
@@ -54,15 +50,15 @@
         }
     };
     
-    bool _drawerOpen = true;
-
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
+    private bool _isNavDrawerOpen = true;
 
     protected override void OnInitialized()
     {
-        currentTheme = darkTheme;
+        
+    }
+
+    private void ToggleNavDrawer()
+    {
+        _isNavDrawerOpen = !_isNavDrawerOpen;
     }
 }
