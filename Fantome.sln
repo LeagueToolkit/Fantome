@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31710.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fantome", "Fantome\Fantome.csproj", "{40D22C58-57BE-4AEB-BDEF-5C93DC3047BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40D22C58-57BE-4AEB-BDEF-5C93DC3047BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40D22C58-57BE-4AEB-BDEF-5C93DC3047BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40D22C58-57BE-4AEB-BDEF-5C93DC3047BC}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{40D22C58-57BE-4AEB-BDEF-5C93DC3047BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40D22C58-57BE-4AEB-BDEF-5C93DC3047BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40D22C58-57BE-4AEB-BDEF-5C93DC3047BC}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FBA1FA6A-5B7E-43AB-98DA-CE302FC0A5E6}
+	EndGlobalSection
+EndGlobal
