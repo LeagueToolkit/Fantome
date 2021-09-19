@@ -8,6 +8,7 @@ using MudBlazor.Services;
 using Fantome.Data;
 using Fluxor;
 using Fantome.Utilities;
+using MudBlazor;
 
 namespace Fantome
 {
@@ -25,7 +26,18 @@ namespace Fantome
                 });
 
             builder.Services.AddBlazorWebView();
-            builder.Services.AddMudServices();
+            builder.Services.AddMudServices(config =>
+            {
+                config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
+
+                config.SnackbarConfiguration.PreventDuplicates = false;
+                config.SnackbarConfiguration.NewestOnTop = true;
+                config.SnackbarConfiguration.VisibleStateDuration = 10000;
+                config.SnackbarConfiguration.HideTransitionDuration = 200;
+                config.SnackbarConfiguration.ShowTransitionDuration = 200;
+                config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+
+            });
 
 #if DEBUG
             builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(MauiProgram).Assembly).UseReduxDevTools());
