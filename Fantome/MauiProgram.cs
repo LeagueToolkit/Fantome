@@ -26,7 +26,13 @@ namespace Fantome
 
             builder.Services.AddBlazorWebView();
             builder.Services.AddMudServices();
+
+#if DEBUG
+            builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(MauiProgram).Assembly).UseReduxDevTools());
+#elif !DEBUG
             builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(MauiProgram).Assembly));
+#endif
+
             builder.Services.AddSingleton<WeatherForecastService>();
 
             InitializationRoutine();
