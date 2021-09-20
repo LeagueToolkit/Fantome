@@ -9,6 +9,9 @@ using Fantome.Data;
 using Fluxor;
 using Fantome.Utilities;
 using MudBlazor;
+using System.Net.Http;
+using System;
+using Fantome.Store.Middlewares;
 
 namespace Fantome
 {
@@ -40,7 +43,10 @@ namespace Fantome
             });
 
 #if DEBUG
-            builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(MauiProgram).Assembly).UseReduxDevTools());
+            builder.Services.AddFluxor(options => options
+                .ScanAssemblies(typeof(MauiProgram).Assembly)
+                .UseReduxDevTools()
+                .AddMiddleware<LoggerMiddleware>());
 #elif !DEBUG
             builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(MauiProgram).Assembly));
 #endif
@@ -55,7 +61,6 @@ namespace Fantome
         private static void InitializationRoutine()
         {
             Config.Load();
-            Logging.Initialize();
         }
     }
 }

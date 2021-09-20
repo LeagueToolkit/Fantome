@@ -1,0 +1,65 @@
+﻿@using Microsoft.WindowsAPICodePack.Dialogs;
+@using System.IO
+@using Fantome.Store.Modules.Config;
+
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+@inject ISnackbar Snackbar
+@inject IDispatcher Dispatcher
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">Select your League of Legends folder</MudText>
+    </TitleContent>
+	<DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudText>Fantome requires that you select your Game folder which is located at <MudText Inline="true" Color="Color.Primary">C:\Riot Games\League of Legends\Game</MudText> by default</MudText>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="GameFolder" Label="Game folder" Variant="Variant.Filled" Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Folder" AdornmentColor="Color.Primary" OnAdornmentClick="() => OpenPicker()" chan/>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        
+        <MudButton Class="mx-auto" Color="Color.Primary" OnClick="Submit" Disabled="!IsLocationValid(this.GameFolder)">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Inject] IState<ConfigState> ConfigState { get; set; }
+
+    public string GameFolder { get; set; }
+
+    private void Submit()
+    {
+        this.Dispatcher.Dispatch(new SetLeagueLocationAction() { LeagueLocation = this.GameFolder });
+        this.MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void OpenPicker()
+    {
+        CommonOpenFileDialog dialog = new() { IsFolderPicker = true };
+
+        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+        {
+            if(IsLocationValid(dialog.FileName))
+            {
+                this.GameFolder = dialog.FileName;
+            }
+            else
+            {
+                this.Snackbar.Add("Invalid Game folder!", Severity.Error);
+            }
+        }    
+    }
+
+    private bool IsLocationValid(string location) => location switch
+    {
+        null => false,
+        _ => File.Exists(Path.Combine(location, "League of Legends.exe"))
+    };
+}

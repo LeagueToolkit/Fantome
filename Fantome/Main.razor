@@ -1,7 +1,8 @@
-﻿@using Fantome.Store.Modules.Config;
-
-<Fluxor.Blazor.Web.StoreInitializer/>
+﻿<Fluxor.Blazor.Web.StoreInitializer/>
   
+<MudDialogProvider />
+<MudSnackbarProvider />
+
 <Router AppAssembly="@GetType().Assembly">
 	<Found Context="routeData">
 		<RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
@@ -14,19 +15,5 @@
 </Router>
 
 @code {
-	[Inject]
-	private IState<ConfigState> _configState { get; set; }
-
-	protected override void OnInitialized()
-	{
-		if(string.IsNullOrEmpty(this._configState.Value.LeagueLocation))
-		{
-			LeagueLocationSelectionRoutine();
-		}
-	}
-
-	private void LeagueLocationSelectionRoutine()
-	{
-		
-	}
+	
 }

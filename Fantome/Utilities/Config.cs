@@ -16,7 +16,6 @@ namespace Fantome.Utilities
         private static readonly Dictionary<string, object> _defaultConfig = new()
         {
             { "LeagueLocation", "" },
-            { "LoggingPattern", "{Timestamp:dd-MM-yyyy HH:mm:ss.fff} | [{Level}] | {Message:lj}{NewLine}{Exception}" },
             { "GameHashtableChecksum", "" },
             { "LCUHashtableChecksum", "" },
             { "PackedBinRegex", @"^DATA/.*_(Skins_Skin|Tiers_Tier|(Skins|Tiers)_Root).*\.bin$" },
