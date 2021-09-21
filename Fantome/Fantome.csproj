@@ -60,15 +60,12 @@
 	<ItemGroup>
 	  <PackageReference Include="Fluxor.Blazor.Web" Version="4.1.0" />
 	  <PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="4.1.0" />
+	  <PackageReference Include="LeagueToolkit" Version="2.4.2" />
 	  <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
 	  <PackageReference Include="MudBlazor" Version="5.1.4" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	  <PackageReference Include="Serilog" Version="2.11.0-dev-01371" />
 	  <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Core\" />
 	</ItemGroup>
 
 </Project>

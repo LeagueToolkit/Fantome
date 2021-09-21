@@ -35,7 +35,7 @@ namespace Fantome.Store.Middlewares
 
         public override void AfterDispatch(object action)
         {
-            Log.Information($"Dispatch: |{action.GetType().Name}| {JsonConvert.SerializeObject(action)}");
+            Log.Information($"Dispatch: |{action.GetType().Name}|");
         }
     }
 }

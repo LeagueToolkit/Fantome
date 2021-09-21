@@ -1,17 +1,14 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+﻿using Fantome.Data;
+using Fantome.Store.Middlewares;
+using Fantome.Utilities;
+using Fluxor;
+using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui;
-using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
-using MudBlazor.Services;
-using Fantome.Data;
-using Fluxor;
-using Fantome.Utilities;
 using MudBlazor;
-using System.Net.Http;
-using System;
-using Fantome.Store.Middlewares;
+using MudBlazor.Services;
 
 namespace Fantome
 {
