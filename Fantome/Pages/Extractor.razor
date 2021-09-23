@@ -1,5 +1,10 @@
 ﻿@page "/extractor"
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16">
-    <MudText Color="Color.Primary" Typo="Typo.h3" GutterBottom="true">Extractor</MudText>
-</MudContainer>
+<MudPaper Elevation="1">
+	<MudToolBar >
+        <MudTooltip Text="Open WAD File">
+            <MudIconButton Icon="@Icons.Material.Filled.UploadFile" OnClick="() => OpenWadFile()"/>
+        </MudTooltip>
+    </MudToolBar>
+</MudPaper>
+<MudTabs></MudTabs>
