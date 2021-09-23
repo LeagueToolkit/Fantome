@@ -1,4 +1,5 @@
 ﻿using Fantome.Dialogs;
+using Fantome.Store.Modules.App;
 using Fantome.Store.Modules.Config;
 using Fantome.Utilities;
 using Fluxor;
@@ -14,13 +15,13 @@ using System.Threading.Tasks;
 
 namespace Fantome.Shared
 {
-    public partial class MainLayout
+    public partial class MainLayout : IComponent
     {
-        [Inject]
-        private IDialogService DialogService { get; set; }
+        [Inject] private IDialogService DialogService { get; set; }
+        [Inject] private IState<ConfigState> ConfigState { get; set; }
+        [Inject] public IState<AppState> AppState { get; set; }
 
-        [Inject]
-        private IState<ConfigState> ConfigState { get; set; }
+        [Parameter] public RenderFragment Body {get; set;}
 
         private readonly MudTheme _theme = new()
         {
@@ -52,25 +53,6 @@ namespace Fantome.Shared
 
         private bool _isNavDrawerOpen = true;
 
-        protected override void OnAfterRender(bool firstRender)
-        {
-            if (firstRender && string.IsNullOrEmpty(this.ConfigState.Value.LeagueLocation))
-            {
-                ShowSelectLeagueLocationDialog();
-            }
-        }
-
-        private void ShowSelectLeagueLocationDialog()
-        {
-            this.DialogService.Show<SelectLeagueLocationDialog>(null, new DialogOptions()
-            {
-                DisableBackdropClick = true
-            });
-        }
-
-        private void ToggleNavDrawer()
-        {
-            this._isNavDrawerOpen = !this._isNavDrawerOpen;
-        }
+        private void ToggleNavDrawer() => this._isNavDrawerOpen = !this._isNavDrawerOpen;
     }
 }

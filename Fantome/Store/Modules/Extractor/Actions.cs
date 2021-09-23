@@ -8,14 +8,14 @@ namespace Fantome.Store.Modules.Extractor
 {
     public class AddWadAction
     {
-        public string WadFileLocation { get; set; }
-    }
-    public class AddWadActionSuccess
-    {
-
-    }
-    public class AddWadActionError
-    {
-        public Exception Error { get; set; }
+        public class Request : AsyncActionRequest
+        {
+            public string WadFileLocation { get; set; }
+        }
+        public class Success : AsyncActionSuccess { }
+        public class Failure : AsyncActionFailure
+        {
+            public Exception Error { get; set; }
+        }
     }
 }

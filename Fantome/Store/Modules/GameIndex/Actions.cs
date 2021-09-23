@@ -7,12 +7,16 @@ using Fantome.Core;
 
 namespace Fantome.Store.Modules.GameIndex
 {
-    public class FetchGameIndexAction
+    public class BuildGameIndexAction
     {
-        public string GameLocation { get; set; }
-    }
-    public class FetchGameIndexSuccessAction
-    {
-        public GameIndexStorage GameIndex { get; set; }
+        public class Request : AsyncActionRequest { }
+        public class Success : AsyncActionSuccess 
+        {
+            public GameIndexStorage GameIndex { get; set; }
+        }
+        public class Failure : AsyncActionFailure 
+        { 
+            public Exception Error { get; set; } 
+        }
     }
 }

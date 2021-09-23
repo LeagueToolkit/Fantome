@@ -10,15 +10,9 @@ namespace Fantome.Store.Modules.GameIndex
     public static class FetchGameIndexReducers
     {
         [ReducerMethod]
-        public static GameIndexState HandleFetchGameIndex(GameIndexState state, FetchGameIndexAction action)
+        public static GameIndexState HandleBuildGameIndexSuccess(GameIndexState state, BuildGameIndexAction.Success action)
         {
-            return state with { IsLoading = true };
-        }
-
-        [ReducerMethod]
-        public static GameIndexState HandleFetchGameIndexSuccess(GameIndexState state, FetchGameIndexSuccessAction action)
-        {
-            return state with { IsLoading = false, WadToEntriesMap = new(action.GameIndex.WadToEntriesMap) };
+            return state with { WadToEntriesMap = new(action.GameIndex.WadToEntriesMap) };
         }
     }
 }

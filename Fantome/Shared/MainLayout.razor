@@ -1,23 +1,43 @@
-﻿@inherits LayoutComponentBase
-
-@using Fantome.Store.Modules.Config;
+﻿@using Fantome.Store.Modules.Config;
 @using Fantome.Dialogs;
+@using Fantome.Store.Modules.App;
+
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
 <MudThemeProvider Theme="_theme" />
 
-<MudLayout>
-    <MudAppBar Elevation="0">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => ToggleNavDrawer())" />
-        <MudAppBarSpacer />
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/LoL-Fantome/Fantome" Target="_blank" />
-    </MudAppBar>
-    <MudDrawer @bind-Open="_isNavDrawerOpen" Elevation="1">
-        <MudDrawerHeader>
-            <MudText Color="Color.Primary" Typo="Typo.h6">Fantome</MudText>
-        </MudDrawerHeader>
-        <NavMenu />
-    </MudDrawer>
-    <MudMainContent>
-        @Body
-    </MudMainContent>
-</MudLayout>
+@code {
+	private ActionState GetFetchConfigState() => this.AppState.Value.GetActionState(typeof(FetchConfigAction));
+}
+
+@if (GetFetchConfigState().Status != ActionStatus.Finished)
+{
+	<Spinner/>
+}
+else
+{
+	if(string.IsNullOrEmpty(this.ConfigState.Value.LeagueLocation))
+	{
+		 this.DialogService.Show<SelectLeagueLocationDialog>(null, new DialogOptions()
+         {
+             DisableBackdropClick = true
+         });
+	}
+
+	<MudLayout>
+		<MudAppBar Elevation="0">
+			<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => ToggleNavDrawer())" />
+			<MudAppBarSpacer />
+			<MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/LoL-Fantome/Fantome" Target="_blank" />
+		</MudAppBar>
+		<MudDrawer @bind-Open="_isNavDrawerOpen" Elevation="1">
+			<MudDrawerHeader>
+				<MudText Color="Color.Primary" Typo="Typo.h6">Fantome</MudText>
+			</MudDrawerHeader>
+			<NavMenu />
+		</MudDrawer>
+		<MudMainContent>
+			@Body
+		</MudMainContent>
+	</MudLayout>
+}
