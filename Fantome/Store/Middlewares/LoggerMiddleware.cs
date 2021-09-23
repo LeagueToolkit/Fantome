@@ -35,7 +35,16 @@ namespace Fantome.Store.Middlewares
 
         public override void AfterDispatch(object action)
         {
-            Log.Information($"Dispatch: |{action.GetType().Name}|");
+            if(action is AsyncAction)
+            {
+                Type actionType = action.GetType();
+
+                Log.Information($"Dispatch: |{actionType.DeclaringType.Name}.{actionType.Name}|");
+            }
+            else
+            {
+                Log.Information($"Dispatch: |{action.GetType().Name}|");
+            }
         }
     }
 }
