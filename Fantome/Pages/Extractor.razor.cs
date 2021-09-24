@@ -22,7 +22,7 @@ namespace Fantome.Pages
 
             if(commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                this.Dispatcher.Dispatch(new AddWadAction() { WadFileLocation = commonOpenFileDialog.FileName });
+                this.Dispatcher.Dispatch(new AddWadAction.Request() { WadFileLocation = commonOpenFileDialog.FileName });
             }
         }
     }

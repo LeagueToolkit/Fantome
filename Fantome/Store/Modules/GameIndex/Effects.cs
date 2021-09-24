@@ -28,11 +28,11 @@ namespace Fantome.Store.Modules.GameIndex
             {
                 GameIndexStorage indexStorage = Core.GameIndex.ScanGameLocation(this._config.Value.LeagueLocation);
 
-                dispatcher.Dispatch(new BuildGameIndexSuccessAction() { GameIndex = indexStorage });
+                dispatcher.Dispatch(new BuildGameIndexAction.Success() { GameIndex = indexStorage });
             }
             catch (Exception exception)
             {
-                dispatcher.Dispatch(new BuildGameIndexErrorAction() { Exception = exception });
+                dispatcher.Dispatch(new BuildGameIndexAction.Failure() { Error = exception });
             }
 
             return Task.CompletedTask;
