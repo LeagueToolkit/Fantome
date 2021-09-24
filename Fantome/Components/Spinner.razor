@@ -1,9 +1,7 @@
 ﻿<div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%;">
-	<MudProgressCircular Class="my-auto" Indeterminate Color="Color.Primary" Size="Size.Large">
-
-	</MudProgressCircular>
+	<MudProgressCircular Class="my-auto" Indeterminate Color="Color.Primary" Size="Size.Large"/>
+	@if(!string.IsNullOrEmpty(this.Message))
+	{
+		<MudText >@this.Message</MudText>
+	}
 </div>
-
-@code {
-
-}
