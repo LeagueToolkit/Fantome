@@ -14,6 +14,8 @@ namespace Fantome.Store.Modules.Config
         {
             LeagueLocation = "",
             LoggingPattern = "{Timestamp:dd-MM-yyyy HH:mm:ss.fff} | [{Level}] | {Message:lj}{NewLine}{Exception}",
+            GameHashtablePath = "GAME_HASHTABLE.json",
+            LCUHashtablePath = "LCU_HASHTABLE.json",
             GameHashtableChecksum = "",
             LCUHashtableChecksum = "",
             PackedBinRegex = @"^DATA/.*_(Skins_Skin|Tiers_Tier|(Skins|Tiers)_Root).*\.bin$",

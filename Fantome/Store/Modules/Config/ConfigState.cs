@@ -4,6 +4,8 @@
     {
         public string LeagueLocation { get; init; }
         public string LoggingPattern { get; init; }
+        public string GameHashtablePath { get; init; }
+        public string LCUHashtablePath { get; init; }
         public string GameHashtableChecksum { get; init; }
         public string LCUHashtableChecksum { get; init; }
         public string PackedBinRegex { get; init; }
