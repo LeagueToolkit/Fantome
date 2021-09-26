@@ -1,4 +1,4 @@
-﻿using Fantome.Data;
+﻿using Fantome.Services;
 using Fantome.Store.Middlewares;
 using Fantome.Utilities;
 using Fluxor;
@@ -45,10 +45,10 @@ namespace Fantome
                 .UseReduxDevTools()
                 .AddMiddleware<LoggerMiddleware>());
 #elif !DEBUG
-            builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(MauiProgram).Assembly));
+            builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(MauiProgram).Assembly).AddMiddleware<LoggerMiddleware>()););
 #endif
 
-            builder.Services.AddSingleton<WeatherForecastService>();
+            builder.Services.AddSingleton<IWadRepositoryService, WadRepositoryService>();
 
             InitializationRoutine();
 
