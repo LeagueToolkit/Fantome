@@ -11,7 +11,7 @@ namespace Fantome.Store.Modules.Hashtable
     {
         public ReadOnlyDictionary<ulong, string> Table => new(this._table);
 
-        private Dictionary<ulong, string> _table = new();
+        private readonly Dictionary<ulong, string> _table = new();
 
         public HashtableState(Dictionary<ulong, string> table)
         {
