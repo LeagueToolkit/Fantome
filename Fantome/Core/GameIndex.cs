@@ -30,6 +30,11 @@ namespace Fantome.Core
                     using Wad wad = Wad.Mount(wadFilePath, false);
 
                     index.WadToEntriesMap.TryAdd(relativeWadFilePath, wad.Entries.Keys.ToList());
+                
+                    foreach(KeyValuePair<ulong, WadEntry> entry in wad.Entries)
+                    {
+
+                    }
                 }
                 catch (InvalidFileSignatureException exception)
                 {
@@ -56,5 +61,6 @@ namespace Fantome.Core
     public sealed class GameIndexStorage
     {
         public Dictionary<string, List<ulong>> WadToEntriesMap { get; set; } = new();
+        public Dictionary<string, List<string>> EntryToWadsMap { get; set; } = new();
     }
 }
