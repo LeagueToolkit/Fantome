@@ -1,4 +1,5 @@
 ﻿using Fantome.Services;
+using Fantome.Services.WadRepository;
 using Fantome.Store.Middlewares;
 using Fantome.Utilities;
 using Fluxor;
