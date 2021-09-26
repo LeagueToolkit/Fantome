@@ -35,7 +35,7 @@ namespace Fantome.Core.ModFile
                 throw new InvalidModVersionException();
             }
 
-            ulong reserved = br.ReadUInt64();
+            uint reserved = br.ReadUInt32();
             
             ulong tocOffset = br.ReadUInt64();
             ulong tocEntryCount = br.ReadUInt64();

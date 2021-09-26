@@ -33,8 +33,8 @@ namespace Fantome.Core.ModFile
 
             ModEntryCompressionType compressionType = (ModEntryCompressionType)br.ReadUInt32();
 
-            string name = Encoding.UTF8.GetString(br.ReadBytes(br.ReadInt32())).Trim('\0');
-            string comment = Encoding.UTF8.GetString(br.ReadBytes(br.ReadInt32())).Trim('\0');
+            string name = Encoding.UTF8.GetString(br.ReadBytes(br.ReadInt32() + 1)).Trim('\0');
+            string comment = Encoding.UTF8.GetString(br.ReadBytes(br.ReadInt32() + 1)).Trim('\0');
 
             return new ModEntry() 
             {
