@@ -10,6 +10,6 @@ namespace Fantome.Store.Modules.Hashtable
     public class Feature : Feature<HashtableState>
     {
         public override string GetName() => "Hashtable";
-        protected override HashtableState GetInitialState() => new();
+        protected override HashtableState GetInitialState() => new(new());
     }
 }

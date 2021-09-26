@@ -1,7 +1,6 @@
 ﻿using Fantome.Dialogs;
 using Fantome.Store.Modules.App;
 using Fantome.Store.Modules.Config;
-using Fantome.Utilities;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Maui.Essentials;

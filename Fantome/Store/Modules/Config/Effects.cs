@@ -35,16 +35,15 @@ namespace Fantome.Store.Modules.Config
 
                 Log.Information("Loaded Config");
 
-                dispatcher.Dispatch(new SetConfigAction()
+                dispatcher.Dispatch(new FetchConfigAction.Success() 
                 {
                     Config = JsonConvert.DeserializeObject<ConfigState>(configSerialized)
                 });
-                dispatcher.Dispatch(new FetchConfigAction.Success());
             }
             catch (FileNotFoundException)
             {
                 await SaveConfig();
-                dispatcher.Dispatch(new FetchConfigAction.Success());
+                dispatcher.Dispatch(new FetchConfigAction.Success() { Config = this._configState.Value });
             }
             catch (Exception exception)
             {

@@ -1,7 +1,7 @@
-﻿using Fantome.Services;
+﻿using System.Net.Http;
+using Fantome.Services;
 using Fantome.Services.WadRepository;
 using Fantome.Store.Middlewares;
-using Fantome.Utilities;
 using Fluxor;
 using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,14 +21,14 @@ namespace Fantome
             builder
                 .RegisterBlazorMauiWebView()
                 .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
+                .ConfigureFonts(fonts => {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
+            builder.Services.AddScoped(sp => new HttpClient());
+
             builder.Services.AddBlazorWebView();
-            builder.Services.AddMudServices(config =>
-            {
+            builder.Services.AddMudServices(config => {
                 config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
 
                 config.SnackbarConfiguration.PreventDuplicates = false;
@@ -51,14 +51,7 @@ namespace Fantome
 
             builder.Services.AddSingleton<IWadRepositoryService, WadRepositoryService>();
 
-            InitializationRoutine();
-
             return builder.Build();
-        }
-
-        private static void InitializationRoutine()
-        {
-            Config.Load();
         }
     }
 }

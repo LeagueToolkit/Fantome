@@ -1,6 +1,7 @@
 ﻿@using Fantome.Store.Modules.Config;
 @using Fantome.Dialogs;
 @using Fantome.Store.Modules.App;
+@using Fantome.Store.Modules.Hashtable;
 
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
@@ -8,11 +9,16 @@
 
 @code {
 	private ActionState GetFetchConfigState() => this.AppState.Value.GetActionState(typeof(FetchConfigAction));
+	private ActionState GetFetchHashtableState() => this.AppState.Value.GetActionState(typeof(FetchHashtableAction));
 }
 
 @if (GetFetchConfigState().Status != ActionStatus.Finished)
 {
 	<Spinner Message="Loading Config..."/>
+}
+else if (GetFetchHashtableState().Status != ActionStatus.Finished)
+{
+	<Spinner Message="Fetching hashtables..."/>
 }
 else
 {

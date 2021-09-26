@@ -15,7 +15,7 @@ namespace Fantome.Store.Modules.Hashtable
 
         public static HashtableState HandleExtendHashtable(HashtableState state, ExtendHashtableAction action)
         {
-            Dictionary<ulong, string> extendedHashtable = new(state.Table);
+            Dictionary<ulong, string> extendedHashtable = new(state.GetTable());
 
             foreach (KeyValuePair<ulong, string> extendEntry in action.Hashtable)
             {

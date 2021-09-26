@@ -20,7 +20,7 @@
 
 		<!-- Required for C# Hot Reload -->
 		<UseInterpreter Condition="'$(Configuration)' == 'Debug'">True</UseInterpreter>
-		<TargetFramework>net6.0-windows10.0.19041</TargetFramework>
+		<TargetFramework>net6-windows10.0.19041.0</TargetFramework>
   		<TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
     	<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     	<Platforms>x64</Platforms>
@@ -71,6 +71,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Data\" />
+	  <Folder Include="Utilities\" />
 	</ItemGroup>
 
 </Project>

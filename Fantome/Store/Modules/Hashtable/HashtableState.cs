@@ -9,8 +9,6 @@ namespace Fantome.Store.Modules.Hashtable
 {
     public record HashtableState
     {
-        public ReadOnlyDictionary<ulong, string> Table => new(this._table);
-
         private readonly Dictionary<ulong, string> _table = new();
 
         public HashtableState(Dictionary<ulong, string> table)
@@ -29,5 +27,7 @@ namespace Fantome.Store.Modules.Hashtable
                 return key.ToString("x16");
             }
         }
+
+        public ReadOnlyDictionary<ulong, string> GetTable() => new(this._table);
     }
 }
