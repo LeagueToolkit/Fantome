@@ -23,10 +23,10 @@ namespace Fantome.Store.Modules.Config
         }
 
         [EffectMethod]
-        public async Task HandleConfigAction(ConfigAction action, IDispatcher dispatcher) => await SaveConfig();
+        public async Task HandleConfig(ConfigAction action, IDispatcher dispatcher) => await SaveConfig();
 
         [EffectMethod]
-        public async Task HandleFetchConfigRequestAction(FetchConfigAction.Request action, IDispatcher dispatcher)
+        public async Task HandleFetchConfigRequest(FetchConfigAction.Request action, IDispatcher dispatcher)
         {
             try
             {

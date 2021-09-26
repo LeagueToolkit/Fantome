@@ -22,7 +22,7 @@ namespace Fantome.Store.Modules.GameIndex
         }
 
         [EffectMethod]
-        public Task HandleBuildGameIndex(BuildGameIndexAction _, IDispatcher dispatcher)
+        public Task HandleBuildGameIndexRequest(BuildGameIndexAction.Request _, IDispatcher dispatcher)
         {
             try
             {
