@@ -9,7 +9,7 @@ namespace Fantome.Store.Modules.GameIndex
 {
     public record GameIndexState
     {
-        public bool IsLoading { get; init; }
         public ReadOnlyDictionary<string, List<ulong>> WadToEntriesMap { get; init; }
+        public ReadOnlyDictionary<ulong, List<string>> EntryToWadsMap { get; init; }
     }
 }

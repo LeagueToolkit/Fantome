@@ -2,6 +2,7 @@
 @using Fantome.Dialogs;
 @using Fantome.Store.Modules.App;
 @using Fantome.Store.Modules.Hashtable;
+@using Fantome.Store.Modules.GameIndex;
 
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
@@ -10,6 +11,7 @@
 @code {
 	private ActionState GetFetchConfigState() => this.AppState.Value.GetActionState(typeof(FetchConfigAction));
 	private ActionState GetFetchHashtableState() => this.AppState.Value.GetActionState(typeof(FetchHashtableAction));
+	private ActionState GetBuildGameIndexState() => this.AppState.Value.GetActionState(typeof(BuildGameIndexAction));
 }
 
 @if (GetFetchConfigState().Status != ActionStatus.Finished)
@@ -19,6 +21,10 @@
 else if (GetFetchHashtableState().Status != ActionStatus.Finished)
 {
 	<Spinner Message="Fetching hashtables..."/>
+}
+else if (GetBuildGameIndexState().Status != ActionStatus.Finished)
+{
+	<Spinner Message="Building Game Index..."/>
 }
 else
 {

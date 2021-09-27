@@ -18,4 +18,14 @@ namespace Fantome.Store.Modules.Explorer
             public Exception Error { get; set; }
         }
     }
+
+    public class SynchronizeWadRepositoryAction
+    {
+        public class Request : AsyncActionRequest { }
+        public class Success : AsyncActionSuccess { }
+        public class Failure : AsyncActionFailure
+        {
+            public Exception Error { get; set; }
+        }
+    }
 }

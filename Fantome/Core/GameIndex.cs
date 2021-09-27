@@ -15,26 +15,21 @@ namespace Fantome.Core
 {
     public static class GameIndex
     {
-        private const string FILE_PATH = "GAME_INDEX.json";
-
         public static GameIndexStorage ScanGameLocation(string gameLocation)
         {
             Log.Information("Scanning Game location: " + gameLocation);
 
             GameIndexStorage index = new();
-            foreach(string wadFilePath in Directory.EnumerateFiles(gameLocation, "*.wad.client", SearchOption.AllDirectories))
+            foreach (string wadFilePath in Directory.EnumerateFiles(gameLocation, "*.wad.client", SearchOption.AllDirectories))
             {
                 try
                 {
                     string relativeWadFilePath = wadFilePath.Replace(gameLocation + Path.DirectorySeparatorChar, "");
                     using Wad wad = Wad.Mount(wadFilePath, false);
 
-                    index.WadToEntriesMap.TryAdd(relativeWadFilePath, wad.Entries.Keys.ToList());
-                
-                    foreach(KeyValuePair<ulong, WadEntry> entry in wad.Entries)
-                    {
+                    GenerateWadToEntriesMap(index, relativeWadFilePath, wad);
+                    GenerateEntryToWadsMap(index, relativeWadFilePath, wad);
 
-                    }
                 }
                 catch (InvalidFileSignatureException exception)
                 {
@@ -49,18 +44,25 @@ namespace Fantome.Core
             return index;
         }
 
-        public static async Task<GameIndexStorage> FetchAsync()
+        private static void GenerateWadToEntriesMap(GameIndexStorage index, string relativeWadFilePath, Wad wad)
         {
-            StorageFile indexFile = await ApplicationData.Current.LocalFolder.GetFileAsync(FILE_PATH);
-            string indexFileContent = await FileIO.ReadTextAsync(indexFile);
-
-            return JsonConvert.DeserializeObject<GameIndexStorage>(indexFileContent);
+            index.WadToEntriesMap.TryAdd(relativeWadFilePath, wad.Entries.Keys.ToList());
+        }
+        private static void GenerateEntryToWadsMap(GameIndexStorage index, string relativeWadFilePath, Wad wad)
+        {
+            foreach (KeyValuePair<ulong, WadEntry> entry in wad.Entries)
+            {
+                if (index.EntryToWadsMap.TryAdd(entry.Key, new() { relativeWadFilePath }) is false)
+                {
+                    index.EntryToWadsMap[entry.Key].Add(relativeWadFilePath);
+                }
+            }
         }
     }
 
     public sealed class GameIndexStorage
     {
         public Dictionary<string, List<ulong>> WadToEntriesMap { get; set; } = new();
-        public Dictionary<string, List<string>> EntryToWadsMap { get; set; } = new();
+        public Dictionary<ulong, List<string>> EntryToWadsMap { get; set; } = new();
     }
 }

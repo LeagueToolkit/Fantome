@@ -13,7 +13,8 @@ namespace Fantome.Store.Modules.GameIndex
         public override string GetName() => "GameIndex";
         protected override GameIndexState GetInitialState() => new()
         { 
-            WadToEntriesMap = new(new Dictionary<string, List<ulong>>())
+            WadToEntriesMap = new(new Dictionary<string, List<ulong>>()),
+            EntryToWadsMap = new(new Dictionary<ulong, List<string>>())
         };
     }
 }

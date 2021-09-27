@@ -12,7 +12,11 @@ namespace Fantome.Store.Modules.GameIndex
         [ReducerMethod]
         public static GameIndexState HandleBuildGameIndexSuccess(GameIndexState state, BuildGameIndexAction.Success action)
         {
-            return state with { WadToEntriesMap = new(action.GameIndex.WadToEntriesMap) };
+            return state with 
+            { 
+                WadToEntriesMap = new(action.GameIndex.WadToEntriesMap),
+                EntryToWadsMap = new(action.GameIndex.EntryToWadsMap)
+            };
         }
     }
 }

@@ -42,9 +42,17 @@ namespace Fantome.Store.Modules.GameIndex
     public class Effects
     {
         [EffectMethod]
+        public Task HandleFetchConfigSuccess(FetchConfigAction.Success _, IDispatcher dispatcher)
+        {
+            dispatcher.Dispatch(new BuildGameIndexAction.Request());
+
+            return Task.CompletedTask;
+        }
+
+        [EffectMethod]
         public Task HandleSetLeagueLocation(SetLeagueLocationAction _, IDispatcher dispatcher)
         {
-            dispatcher.Dispatch(new BuildGameIndexAction());
+            dispatcher.Dispatch(new BuildGameIndexAction.Request());
 
             return Task.CompletedTask;
         }
