@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fantome.Store.Modules.Extractor
+namespace Fantome.Store.Modules.Explorer
 {
     internal class Feature
     {

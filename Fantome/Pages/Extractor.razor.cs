@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Fantome.Store.Modules.Extractor;
+using Fantome.Store.Modules.Explorer;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.WindowsAPICodePack.Dialogs;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Fluxor;
 using LeagueToolkit.IO.WadFile;
 
-namespace Fantome.Store.Modules.Extractor
+namespace Fantome.Store.Modules.Explorer
 {
     public class Effects
     {
