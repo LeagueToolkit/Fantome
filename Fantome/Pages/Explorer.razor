@@ -1,34 +1,34 @@
 ﻿@page "/explorer"
-
+4
 @using Fantome.Store.Modules.App
 @using Fantome.Store.Modules.Explorer;
 
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
 @code {
-	private ActionState GetSynchronizeWadRepositoryState() => this.AppState.Value.GetActionState(typeof(SynchronizeWadRepositoryAction));
+    private ActionState GetSynchronizeWadRepositoryState() => this.AppState.Value.GetActionState(typeof(SynchronizeWadRepositoryAction));
 }
 
 @if (GetSynchronizeWadRepositoryState().Status != ActionStatus.Finished)
 {
-	<Spinner Message="Synchronizing WAD repository..." />
+    <Spinner Message="Synchronizing WAD repository..." />
 }
 else
 {
-	<MudPaper Elevation="1">
-		<MudToolBar>
-			<MudTooltip Text="Open WAD File">
-				<MudIconButton Icon="@Icons.Material.Filled.UploadFile" OnClick="() => OpenWadFile()" />
-			</MudTooltip>
-		</MudToolBar>
-	</MudPaper>
-	<MudTabs></MudTabs>
+    <MudPaper Elevation="1">
+        <MudToolBar>
+            <MudTooltip Text="Open WAD File">
+                <MudIconButton Icon="@Icons.Material.Filled.UploadFile" OnClick="() => OpenWadFile()" />
+            </MudTooltip>
+        </MudToolBar>
+    </MudPaper>
+    <MudTabs></MudTabs>
 }
 
 @code {
-	protected override void OnAfterRender(bool firstRender)
-	{
-		if(firstRender)
-		{
-			this.Dispatcher.Dispatch(new SynchronizeWadRepositoryAction.Request());
-		}
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(1);
+        await Task.Run(() => this.Dispatcher.Dispatch(new SynchronizeWadRepositoryAction.Request()));
+    }
 }

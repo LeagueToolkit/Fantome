@@ -24,6 +24,7 @@ namespace Fantome.Services.WadRepository
         {
             // Easiest way to generate the folder-file structure is to make a root folder
             // and feed it entry hashes through an Add function and letting it handle the rest
+            this.Root = new(null, string.Empty);
 
             foreach(KeyValuePair<ulong, List<string>> entry in gameIndex.EntryToWadsMap)
             {
