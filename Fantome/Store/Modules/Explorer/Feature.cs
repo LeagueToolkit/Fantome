@@ -10,6 +10,9 @@ namespace Fantome.Store.Modules.Explorer
     public class Feature : Feature<ExplorerState>
     {
         public override string GetName() => "Explorer";
-        protected override ExplorerState GetInitialState() => new() { };
+        protected override ExplorerState GetInitialState() => new() 
+        {
+            IndexedItems = new()
+        };
     }
 }

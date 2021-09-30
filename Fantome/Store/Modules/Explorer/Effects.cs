@@ -13,9 +13,9 @@ namespace Fantome.Store.Modules.Explorer
 {
     public class Effects
     {
-        private IWadRepositoryService _wadRepository;
-        private IState<GameIndexState> _gameIndex;
-        private IState<HashtableState> _hashtable;
+        private readonly IWadRepositoryService _wadRepository;
+        private readonly IState<GameIndexState> _gameIndex;
+        private readonly IState<HashtableState> _hashtable;
 
         public Effects(IWadRepositoryService wadRepository, IState<GameIndexState> gameIndex, IState<HashtableState> hashtable)
         {
@@ -42,9 +42,9 @@ namespace Fantome.Store.Modules.Explorer
         [EffectMethod]
         public async Task HandleSynchronizeWadRepositoryRequest(SynchronizeWadRepositoryAction.Request action, IDispatcher dispatcher)
         {
-            await this._wadRepository.Synchronize(this._gameIndex.Value, this._hashtable.Value);
+            WadFolder rootFolder = await this._wadRepository.Synchronize(this._gameIndex.Value, this._hashtable.Value);
 
-            dispatcher.Dispatch(new SynchronizeWadRepositoryAction.Success());
+            dispatcher.Dispatch(new SynchronizeWadRepositoryAction.Success() { RootFolder = rootFolder });
         }
     }
 }

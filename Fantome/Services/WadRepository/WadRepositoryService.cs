@@ -13,14 +13,14 @@ namespace Fantome.Services.WadRepository
 {
     public interface IWadRepositoryService
     {
-        Task Synchronize(GameIndexState gameIndex, HashtableState hashtable);
+        Task<WadFolder> Synchronize(GameIndexState gameIndex, HashtableState hashtable);
     }
 
     public class WadRepositoryService : IWadRepositoryService
     {
         public WadFolder Root { get; private set; } = new(null, string.Empty);
 
-        public Task Synchronize(GameIndexState gameIndex, HashtableState hashtable)
+        public Task<WadFolder> Synchronize(GameIndexState gameIndex, HashtableState hashtable)
         {
             // Easiest way to generate the folder-file structure is to make a root folder
             // and feed it entry hashes through an Add function and letting it handle the rest
@@ -33,7 +33,7 @@ namespace Fantome.Services.WadRepository
                 this.Root.AddFile(entryPath);
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult(this.Root);
         }
     }
 }

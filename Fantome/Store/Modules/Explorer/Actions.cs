@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Fantome.Services.WadRepository;
 
 namespace Fantome.Store.Modules.Explorer
 {
@@ -22,7 +23,10 @@ namespace Fantome.Store.Modules.Explorer
     public class SynchronizeWadRepositoryAction
     {
         public class Request : AsyncActionRequest { }
-        public class Success : AsyncActionSuccess { }
+        public class Success : AsyncActionSuccess
+        {
+            public WadFolder RootFolder { get; set; }
+        }
         public class Failure : AsyncActionFailure
         {
             public Exception Error { get; set; }

@@ -23,9 +23,26 @@ else
         </MudToolBar>
     </MudPaper>
     <MudTabs></MudTabs>
+    <MudTreeView Items="this.ExplorerState.Value.IndexedItems">
+        <ChildContent>
+            <MudVirtualize IsEnabled="true" Context="item" Items="this.ExplorerState.Value.IndexedItems">
+                <MudTreeViewItem Value="@item" Text="@item.Name" Items="@item.Items" Expanded="true"/>
+            </MudVirtualize>
+        </ChildContent>
+        <ItemTemplate>
+            <MudTreeViewItem Value="@context" Text="@context.Name" Items="@context.Items" Expanded="true">
+                <ChildContent>
+                    <MudVirtualize IsEnabled="true" Context="item" Items="this.ExplorerState.Value.IndexedItems">
+                        <MudTreeViewItem Value="@item" Text="@item.Name" Items="@item.Items" Expanded="true"/>
+                    </MudVirtualize>
+                </ChildContent>
+            </MudTreeViewItem>
+        </ItemTemplate>
+    </MudTreeView>
 }
 
 @code {
+
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(1);

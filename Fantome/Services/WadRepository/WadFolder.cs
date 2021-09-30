@@ -18,7 +18,7 @@ namespace Fantome.Services.WadRepository
         public WadFolder(WadItem parent, string path)
         {
             this.Parent = parent;
-            this.Name = Pathing.GetFileName(path);
+            this.Name = Pathing.GetFileName(path) ?? path;
             this.Path = path;
         }
 
