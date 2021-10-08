@@ -7,7 +7,9 @@ interface CustomResponse {
 	message: string
 }
 
-export function App(): React.ReactElement {
+export type AppProps = {}
+
+export const App: React.FC<AppProps> = () => {
 	const [rustMsg, setRustMsg] = useState('')
 
 	return (

@@ -1,0 +1,23 @@
+{
+    "parser": "@typescript-eslint/parser",
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "jest": true,
+        "node": true
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
+    "extends": ["prettier"],
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "sourceType": "module"
+    }
+}
