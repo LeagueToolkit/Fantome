@@ -1,0 +1,18 @@
+{
+	"presets": [
+		"@babel/preset-typescript",
+		"@babel/preset-react",
+		[
+			"@babel/preset-env",
+			{
+				"useBuiltIns": "usage",
+				"corejs": "2.6.5",
+				"targets": {
+					"esmodules": false,
+					"ie": 11
+				}
+			}
+		]
+	],
+	"plugins": []
+}
