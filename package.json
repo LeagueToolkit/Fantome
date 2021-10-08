@@ -1,17 +1,17 @@
 {
-  "name": "tauri-typescript-react-boilerplate",
+  "name": "fantome",
   "version": "1.0.0",
   "private": true,
-  "description": "A Tauri Typescript React Boilerplate that works out of the box.",
+  "description": "Mod installer for League of Legends",
   "keywords": [],
-  "license": "MIT",
-  "author": "Nate Adams",
+  "license": "GPL-3.0",
+  "author": "crauzer",
   "scripts": {
     "prebuild": "rimraf ./dist",
     "build:fe": "webpack --production",
     "build:tauri": "tauri build",
-    "build": "npm run build:fe && npm run build:tauri",
-    "dev": "concurrently -p \"[{name}]\" -n \"front-end,tauri\" -c \"bgGreen.bold,bgCyan.bold\" \"npm run dev:fe\" \"npm run dev:tauri\"",
+    "build": "yarn build:fe && yarn build:tauri",
+    "dev": "concurrently -p \"[{name}]\" -n \"front-end,tauri\" -c \"bgGreen.bold,bgCyan.bold\" \"yarn dev:fe\" \"yarn dev:tauri\"",
     "dev:fe": "webpack-dev-server --watch",
     "dev:tauri": "cross-env RUST_DEBUG=1 NODE_TLS_REJECT_UNAUTHORIZED=0 tauri dev"
   },
