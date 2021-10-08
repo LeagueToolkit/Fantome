@@ -5,7 +5,7 @@
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
-		"target": "es2017",
+		"target": "ESNEXT",
 		"sourceMap": true,
 		"moduleResolution": "node",
 		"incremental": true,
