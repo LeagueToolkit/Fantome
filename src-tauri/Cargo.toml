@@ -1,8 +1,8 @@
 [package]
-name = "app"
+name = "fantome"
 version = "0.1.0"
-description = "A Tauri App"
-authors = [ "you" ]
+description = "Mod installer for League of Legends"
+authors = [ "crauzer" ]
 license = ""
 repository = ""
 default-run = "app"

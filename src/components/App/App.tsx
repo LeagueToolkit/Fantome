@@ -1,32 +1,34 @@
-import React, { useState } from 'react'
-import { invoke } from '@tauri-apps/api/tauri'
-
-import './app.css'
+import { ConnectedRouter } from "connected-react-router"
+import React, { useState } from "react"
+import { Route } from "react-router"
+import { Switch } from "react-router-dom"
+import { CustomProvider } from "rsuite"
+import "rsuite/dist/rsuite.min.css"
+import { history } from "../../redux/store"
+import { AppRoute } from "../../routes"
+import { Layout } from "../Layout"
+import "./app.css"
+import { GlobalStyle } from "./GlobalStyle"
 
 interface CustomResponse {
-	message: string
+    message: string
 }
 
 export type AppProps = {}
 
 export const App: React.FC<AppProps> = () => {
-	const [rustMsg, setRustMsg] = useState('')
+    const [rustMsg, setRustMsg] = useState("")
 
-	return (
-		<>
-			<h1>Hello World from Tauri Typescript React!</h1>
-			<button onClick={() => {
-				invoke('message_from_rust')
-					.then((res: CustomResponse) => {
-						setRustMsg(res.message)
-					})
-					.catch(e => {
-						console.error(e)
-					})
-			}}>Get a Message from Rust</button>
-			{!!rustMsg && (
-				<h2>{rustMsg}</h2>
-			)}
-		</>
-	)
+    return (
+        <ConnectedRouter history={history}>
+            <CustomProvider theme="dark">
+                <GlobalStyle />
+                <Layout>
+                    <Switch>
+                        <Route exact path={AppRoute.HOME}></Route>
+                    </Switch>
+                </Layout>
+            </CustomProvider>
+        </ConnectedRouter>
+    )
 }

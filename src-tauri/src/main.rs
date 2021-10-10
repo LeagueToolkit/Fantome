@@ -1,27 +1,23 @@
-#![cfg_attr(
-  all(not(debug_assertions), target_os = "windows"),
-  windows_subsystem = "windows"
-)]
+#![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
+
+use crate::store::build_modules;
+use crate::store::modules::config::commands::fetch_config;
 
 mod menu;
+mod store;
 
 #[derive(serde::Serialize)]
 struct CustomResponse {
-  message: String,
-}
-
-#[tauri::command]
-async fn message_from_rust(window: tauri::Window) -> Result<CustomResponse, String> {
-  println!("Called from {}", window.label());
-  Ok(CustomResponse {
-    message: "Hello from rust!".to_string()
-  })
+    message: String,
 }
 
 fn main() {
-  tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![message_from_rust])
-    .menu(menu::get_menu())
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+    let mut builder = tauri::Builder::default();
+
+    builder = build_modules(builder);
+
+    builder
+        .invoke_handler(tauri::generate_handler![fetch_config])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
